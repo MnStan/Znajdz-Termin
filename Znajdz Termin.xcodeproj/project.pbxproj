@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */; };
 		F6DCD54B2BEBCDDE00AEFA6C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */; };
-		F6DCD54D2BEBCDDE00AEFA6C /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD54C2BEBCDDE00AEFA6C /* Item.swift */; };
 		F6DCD54F2BEBCDE000AEFA6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */; };
 		F6DCD5522BEBCDE000AEFA6C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F6DCD5512BEBCDE000AEFA6C /* Preview Assets.xcassets */; };
 		F6DCD55C2BEBCDE000AEFA6C /* Znajdz_TerminTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD55B2BEBCDE000AEFA6C /* Znajdz_TerminTests.swift */; };
@@ -38,7 +37,6 @@
 		F6DCD5452BEBCDDE00AEFA6C /* Znajdz Termin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Znajdz Termin.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Znajdz_TerminApp.swift; sourceTree = "<group>"; };
 		F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		F6DCD54C2BEBCDDE00AEFA6C /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F6DCD5512BEBCDE000AEFA6C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F6DCD5572BEBCDE000AEFA6C /* Znajdz TerminTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Znajdz TerminTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,7 +96,6 @@
 			children = (
 				F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */,
 				F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */,
-				F6DCD54C2BEBCDDE00AEFA6C /* Item.swift */,
 				F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */,
 				F6DCD5502BEBCDE000AEFA6C /* Preview Content */,
 			);
@@ -261,7 +258,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6DCD54B2BEBCDDE00AEFA6C /* ContentView.swift in Sources */,
-				F6DCD54D2BEBCDDE00AEFA6C /* Item.swift in Sources */,
 				F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
