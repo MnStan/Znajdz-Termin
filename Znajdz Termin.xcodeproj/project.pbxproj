@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F614F9002BED3689000CA8A7 /* PermissionsViewAndButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = F614F8FF2BED3689000CA8A7 /* PermissionsViewAndButtons.swift */; };
 		F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */; };
 		F6DCD54B2BEBCDDE00AEFA6C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */; };
 		F6DCD54F2BEBCDE000AEFA6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */; };
@@ -14,6 +15,8 @@
 		F6DCD55C2BEBCDE000AEFA6C /* Znajdz_TerminTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD55B2BEBCDE000AEFA6C /* Znajdz_TerminTests.swift */; };
 		F6DCD5662BEBCDE000AEFA6C /* Znajdz_TerminUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5652BEBCDE000AEFA6C /* Znajdz_TerminUITests.swift */; };
 		F6DCD5682BEBCDE000AEFA6C /* Znajdz_TerminUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5672BEBCDE000AEFA6C /* Znajdz_TerminUITestsLaunchTests.swift */; };
+		F6DCD5762BEBCF8200AEFA6C /* PermissionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5752BEBCF8200AEFA6C /* PermissionsView.swift */; };
+		F6DCD5782BEBE0C900AEFA6C /* PermissionInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5772BEBE0C900AEFA6C /* PermissionInfoView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +37,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F614F8FF2BED3689000CA8A7 /* PermissionsViewAndButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewAndButtons.swift; sourceTree = "<group>"; };
+		F614F9012BED4BF0000CA8A7 /* Znajdz-Termin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Znajdz-Termin-Info.plist"; sourceTree = SOURCE_ROOT; };
 		F6DCD5452BEBCDDE00AEFA6C /* Znajdz Termin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Znajdz Termin.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Znajdz_TerminApp.swift; sourceTree = "<group>"; };
 		F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -44,6 +49,8 @@
 		F6DCD5612BEBCDE000AEFA6C /* Znajdz TerminUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Znajdz TerminUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6DCD5652BEBCDE000AEFA6C /* Znajdz_TerminUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Znajdz_TerminUITests.swift; sourceTree = "<group>"; };
 		F6DCD5672BEBCDE000AEFA6C /* Znajdz_TerminUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Znajdz_TerminUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		F6DCD5752BEBCF8200AEFA6C /* PermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsView.swift; sourceTree = "<group>"; };
+		F6DCD5772BEBE0C900AEFA6C /* PermissionInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionInfoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +101,8 @@
 		F6DCD5472BEBCDDE00AEFA6C /* Znajdz Termin */ = {
 			isa = PBXGroup;
 			children = (
+				F614F9012BED4BF0000CA8A7 /* Znajdz-Termin-Info.plist */,
+				F6DCD5742BEBCF6D00AEFA6C /* PermissionsView */,
 				F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */,
 				F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */,
 				F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */,
@@ -125,6 +134,16 @@
 				F6DCD5672BEBCDE000AEFA6C /* Znajdz_TerminUITestsLaunchTests.swift */,
 			);
 			path = "Znajdz TerminUITests";
+			sourceTree = "<group>";
+		};
+		F6DCD5742BEBCF6D00AEFA6C /* PermissionsView */ = {
+			isa = PBXGroup;
+			children = (
+				F6DCD5752BEBCF8200AEFA6C /* PermissionsView.swift */,
+				F6DCD5772BEBE0C900AEFA6C /* PermissionInfoView.swift */,
+				F614F8FF2BED3689000CA8A7 /* PermissionsViewAndButtons.swift */,
+			);
+			path = PermissionsView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -258,7 +277,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6DCD54B2BEBCDDE00AEFA6C /* ContentView.swift in Sources */,
+				F6DCD5762BEBCF8200AEFA6C /* PermissionsView.swift in Sources */,
 				F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */,
+				F6DCD5782BEBE0C900AEFA6C /* PermissionInfoView.swift in Sources */,
+				F614F9002BED3689000CA8A7 /* PermissionsViewAndButtons.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +447,8 @@
 				DEVELOPMENT_TEAM = X899A4BCH8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Znajdz-Termin-Info.plist";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Potrzebujemy Twojej lokalizacji do podpowiedzi";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -454,6 +478,8 @@
 				DEVELOPMENT_TEAM = X899A4BCH8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Znajdz-Termin-Info.plist";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Potrzebujemy Twojej lokalizacji do podpowiedzi";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

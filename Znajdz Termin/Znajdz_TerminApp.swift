@@ -10,10 +10,15 @@ import SwiftData
 
 @main
 struct Znajdz_TerminApp: App {
+    @AppStorage("FirstLaunch") var isFirstLaunch = true
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if isFirstLaunch {
+                PermissionsView()
+            } else {
+                ContentView()
+            }
         }
     }
 }
