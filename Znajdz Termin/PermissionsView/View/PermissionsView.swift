@@ -10,7 +10,6 @@ import SwiftUI
 struct PermissionsView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
     
-    
     var body: some View {
         if verticalSizeClass == .compact {
             HStack() {

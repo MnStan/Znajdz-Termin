@@ -10,7 +10,7 @@ import SwiftData
 
 @main
 struct Znajdz_TerminApp: App {
-    @AppStorage("FirstLaunch") var isFirstLaunch = true
+    @AppStorage("isFirstLaunch") var isFirstLaunch = true
     
     var body: some Scene {
         WindowGroup {

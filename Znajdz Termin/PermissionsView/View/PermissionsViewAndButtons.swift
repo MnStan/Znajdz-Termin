@@ -10,12 +10,15 @@ import MapKit
 import EventKit
 
 struct PermissionViewAndButtons: View {
-    @State private var pageIndex = 0
-    @State var permissionAsked = false
+    @AppStorage("isFirstLaunch") var isFirstLaunch = true
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.sizeCategory) var sizeCategory
-    private let locationManager = CLLocationManager()
-    private let eventManager = EKEventStore()
+    
+    @State private var pageIndex = 0
+    @State var permissionAsked = false
+    @State var showingAlert = false
+    @State private var viewModel = ViewModel()
+    @State private var permissions: Permissions = .none
     
     var body: some View {
         NavigationStack {
@@ -23,14 +26,11 @@ struct PermissionViewAndButtons: View {
                 PermissionInfoView(systemImage: "location.circle.fill", informationText: "Potrzebujemy Twojej zgody na wykorzystanie lokalizacji by uzyskać podpowiedzi do wyszukiwań oraz do wyświetlania Twojej lokalizacji na mapie")
                     .tag(0)
                 
-                PermissionInfoView(systemImage: "calendar.circle.fill", informationText: "Potrzebujemy Twojej zgody na dostęp do kalendarza by umożliwić Ci dodawanie wydarzeń i wyświetlanie zapisanych wizyt")
+                PermissionInfoView(systemImage: "calendar.circle.fill", informationText: "Potrzebujemy Twojej zgody na dostęp do kalendarza by umożliwić Ci dodawanie przypomnień o wizytach")
                     .tag(1)
             }
             .safeAreaPadding()
             .tabViewStyle(.page(indexDisplayMode: .never))
-            
-            
-            Spacer()
             
             if pageIndex != 1 {
                 Button("Dalej", systemImage: "arrow.right") {
@@ -41,17 +41,27 @@ struct PermissionViewAndButtons: View {
                 .padding()
             } else {
                 Button("Udziel zgód", systemImage: "checkmark.circle.fill") {
-                    locationManager.requestWhenInUseAuthorization()
-                    eventManager.requestFullAccessToEvents { granted, _ in
-                        permissionAsked.toggle()
-                        UserDefaults.standard.set(false, forKey: "FirstLaunch")
+                    viewModel.requestPermissions { granted in
+                        if granted {
+                            permissionAsked = true
+                            isFirstLaunch = false
+                        } else {
+                            showingAlert = true
+                        }
                     }
                 }
                 .padding()
-                
+
                 .navigationDestination(isPresented: $permissionAsked) {
                     ContentView().navigationBarBackButtonHidden()
                 }
+                
+                .alert(Text("Coś poszło nie tak"), isPresented: $showingAlert) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text("Prosimy spróbuj ponownie")
+                }
+
             }
         }
     }

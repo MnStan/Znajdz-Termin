@@ -36,6 +36,7 @@ struct PermissionInfoView: View {
                     .padding(25)
                     .symbolRenderingMode(.multicolor)
                     .symbolEffect(.variableColor)
+                    .accessibilityHidden(true)
                 
                 if sizeCategory > .accessibilityMedium {
                     ScrollView {
