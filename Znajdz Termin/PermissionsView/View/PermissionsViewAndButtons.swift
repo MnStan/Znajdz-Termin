@@ -39,6 +39,9 @@ struct PermissionViewAndButtons: View {
                     }
                 }
                 .padding()
+                .background(.regularMaterial)
+                .clipShape(Capsule())
+                
             } else {
                 Button("Udziel zgód", systemImage: "checkmark.circle.fill") {
                     viewModel.requestPermissions { granted in
@@ -51,6 +54,8 @@ struct PermissionViewAndButtons: View {
                     }
                 }
                 .padding()
+                .background(.regularMaterial)
+                .clipShape(Capsule())
 
                 .navigationDestination(isPresented: $permissionAsked) {
                     ContentView().navigationBarBackButtonHidden()

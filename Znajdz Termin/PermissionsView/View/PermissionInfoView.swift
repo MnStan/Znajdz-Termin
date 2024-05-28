@@ -55,6 +55,7 @@ struct PermissionInfoView: View {
             .padding()
         }
         .padding()
+        .frame(maxWidth: sizeCategory > .accessibilityMedium ? .infinity : 600)
     }
 }
 
