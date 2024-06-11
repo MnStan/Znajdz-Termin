@@ -15,9 +15,9 @@ protocol LocationManagerProtocol {
     func requestWhenInUseAuthorization()
 }
 
-extension CLLocationManager: LocationManagerProtocol { }
+extension CLLocationManager: LocationManagerProtocol {  }
 
-class AppLocationManager: LocationManagerProtocol {
+class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDelegate {
     static let shared: LocationManagerProtocol = AppLocationManager(locationManager: CLLocationManager())
     private var locationManager: CLLocationManager
     
@@ -31,9 +31,33 @@ class AppLocationManager: LocationManagerProtocol {
     
     init(locationManager: CLLocationManager) {
         self.locationManager = locationManager
+        super.init()
+        self.locationManager.delegate = self
+        setup()
+    }
+    
+    private func setup() {
+        switch locationManager.authorizationStatus {
+        case .authorizedWhenInUse:
+            locationManager.requestLocation()
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        default:
+            break
+        }
     }
     
     func requestWhenInUseAuthorization() {
         locationManager.requestWhenInUseAuthorization()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        print("Location updated", locations.first)
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
+        //TODO: Error when location fetch fail
+        print(error)
     }
 }

@@ -17,7 +17,7 @@ struct Znajdz_TerminApp: App {
             if isFirstLaunch {
                 PermissionsView()
             } else {
-                ContentView()
+                LoadingView()
             }
         }
     }

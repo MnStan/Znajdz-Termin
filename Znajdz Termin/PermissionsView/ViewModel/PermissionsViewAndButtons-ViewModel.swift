@@ -9,10 +9,6 @@ import Foundation
 import CoreLocation
 import EventKit
 
-enum Permissions: String {
-    case full, onlyLocalization, onlyCalendar, none
-}
-
 extension PermissionViewAndButtons {
     
     @Observable
