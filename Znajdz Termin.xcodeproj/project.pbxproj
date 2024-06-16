@@ -17,6 +17,7 @@
 		F697329B2C182E6C00F87A2C /* HeartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F697329A2C182E6C00F87A2C /* HeartView.swift */; };
 		F697329E2C182FBF00F87A2C /* LoadingView-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */; };
 		F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69732A02C1830B000F87A2C /* PermissionsEnum.swift */; };
+		F69732A32C183A2100F87A2C /* Voivodeship.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69732A22C183A2100F87A2C /* Voivodeship.swift */; };
 		F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */; };
 		F6DCD54B2BEBCDDE00AEFA6C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */; };
 		F6DCD54F2BEBCDE000AEFA6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */; };
@@ -26,6 +27,7 @@
 		F6DCD5682BEBCDE000AEFA6C /* Znajdz_TerminUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5672BEBCDE000AEFA6C /* Znajdz_TerminUITestsLaunchTests.swift */; };
 		F6DCD5762BEBCF8200AEFA6C /* PermissionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5752BEBCF8200AEFA6C /* PermissionsView.swift */; };
 		F6DCD5782BEBE0C900AEFA6C /* PermissionInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5772BEBE0C900AEFA6C /* PermissionInfoView.swift */; };
+		F6F863F12C1F001E0088EE1A /* CLLocation+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F863F02C1F001E0088EE1A /* CLLocation+ext.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +59,7 @@
 		F697329A2C182E6C00F87A2C /* HeartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartView.swift; sourceTree = "<group>"; };
 		F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoadingView-ViewModel.swift"; sourceTree = "<group>"; };
 		F69732A02C1830B000F87A2C /* PermissionsEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsEnum.swift; sourceTree = "<group>"; };
+		F69732A22C183A2100F87A2C /* Voivodeship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Voivodeship.swift; sourceTree = "<group>"; };
 		F6DCD5452BEBCDDE00AEFA6C /* Znajdz Termin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Znajdz Termin.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Znajdz_TerminApp.swift; sourceTree = "<group>"; };
 		F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -69,6 +72,7 @@
 		F6DCD5672BEBCDE000AEFA6C /* Znajdz_TerminUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Znajdz_TerminUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		F6DCD5752BEBCF8200AEFA6C /* PermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsView.swift; sourceTree = "<group>"; };
 		F6DCD5772BEBE0C900AEFA6C /* PermissionInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionInfoView.swift; sourceTree = "<group>"; };
+		F6F863F02C1F001E0088EE1A /* CLLocation+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocation+ext.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +156,7 @@
 			isa = PBXGroup;
 			children = (
 				F69732A02C1830B000F87A2C /* PermissionsEnum.swift */,
+				F69732A22C183A2100F87A2C /* Voivodeship.swift */,
 			);
 			path = Enums;
 			sourceTree = "<group>";
@@ -179,6 +184,7 @@
 		F6DCD5472BEBCDDE00AEFA6C /* Znajdz Termin */ = {
 			isa = PBXGroup;
 			children = (
+				F6F863EF2C1F000E0088EE1A /* Extensions */,
 				F697329F2C182FF600F87A2C /* Enums */,
 				F69732992C182E5800F87A2C /* CustomViews */,
 				F635A0342C05C643000C6715 /* LoadingView */,
@@ -227,6 +233,14 @@
 				F66521672BEE1498001464A1 /* View */,
 			);
 			path = PermissionsView;
+			sourceTree = "<group>";
+		};
+		F6F863EF2C1F000E0088EE1A /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				F6F863F02C1F001E0088EE1A /* CLLocation+ext.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -368,9 +382,11 @@
 				F665216F2BEE2299001464A1 /* CalendarEventManager.swift in Sources */,
 				F6DCD5782BEBE0C900AEFA6C /* PermissionInfoView.swift in Sources */,
 				F697329E2C182FBF00F87A2C /* LoadingView-ViewModel.swift in Sources */,
+				F69732A32C183A2100F87A2C /* Voivodeship.swift in Sources */,
 				F665216A2BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift in Sources */,
 				F614F9002BED3689000CA8A7 /* PermissionsViewAndButtons.swift in Sources */,
 				F635A0362C05C650000C6715 /* LoadingView.swift in Sources */,
+				F6F863F12C1F001E0088EE1A /* CLLocation+ext.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

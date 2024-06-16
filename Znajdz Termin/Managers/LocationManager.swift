@@ -11,15 +11,15 @@ import MapKit
 protocol LocationManagerProtocol {
     var authorizationStatus: CLAuthorizationStatus { get }
     var location: CLLocation? { get }
+    var voivodeship: String { get }
     
     func requestWhenInUseAuthorization()
 }
 
-extension CLLocationManager: LocationManagerProtocol {  }
-
 class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDelegate {
     static let shared: LocationManagerProtocol = AppLocationManager(locationManager: CLLocationManager())
     private var locationManager: CLLocationManager
+    private let geocoder = CLGeocoder()
     
     var authorizationStatus: CLAuthorizationStatus {
         locationManager.authorizationStatus
@@ -28,6 +28,8 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     var location: CLLocation? {
         locationManager.location
     }
+    
+    var voivodeship = "Nieznane"
     
     init(locationManager: CLLocationManager) {
         self.locationManager = locationManager
@@ -46,14 +48,37 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
             break
         }
     }
+  
+    func getUserVoivodeship() async {
+        if let location = locationManager.location {
+            do {
+                let placemark = try await geocoder.reverseGeocodeLocation(location)
+                if let placemark = placemark.first {
+                    if let placemarkVoivodeship = placemark.administrativeArea {
+                        voivodeship = placemarkVoivodeship
+                        print(placemarkVoivodeship)
+                    }
+                }
+            } catch {
+                //TODO: Error handling for getting voivodeship
+                print(error)
+            }
+        }
+    }
+    
+    func updateUserVoivodeship() {
+        
+    }
+    
     
     func requestWhenInUseAuthorization() {
         locationManager.requestWhenInUseAuthorization()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
-        print("Location updated", locations.first)
+        Task {
+            await getUserVoivodeship()
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {

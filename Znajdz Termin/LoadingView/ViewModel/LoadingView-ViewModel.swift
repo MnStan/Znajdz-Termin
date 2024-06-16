@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 extension LoadingView {
     
@@ -19,8 +20,13 @@ extension LoadingView {
             self.calendarManager = calendarManager
         }
         
-        func getUserLocation() -> String {
-            String(describing: locationManager.location?.coordinate)
+        func getUserLocation() -> CLLocation {
+//            String(describing: locationManager.location?.coordinate)
+            locationManager.location ?? CLLocation(latitude: 52.237049, longitude: 21.017532)
+        }
+        
+        func getVoivodeship() -> String {
+            locationManager.voivodeship
         }
     }
 }
