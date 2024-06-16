@@ -7,7 +7,11 @@
 
 import Foundation
 
-enum LocationError: Error, CustomStringConvertible {
+enum LocationError: Error, CustomStringConvertible, Equatable {
+    static func == (lhs: LocationError, rhs: LocationError) -> Bool {
+        lhs.description == rhs.description
+    }
+    
     case localizationUnknown
     case authorizationDenied
     case networkError
@@ -23,7 +27,7 @@ enum LocationError: Error, CustomStringConvertible {
         case .networkError:
             return "Wystąpił błąd z połączeniem z internetem. Spróbuj ponownie"
         case .geocodeError:
-            return "Wystąpił problem podczas pobierania okolicznych województw. Spróbuj ponownie"
+            return "Wystąpił problem podczas pobierania okolicznych województw."
         case .custom(let error):
             return "Błąd: \(error.localizedDescription)"
         }

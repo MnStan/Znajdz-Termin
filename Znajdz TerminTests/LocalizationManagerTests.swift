@@ -8,6 +8,7 @@
 import XCTest
 @testable import Znajdz_Termin
 import CoreLocation
+import Combine
 
 class MockCLLocationManager: CLLocationManager {
     var mockAuthorizationStatus: CLAuthorizationStatus = .authorizedWhenInUse
@@ -191,5 +192,28 @@ final class LocalizationManagerTests: XCTestCase {
         }
         
         wait(for: [expectation], timeout: 5.0)
+    }
+    
+    func testGeocodingThrottling() {
+        var locationError: LocationError?
+        var cancellables = Set<AnyCancellable>()
+        
+        sut.locationErrorPublished
+            .receive(on: DispatchQueue.main)
+            .sink { error in
+                locationError = error
+            }
+            .store(in: &cancellables)
+        
+        let mockPoints = Array(repeating: LocationData(coordinate: CLLocationCoordinate2D(latitude: 50.023604, longitude: 22.000681)), count: 60)
+        let expectation = XCTestExpectation(description: "Should throttle")
+        
+        Task {
+            await sut.getNearPointsVoivodeships(for: mockPoints)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(locationError, .geocodeError)
     }
 }
