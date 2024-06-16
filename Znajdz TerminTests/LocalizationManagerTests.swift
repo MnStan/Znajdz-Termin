@@ -10,7 +10,7 @@ import XCTest
 import CoreLocation
 
 class MockCLLocationManager: CLLocationManager {
-    var mockAuthorizationStatus: CLAuthorizationStatus = .notDetermined
+    var mockAuthorizationStatus: CLAuthorizationStatus = .authorizedWhenInUse
     var mockLocation: CLLocation?
     
     override var authorizationStatus: CLAuthorizationStatus {
@@ -66,7 +66,7 @@ final class LocalizationManagerTests: XCTestCase {
     }
     
     func testAuthorizationStatus() {
-        XCTAssertEqual(mockLocationManager.authorizationStatus, .notDetermined)
+        XCTAssertEqual(mockLocationManager.authorizationStatus, .authorizedWhenInUse)
     }
     
     func testGetVoivodeship() {

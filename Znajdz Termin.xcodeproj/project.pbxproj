@@ -30,6 +30,7 @@
 		F6F863F12C1F001E0088EE1A /* CLLocation+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F863F02C1F001E0088EE1A /* CLLocation+ext.swift */; };
 		F6F863F32C1F07450088EE1A /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F863F22C1F07450088EE1A /* LocationModel.swift */; };
 		F6F863F52C1F09A50088EE1A /* CLLocation2D+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F863F42C1F09A50088EE1A /* CLLocation2D+ext.swift */; };
+		F6F863F72C1F3D1B0088EE1A /* LocationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F863F62C1F3D1B0088EE1A /* LocationError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		F6F863F02C1F001E0088EE1A /* CLLocation+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocation+ext.swift"; sourceTree = "<group>"; };
 		F6F863F22C1F07450088EE1A /* LocationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationModel.swift; sourceTree = "<group>"; };
 		F6F863F42C1F09A50088EE1A /* CLLocation2D+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocation2D+ext.swift"; sourceTree = "<group>"; };
+		F6F863F62C1F3D1B0088EE1A /* LocationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +164,7 @@
 			children = (
 				F69732A02C1830B000F87A2C /* PermissionsEnum.swift */,
 				F69732A22C183A2100F87A2C /* Voivodeship.swift */,
+				F6F863F62C1F3D1B0088EE1A /* LocationError.swift */,
 			);
 			path = Enums;
 			sourceTree = "<group>";
@@ -383,6 +386,7 @@
 				F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */,
 				F6DCD5762BEBCF8200AEFA6C /* PermissionsView.swift in Sources */,
 				F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */,
+				F6F863F72C1F3D1B0088EE1A /* LocationError.swift in Sources */,
 				F697329B2C182E6C00F87A2C /* HeartView.swift in Sources */,
 				F665216D2BEE2265001464A1 /* LocationManager.swift in Sources */,
 				F665216F2BEE2299001464A1 /* CalendarEventManager.swift in Sources */,

@@ -7,11 +7,13 @@
 
 import Foundation
 import MapKit
+import Combine
 
 protocol LocationManagerProtocol {
     var authorizationStatus: CLAuthorizationStatus { get }
     var location: CLLocation? { get }
     var voivodeship: String { get }
+    var locationErrorPublished: PassthroughSubject<LocationError?, Never> { get }
     
     func requestWhenInUseAuthorization()
 }
@@ -23,6 +25,7 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     private let radius: CLLocationDistance = 100000 // 100 km
     private let numberOfPoints = 20
     @Published var nearLocations: [LocationData] = []
+    let locationErrorPublished = PassthroughSubject<LocationError?, Never>()
     
     var authorizationStatus: CLAuthorizationStatus {
         locationManager.authorizationStatus
@@ -38,20 +41,8 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
         self.locationManager = locationManager
         super.init()
         self.locationManager.delegate = self
-        setup()
     }
     
-    private func setup() {
-        switch locationManager.authorizationStatus {
-        case .authorizedWhenInUse:
-            locationManager.requestLocation()
-        case .notDetermined:
-            locationManager.requestWhenInUseAuthorization()
-        default:
-            break
-        }
-    }
-  
     func getUserVoivodeship() async {
         if let location = locationManager.location {
             do {
@@ -59,12 +50,10 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
                 if let placemark = placemark.first {
                     if let placemarkVoivodeship = placemark.administrativeArea {
                         voivodeship = placemarkVoivodeship
-                        print(placemarkVoivodeship)
                     }
                 }
             } catch {
-                //TODO: Error handling for getting voivodeship
-                print(error)
+                locationErrorPublished.send(LocationError.localizationUnknown)
             }
         }
     }
@@ -105,6 +94,33 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
         //TODO: Error when location fetch fail
-        print(error)
+        if let clError = error as? CLError {
+            switch clError.code {
+            case .locationUnknown:
+                locationErrorPublished.send(LocationError.localizationUnknown)
+            case .denied:
+                locationErrorPublished.send(LocationError.authorizationDenied)
+            case .network:
+                locationErrorPublished.send(LocationError.networkError)
+            case .geocodeCanceled, .geocodeFoundNoResult, .geocodeFoundPartialResult:
+                locationErrorPublished.send(LocationError.geocodeError)
+            default:
+                locationErrorPublished.send(LocationError.custom(error: clError))
+            }
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
+            locationManager.requestLocation()
+            locationErrorPublished.send(nil)
+        case .denied, .restricted:
+            locationErrorPublished.send(LocationError.authorizationDenied)
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        default:
+            locationErrorPublished.send(LocationError.localizationUnknown)
+        }
     }
 }

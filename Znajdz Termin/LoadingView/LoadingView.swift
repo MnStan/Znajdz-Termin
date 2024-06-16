@@ -10,7 +10,7 @@ import SwiftUI
 
 
 struct LoadingView: View {
-    @State private var viewModel = ViewModel()
+    @StateObject private var viewModel = ViewModel()
     @State private var scale: CGFloat = 1.0
     
     var body: some View {
@@ -32,6 +32,11 @@ struct LoadingView: View {
             
             Text("Ładowanie...")
                 .padding(.top, 50)
+            
+            if let error = viewModel.locationError {
+                Text("\(error)")
+                    .multilineTextAlignment(.center)
+            }
         }
     }
 }
