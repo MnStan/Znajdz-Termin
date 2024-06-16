@@ -28,6 +28,8 @@
 		F6DCD5762BEBCF8200AEFA6C /* PermissionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5752BEBCF8200AEFA6C /* PermissionsView.swift */; };
 		F6DCD5782BEBE0C900AEFA6C /* PermissionInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5772BEBE0C900AEFA6C /* PermissionInfoView.swift */; };
 		F6F863F12C1F001E0088EE1A /* CLLocation+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F863F02C1F001E0088EE1A /* CLLocation+ext.swift */; };
+		F6F863F32C1F07450088EE1A /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F863F22C1F07450088EE1A /* LocationModel.swift */; };
+		F6F863F52C1F09A50088EE1A /* CLLocation2D+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F863F42C1F09A50088EE1A /* CLLocation2D+ext.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +75,8 @@
 		F6DCD5752BEBCF8200AEFA6C /* PermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsView.swift; sourceTree = "<group>"; };
 		F6DCD5772BEBE0C900AEFA6C /* PermissionInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionInfoView.swift; sourceTree = "<group>"; };
 		F6F863F02C1F001E0088EE1A /* CLLocation+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocation+ext.swift"; sourceTree = "<group>"; };
+		F6F863F22C1F07450088EE1A /* LocationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationModel.swift; sourceTree = "<group>"; };
+		F6F863F42C1F09A50088EE1A /* CLLocation2D+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocation2D+ext.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +109,7 @@
 			children = (
 				F697329C2C182FAB00F87A2C /* ViewModel */,
 				F635A0352C05C650000C6715 /* LoadingView.swift */,
+				F6F863F22C1F07450088EE1A /* LocationModel.swift */,
 			);
 			path = LoadingView;
 			sourceTree = "<group>";
@@ -239,6 +244,7 @@
 			isa = PBXGroup;
 			children = (
 				F6F863F02C1F001E0088EE1A /* CLLocation+ext.swift */,
+				F6F863F42C1F09A50088EE1A /* CLLocation2D+ext.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -384,8 +390,10 @@
 				F697329E2C182FBF00F87A2C /* LoadingView-ViewModel.swift in Sources */,
 				F69732A32C183A2100F87A2C /* Voivodeship.swift in Sources */,
 				F665216A2BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift in Sources */,
+				F6F863F52C1F09A50088EE1A /* CLLocation2D+ext.swift in Sources */,
 				F614F9002BED3689000CA8A7 /* PermissionsViewAndButtons.swift in Sources */,
 				F635A0362C05C650000C6715 /* LoadingView.swift in Sources */,
+				F6F863F32C1F07450088EE1A /* LocationModel.swift in Sources */,
 				F6F863F12C1F001E0088EE1A /* CLLocation+ext.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

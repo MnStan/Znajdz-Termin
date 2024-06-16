@@ -88,7 +88,7 @@ final class LocalizationManagerTests: XCTestCase {
         XCTAssertEqual(sut.voivodeship, "Małopolskie")
     }
     
-    func testUpdatingLocation() {        
+    func testUpdatingLocation() {
         mockLocationManager.simulateLocationUpdate(location: CLLocation(latitude: 50.023604, longitude: 22.000681)) // Rzeszów coordinates -> Podkarpackie
         
         if let location = sut.location {
@@ -98,7 +98,50 @@ final class LocalizationManagerTests: XCTestCase {
         }
     }
     
-    func testUpdateLocation() {
+    func testCreatingNearLocationsOnCircle() {
+        let mockLocation = CLLocation(latitude: 50.123, longitude: -50.123)
+        mockLocationManager.mockLocation = mockLocation
         
+        /// 100km is around 0.9 degree in latitude 50.123 - 0.9 = 51.023
+        let points: [CLLocationCoordinate2D] = [
+            CLLocationCoordinate2D(latitude: 51.023, longitude: -50.123),
+            CLLocationCoordinate2D(latitude: 49.223, longitude: -50.123)
+        ]
+        
+        sut.pointsOnCircle(center: mockLocation.coordinate, radius: 100000, numberOfPoints: 2)
+        print("\n", sut.nearLocations, "\n")
+        XCTAssertEqual(sut.nearLocations.count, points.count)
+        sut.nearLocations.enumerated().forEach {
+            XCTAssertTrue($0.element.coordinate.isEqual(to: points[$0.offset]))
+        }
+    }
+    
+    func testCountOfCreatedNearLocationsPoints() {
+        let numberOfPointsToCreate = 10
+        let mockLocation = CLLocation(latitude: 50.123, longitude: -50.123)
+        mockLocationManager.mockLocation = mockLocation
+        
+        sut.pointsOnCircle(center: mockLocation.coordinate, radius: 10000, numberOfPoints: numberOfPointsToCreate)
+        
+        XCTAssertEqual(sut.nearLocations.count, numberOfPointsToCreate)
+    }
+    
+    func testDistanceOfCreatedNearPoint() {
+        let distance: CLLocationDistance = 50000 // 50 km
+        let mockLocation = CLLocation(latitude: 50.123, longitude: -50.123)
+        mockLocationManager.mockLocation = mockLocation
+        
+        sut.pointsOnCircle(center: mockLocation.coordinate, radius: distance, numberOfPoints: 2)
+        
+        if let firstPoint = sut.nearLocations.first {
+            let location1 = CLLocation(latitude: firstPoint.coordinate.latitude, longitude: firstPoint.coordinate.longitude)
+            let location2 = sut.location ?? CLLocation(latitude: 0, longitude: 0)
+            let calculatedDistance = location1.distance(from: location2)
+            
+            // 100m accuracy
+            XCTAssertEqual(calculatedDistance, distance, accuracy: 100)
+        } else {
+            XCTFail()
+        }
     }
 }

@@ -32,10 +32,6 @@ struct LoadingView: View {
             
             Text("Ładowanie...")
                 .padding(.top, 50)
-            
-            Button("Wojew") {
-                print(viewModel.getVoivodeship())
-            }
         }
     }
 }

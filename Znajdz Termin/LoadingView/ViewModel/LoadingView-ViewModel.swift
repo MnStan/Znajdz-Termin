@@ -19,14 +19,5 @@ extension LoadingView {
             self.locationManager = locationManager
             self.calendarManager = calendarManager
         }
-        
-        func getUserLocation() -> CLLocation {
-//            String(describing: locationManager.location?.coordinate)
-            locationManager.location ?? CLLocation(latitude: 52.237049, longitude: 21.017532)
-        }
-        
-        func getVoivodeship() -> String {
-            locationManager.voivodeship
-        }
     }
 }
