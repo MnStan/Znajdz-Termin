@@ -71,25 +71,34 @@ final class LocalizationManagerTests: XCTestCase {
     
     func testGetVoivodeship() {
         let mockLocation = CLLocation(latitude: 50.061049, longitude: 19.937617) // Cracow coordinates -> Małopolskie
-        let expectation = expectation(description: "Geocoding completed")
+        let expectation = XCTestExpectation(description: "Geocoding completed")
         mockLocationManager.mockLocation = mockLocation
         
         Task {
             await sut.getUserVoivodeship()
+            XCTAssertEqual(sut.voivodeship, "Małopolskie")
             expectation.fulfill()
         }
         
-        waitForExpectations(timeout: 10) { error in
-            if let error = error {
-                XCTFail("Expectation timed out with error: \(error)")
-            }
+        wait(for: [expectation], timeout: 5.0)
+    }
+    
+    func testGetVoivodeshipShouldFail() {
+        let mockLocation = CLLocation(latitude: 50.061049, longitude: 19.937617) // Cracow coordinates -> Małopolskie
+        let expectation = XCTestExpectation(description: "Geocoding completed")
+        mockLocationManager.mockLocation = mockLocation
+        
+        Task {
+            await sut.getUserVoivodeship()
+            XCTAssertNotEqual(sut.voivodeship, "Podkarpackie")
+            expectation.fulfill()
         }
         
-        XCTAssertEqual(sut.voivodeship, "Małopolskie")
+        wait(for: [expectation], timeout: 5.0)
     }
     
     func testUpdatingLocation() {
-        mockLocationManager.simulateLocationUpdate(location: CLLocation(latitude: 50.023604, longitude: 22.000681)) // Rzeszów coordinates -> Podkarpackie
+        mockLocationManager.simulateLocationUpdate(location: CLLocation(latitude: 50.023604, longitude: 22.000681)) // Rzeszów coordinates
         
         if let location = sut.location {
             XCTAssertTrue(location.isEqual(to: CLLocation(latitude: 50.023604, longitude: 22.000681)))
@@ -126,6 +135,16 @@ final class LocalizationManagerTests: XCTestCase {
         XCTAssertEqual(sut.nearLocations.count, numberOfPointsToCreate)
     }
     
+    func testCountOfCreatedNearLocationsPointsShouldFail() {
+        let numberOfPointsToCreate = 10
+        let mockLocation = CLLocation(latitude: 50.123, longitude: -50.123)
+        mockLocationManager.mockLocation = mockLocation
+        
+        sut.pointsOnCircle(center: mockLocation.coordinate, radius: 10000, numberOfPoints: 12)
+        
+        XCTAssertNotEqual(sut.nearLocations.count, numberOfPointsToCreate)
+    }
+    
     func testDistanceOfCreatedNearPoint() {
         let distance: CLLocationDistance = 50000 // 50 km
         let mockLocation = CLLocation(latitude: 50.123, longitude: -50.123)
@@ -143,5 +162,34 @@ final class LocalizationManagerTests: XCTestCase {
         } else {
             XCTFail()
         }
+    }
+    
+    func testGetPointVoivodeship() {
+        let mockLocation = CLLocation(latitude: 50.023604, longitude: 22.000681) // Rzeszów coordinates -> Podkarpackie
+        let expectedVoivodeship = "Podkarpackie"
+
+        let expectation = XCTestExpectation(description: "Get point voivodeship completed")
+
+        Task {
+            let pointVoivodeship = await self.sut.getPointVoivodeship(for: mockLocation)
+            XCTAssertEqual(pointVoivodeship, expectedVoivodeship)
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 5.0)
+    }
+    
+    func testNearPointsVoivodeships() {
+        let mockPoints = [LocationData(coordinate: CLLocationCoordinate2D(latitude: 50.023604, longitude: 22.000681)), LocationData(coordinate: CLLocationCoordinate2D(latitude: 50.061049, longitude: 19.937617))] // Cracow and Rzeszów -> małopolskie and podkarpackie
+        let expectedArray = ["Podkarpackie", "Małopolskie"]
+        let expectation = XCTestExpectation(description: "Get points voivodeships completed")
+        
+        Task {
+            await sut.getNearPointsVoivodeships(for: mockPoints)
+            XCTAssertEqual(sut.nearVoivodeships, expectedArray)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
     }
 }

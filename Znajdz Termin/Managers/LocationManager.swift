@@ -14,7 +14,8 @@ protocol LocationManagerProtocol {
     var location: CLLocation? { get }
     var voivodeship: String { get }
     var locationErrorPublished: PassthroughSubject<LocationError?, Never> { get }
-    
+    var locationWorkDone: PassthroughSubject<Bool, Never> { get }
+
     func requestWhenInUseAuthorization()
 }
 
@@ -23,9 +24,11 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     private var locationManager: CLLocationManager
     private let geocoder = CLGeocoder()
     private let radius: CLLocationDistance = 100000 // 100 km
-    private let numberOfPoints = 20
+    private let numberOfPoints = 22
+    var nearVoivodeships: [String] = []
     @Published var nearLocations: [LocationData] = []
     let locationErrorPublished = PassthroughSubject<LocationError?, Never>()
+    var locationWorkDone = PassthroughSubject<Bool, Never>()
     
     var authorizationStatus: CLAuthorizationStatus {
         locationManager.authorizationStatus
@@ -57,7 +60,24 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
             }
         }
     }
-
+    
+    func getPointVoivodeship(for point: CLLocation) async -> String? {
+        do {
+            let placemark = try await geocoder.reverseGeocodeLocation(point)
+            if let placemark = placemark.first {
+                if placemark.country == "Polska" {
+                    if let voivodeship = placemark.administrativeArea {
+                        return voivodeship
+                    }
+                }
+            }
+        } catch {
+            locationErrorPublished.send(LocationError.localizationUnknown)
+        }
+        
+        return nil
+    }
+    
     func pointsOnCircle(center: CLLocationCoordinate2D, radius: CLLocationDistance, numberOfPoints: Int) {
         var points: [LocationData] = []
         let earthRadius: CLLocationDistance = 6371000
@@ -82,13 +102,31 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
         self.nearLocations = points
     }
     
+    func getNearPointsVoivodeships(for points: [LocationData]) async {
+        var pointsVoivodeships: [String] = []
+        
+        for point in points {
+            if let voivodeship = await getPointVoivodeship(for: CLLocation(latitude: point.coordinate.latitude, longitude: point.coordinate.longitude)) {
+                pointsVoivodeships.append(voivodeship)
+            }
+        }
+        
+        nearVoivodeships = Array(Set(pointsVoivodeships))
+        locationWorkDone.send(true)
+    }
+    
     func requestWhenInUseAuthorization() {
         locationManager.requestWhenInUseAuthorization()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        locationWorkDone.send(false)
         Task {
             await getUserVoivodeship()
+            if let userLocation = location {
+                pointsOnCircle(center: userLocation.coordinate, radius: radius, numberOfPoints: numberOfPoints)
+                await getNearPointsVoivodeships(for: nearLocations)
+            }
         }
     }
     

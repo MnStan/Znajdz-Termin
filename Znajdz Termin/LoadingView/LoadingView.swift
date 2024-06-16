@@ -37,6 +37,8 @@ struct LoadingView: View {
                 Text("\(error)")
                     .multilineTextAlignment(.center)
             }
+            
+            Text("\(viewModel.locationWorkDone)")
         }
     }
 }
