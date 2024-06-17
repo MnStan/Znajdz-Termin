@@ -111,9 +111,9 @@
 		F635A0342C05C643000C6715 /* LoadingView */ = {
 			isa = PBXGroup;
 			children = (
+				F67FD8192C202B730023F0E3 /* Model */,
+				F67FD8182C202B6B0023F0E3 /* View */,
 				F697329C2C182FAB00F87A2C /* ViewModel */,
-				F635A0352C05C650000C6715 /* LoadingView.swift */,
-				F6F863F22C1F07450088EE1A /* LocationModel.swift */,
 			);
 			path = LoadingView;
 			sourceTree = "<group>";
@@ -151,6 +151,22 @@
 				F67FD8162C1F70660023F0E3 /* HomeView.swift */,
 			);
 			path = HomeView;
+			sourceTree = "<group>";
+		};
+		F67FD8182C202B6B0023F0E3 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F635A0352C05C650000C6715 /* LoadingView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		F67FD8192C202B730023F0E3 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				F6F863F22C1F07450088EE1A /* LocationModel.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		F69732992C182E5800F87A2C /* CustomViews */ = {
