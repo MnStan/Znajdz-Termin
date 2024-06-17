@@ -8,20 +8,23 @@
 import SwiftUI
 
 struct Heart : Shape {
-  func path(in rect: CGRect) -> Path {
-    var path = Path()
-
-    path.move(to: CGPoint(x: rect.midX, y: rect.maxY ))
-
-      path.addCurve(
-        to: CGPoint(x: rect.midX, y: rect.minY + 100),
-        control1:CGPoint(x: rect.minX - 65, y: rect.minY + 100),
-        control2: CGPoint(x: rect.midX - 15, y: rect.minY + 25)
-      )
-      
-      path.move(to: CGPoint(x: rect.midX - 15, y: rect.minY + 25))
-      path.addLine(to: CGPoint(x: rect.midX - 25, y: rect.midY + 50))
-    
-     return path
-  }
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        let scaleX = rect.width / 200
+        let scaleY = rect.height / 200
+        
+        path.move(to: CGPoint(x: rect.midX, y: rect.maxY ))
+        
+        path.addCurve(
+            to: CGPoint(x: rect.midX, y: rect.minY + 100 * scaleY),
+            control1:CGPoint(x: rect.minX - 65 * scaleX, y: rect.minY + 100 * scaleY),
+            control2: CGPoint(x: rect.midX - 15 * scaleX, y: rect.minY + 25 * scaleY)
+        )
+        
+        path.move(to: CGPoint(x: rect.midX - 15 * scaleX, y: rect.minY + 25 * scaleY))
+        path.addLine(to: CGPoint(x: rect.midX - 25 * scaleX, y: rect.midY + 50 * scaleY))
+        
+        return path
+    }
 }

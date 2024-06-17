@@ -11,6 +11,7 @@ import CoreLocation
 
 extension LoadingView {
     
+    @MainActor
     class ViewModel: ObservableObject {
         private let locationManager: AppLocationManager
         private let calendarManager: EventStoreProtocol
@@ -65,6 +66,13 @@ extension LoadingView {
                 self?.locationManager.clearData()
                 self?.locationManager.getLocationAgain()
                 self?.stopTimer()
+            }
+        }
+        
+        func getLocationAgain() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+                self?.locationManager.clearData()
+                self?.locationManager.getLocationAgain()
             }
         }
     }
