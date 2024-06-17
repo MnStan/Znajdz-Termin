@@ -40,6 +40,10 @@ extension LoadingView {
                 .store(in: &cancellables)
         }
         
+        deinit {
+            cancellables.forEach { $0.cancel() }
+        }
+        
         func startTimer() {
             timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
                 .autoconnect()
