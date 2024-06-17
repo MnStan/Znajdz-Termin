@@ -119,7 +119,6 @@ final class LocalizationManagerTests: XCTestCase {
         ]
         
         sut.pointsOnCircle(center: mockLocation.coordinate, radius: 100000, numberOfPoints: 2)
-        print("\n", sut.nearLocations, "\n")
         XCTAssertEqual(sut.nearLocations.count, points.count)
         sut.nearLocations.enumerated().forEach {
             XCTAssertTrue($0.element.coordinate.isEqual(to: points[$0.offset]))

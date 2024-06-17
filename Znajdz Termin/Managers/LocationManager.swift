@@ -144,7 +144,6 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
-        //TODO: Error when location fetch fail
         if let clError = error as? CLError {
             switch clError.code {
             case .locationUnknown:
