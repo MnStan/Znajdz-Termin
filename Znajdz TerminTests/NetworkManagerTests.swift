@@ -89,25 +89,57 @@ final class NetworkManagerTests: XCTestCase {
         }
     }
     
-    func testfetchBenefitsShouldSuccess() async {
+    func testCreatingURLForQueues() {
+        do {
+            let url = try NetworkManager.shared.createURL(path: .queues, province: "06", benefit: "orto")
+            XCTAssertEqual(url.absoluteString, "https://api.nfz.gov.pl/app-itl-api/queues?page=1&limit=25&format=json&case=1&province=06&benefit=orto&benefitForChildren=false&api-version=1.3")
+        } catch {
+            XCTFail()
+        }
+    }
+    
+    func testCreatingURLForBenefits() {
+        do {
+            let url = try NetworkManager.shared.createURL(path: .benefits, benefit: "orto")
+            XCTAssertEqual(url.absoluteString, "https://api.nfz.gov.pl/app-itl-api/benefits?page=1&limit=25&format=json&name=orto&api-version=1.3")
+        } catch {
+            XCTFail()
+        }
+    }
+    
+    func testCreatingURLForBenefitsShouldNotEqual() {
+        do {
+            let url = try NetworkManager.shared.createURL(path: .queues, benefit: "orto")
+            XCTAssertNotEqual(url.absoluteString, "https://api.nfz.gov.pl/app-itl-api/benefits?page=1&limit=25&format=json&name=orto&api-version=1.3")
+        } catch {
+            XCTFail()
+        }
+    }
+    
+    func testfetchBenefitsShouldSuccess() {
         let url = URL(string: "https://example.com")!
         
         let mockSession = URLSessionMock()
         mockSession.mockData = Data(mockData.utf8)
         mockSession.mockResponse = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)
         
+        let expectation = XCTestExpectation(description: "Fetching completed")
+        
         Task {
             do {
-                let (data, response) = try await NetworkManager.shared.fetchBenefits(from: url, name: "test", session: mockSession)
+                let (data, response) = try await NetworkManager.shared.fetchData(from: url, session: mockSession)
                 XCTAssertEqual(data, mockSession.mockData)
                 XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+                expectation.fulfill()
             } catch {
                 XCTFail()
             }
         }
+        
+        wait(for: [expectation], timeout: 5.0)
     }
     
-    func testfetchBenefitsShouldThrowError() async {
+    func testfetchBenefitsShouldThrowError() {
         let url = URL(string: "https://example.com")!
         
         let mockSession = URLSessionMock()
@@ -116,7 +148,7 @@ final class NetworkManagerTests: XCTestCase {
         
         Task {
             do {
-                let (_, _) = try await NetworkManager.shared.fetchBenefits(from: url, name: "test", session: mockSession)
+                let (_, _) = try await NetworkManager.shared.fetchData(from: url, session: mockSession)
             } catch {
                 XCTAssertEqual(error as? NetworkError, NetworkError.fetchError)
             }
@@ -143,13 +175,53 @@ final class NetworkManagerTests: XCTestCase {
             }
     }
     
+    func testDecodingDataShouldSetResponseVariable() {
+        let data = Data(mockData.utf8)
+        let sut = NetworkManager.shared
+            do {
+                let decodedData = try sut.decodeData(from: data)
+                XCTAssertEqual(sut.apiResponseBenefit?.meta.dateModified, "2024-06-19T18:06:54+02:00")
+                
+            } catch {
+                XCTFail()
+            }
+    }
+    
     func testDecodingDataShouldFail() {
         let data = Data("testData".utf8)
             do {
-                let decodedData = try NetworkManager.shared.decodeData(from: data)
+                let _ = try NetworkManager.shared.decodeData(from: data)
                 XCTFail()
             } catch {
                 XCTAssertEqual(error as? NetworkError, NetworkError.badJSON)
             }
+    }
+    
+    func testFetchingOnePageBenefit() {
+        let sut = NetworkManager.shared
+        let expectation = XCTestExpectation(description: "Fetching completed")
+        
+        sut.benefitsDataArray.removeAll()
+            Task {
+                await NetworkManager.shared.fetchBenefits(benefitName: "ortop")
+                XCTAssertEqual(sut.benefitsDataArray.count, 3)
+                expectation.fulfill()
+            }
+        
+        wait(for: [expectation], timeout: 5.0)
+    }
+    
+    func testFetchingMultiPageBenefits() {
+        let sut = NetworkManager.shared
+        let expectation = XCTestExpectation(description: "Fetching completed")
+        
+        sut.benefitsDataArray.removeAll()
+            Task {
+                await NetworkManager.shared.fetchBenefits(benefitName: "poradnia")
+                XCTAssertEqual(sut.benefitsDataArray.count, 163)
+                expectation.fulfill()
+            }
+        
+        wait(for: [expectation], timeout: 15.0)
     }
 }

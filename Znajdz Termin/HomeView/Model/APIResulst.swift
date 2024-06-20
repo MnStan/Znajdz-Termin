@@ -25,7 +25,7 @@ struct Meta: Decodable {
     let isPartOf: String?
     let message: Message?
     
-    static let defaultMeta = Meta(context: "Test", count: 0, title: "", page: 1, url: "", limit: 1, provider: "", datePublished: nil, dateModified: nil, description: "", keywords: "", language: "", contentType: "", isPartOf: "", message: Message.defaultMessage)
+    static let defaultMeta = Meta(context: "Test", count: 0, title: "", page: 1, url: "", limit: 1, provider: "", datePublished: nil, dateModified: "2024-06-19T18:06:54+02:00", description: "", keywords: "", language: "", contentType: "", isPartOf: "", message: Message.defaultMessage)
 }
 
 // MARK: - Message
@@ -149,4 +149,6 @@ struct APIResponseBenefit: Decodable {
     let meta: Meta
     let links: Links
     let data: [String]
+    
+    static let defaultResponse = APIResponse(meta: .defaultMeta, links: .defaultLinks, data: [])
 }

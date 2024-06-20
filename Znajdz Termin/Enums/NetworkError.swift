@@ -12,6 +12,7 @@ enum NetworkError: Error, CustomStringConvertible {
     case badJSON
     case invalidURL
     case fetchError
+    case unknown
     
     var description: String {
         switch self {
@@ -23,6 +24,8 @@ enum NetworkError: Error, CustomStringConvertible {
             return "Coś poszło nie tak. Adres zapytania jest nieprawidłowy. Spróbuj ponownie lub skontaktuj się z nami."
         case .fetchError:
             return "Coś poszło nie tak. Pobieranie odpowiedzi z serwera się nie powiodło. Spróbuj ponownie lub skontaktuj się z nami."
+        case .unknown:
+            return "Coś poszło nie tak. Skontaktuj się z nami"
         }
     }
 }

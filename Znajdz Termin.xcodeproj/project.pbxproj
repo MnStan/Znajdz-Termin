@@ -10,6 +10,7 @@
 		F60422E62BF4A9CE006FBE67 /* CalendarManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F60422E52BF4A9CE006FBE67 /* CalendarManagerTests.swift */; };
 		F614F9002BED3689000CA8A7 /* PermissionsViewAndButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = F614F8FF2BED3689000CA8A7 /* PermissionsViewAndButtons.swift */; };
 		F635A0362C05C650000C6715 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F635A0352C05C650000C6715 /* LoadingView.swift */; };
+		F6461DD12C242C63003283DD /* URLPathType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6461DD02C242C63003283DD /* URLPathType.swift */; };
 		F665216A2BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66521692BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift */; };
 		F665216D2BEE2265001464A1 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F665216C2BEE2265001464A1 /* LocationManager.swift */; };
 		F665216F2BEE2299001464A1 /* CalendarEventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F665216E2BEE2299001464A1 /* CalendarEventManager.swift */; };
@@ -61,6 +62,7 @@
 		F614F8FF2BED3689000CA8A7 /* PermissionsViewAndButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewAndButtons.swift; sourceTree = "<group>"; };
 		F614F9012BED4BF0000CA8A7 /* Znajdz-Termin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Znajdz-Termin-Info.plist"; sourceTree = SOURCE_ROOT; };
 		F635A0352C05C650000C6715 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		F6461DD02C242C63003283DD /* URLPathType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLPathType.swift; sourceTree = "<group>"; };
 		F66521692BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PermissionsViewAndButtons-ViewModel.swift"; sourceTree = "<group>"; };
 		F665216C2BEE2265001464A1 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		F665216E2BEE2299001464A1 /* CalendarEventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEventManager.swift; sourceTree = "<group>"; };
@@ -212,6 +214,7 @@
 				F69732A22C183A2100F87A2C /* Voivodeship.swift */,
 				F6F863F62C1F3D1B0088EE1A /* LocationError.swift */,
 				F67FD8242C232E150023F0E3 /* NetworkError.swift */,
+				F6461DD02C242C63003283DD /* URLPathType.swift */,
 			);
 			path = Enums;
 			sourceTree = "<group>";
@@ -442,6 +445,7 @@
 				F665216D2BEE2265001464A1 /* LocationManager.swift in Sources */,
 				F67FD82A2C233FFC0023F0E3 /* CodingStrategy+ext.swift in Sources */,
 				F665216F2BEE2299001464A1 /* CalendarEventManager.swift in Sources */,
+				F6461DD12C242C63003283DD /* URLPathType.swift in Sources */,
 				F67FD8252C232E150023F0E3 /* NetworkError.swift in Sources */,
 				F6DCD5782BEBE0C900AEFA6C /* PermissionInfoView.swift in Sources */,
 				F67FD8172C1F70660023F0E3 /* HomeView.swift in Sources */,
