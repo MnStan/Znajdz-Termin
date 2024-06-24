@@ -29,6 +29,7 @@ class NetworkManager: ObservableObject {
     }()
     
     @Published var benefitsArray: [String] = []
+    private let rateLimiter = RateLimiter()
     
     init() {
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -68,15 +69,12 @@ class NetworkManager: ObservableObject {
             throw NetworkError.invalidURL
         }
         
-        print(url)
-        
         return url
     }
     
     func fetchData(from url: URL, session: URLSessionProtocol = URLSession.shared) async throws -> (Data, URLResponse) {
         let (data, response) = try await session.data(from: url)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-            print(response)
             throw NetworkError.fetchError }
         
         return (data, response)
@@ -89,38 +87,16 @@ class NetworkManager: ObservableObject {
             apiResponseBenefit = decodedData
             return decodedData
         } catch {
-            print(error)
             throw NetworkError.badJSON
         }
     }
-    
-    private let maxRequestsPerSecond = 5
-    private var requestCount = 0
-    private var requestStartTime: Date?
     
     @MainActor
     func fetchBenefits(benefitName: String, nextPage: URL? = nil) async {
         do {
             let url: URL
-            
-            if let startTime = requestStartTime {
-                let elapsed = Date().timeIntervalSince(startTime)
-                if elapsed < 1 {
-                    if requestCount >= maxRequestsPerSecond {
-                        let waitTime = 1 - elapsed
-                        try await Task.sleep(nanoseconds: UInt64(waitTime * 1_250_000_000))
-                        requestCount = 0
-                        requestStartTime = Date()
-                    }
-                } else {
-                    requestCount = 0
-                    requestStartTime = Date()
-                }
-            } else {
-                requestStartTime = Date()
-            }
-            
-            requestCount += 1
+  
+            try await rateLimiter.limitRequests()
             
             if let nextPage = nextPage {
                 url = nextPage
@@ -128,7 +104,6 @@ class NetworkManager: ObservableObject {
                 benefitsDataArray.removeAll()
                 url = try createURL(path: .benefits, benefit: benefitName)
             }
-            print(url)
             
             let (data, _) = try await fetchData(from: url)
             let decodedData = try decodeData(from: data)
@@ -143,5 +118,25 @@ class NetworkManager: ObservableObject {
         } catch {
             networkError = .unknown
         }
+    }
+}
+
+actor RateLimiter {
+    private var requestTimestamps: [Date] = []
+    private var lastRequestTimestamp: Date = .now
+    private let maxRequestsPerSecond = 5
+    
+    func limitRequests() async throws {
+        let now = Date()
+        
+        requestTimestamps = requestTimestamps.filter { now.timeIntervalSince($0) < 2.0 }
+        if requestTimestamps.count >= maxRequestsPerSecond {
+            let oldestTimestamp = requestTimestamps.first!
+            let waitTime = max(1 - now.timeIntervalSince(oldestTimestamp), 1.25)
+            try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
+            requestTimestamps.removeFirst()
+        }
+        
+        requestTimestamps.append(now)
     }
 }
