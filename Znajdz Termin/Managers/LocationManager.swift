@@ -134,6 +134,8 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let newLocation = locations.last else { return }
+        if newLocation == location { return }
         Task {
             await getUserVoivodeship()
             if let userLocation = location {
