@@ -186,14 +186,15 @@ final class LocalizationManagerTests: XCTestCase {
         
         Task {
             await sut.getNearPointsVoivodeships(for: mockPoints)
-            XCTAssertEqual(sut.nearVoivodeships, expectedArray)
+            XCTAssertEqual(sut.nearVoivodeships.sorted(), expectedArray.sorted())
             expectation.fulfill()
         }
         
         wait(for: [expectation], timeout: 5.0)
     }
     
-    func testGeocodingThrottling() {
+    // X in name to run this test at the end to prevent geocoding throttling from disturbing other tests
+    func testXGeocodingThrottling() {
         var locationError: LocationError?
         var cancellables = Set<AnyCancellable>()
         
@@ -214,5 +215,7 @@ final class LocalizationManagerTests: XCTestCase {
         
         wait(for: [expectation], timeout: 5.0)
         XCTAssertEqual(locationError, .geocodeError)
+        
+        cancellables.forEach { $0.cancel() }
     }
 }
