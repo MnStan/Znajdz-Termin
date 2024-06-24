@@ -68,6 +68,7 @@
 		F665216C2BEE2265001464A1 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		F665216E2BEE2299001464A1 /* CalendarEventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEventManager.swift; sourceTree = "<group>"; };
 		F66521702BEE2380001464A1 /* LocalizationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManagerTests.swift; sourceTree = "<group>"; };
+		F66DAC242C256B81006E5EDB /* Znajdz Termin.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Znajdz Termin.xctestplan"; sourceTree = "<group>"; };
 		F67FD8162C1F70660023F0E3 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		F67FD81A2C217D700023F0E3 /* SearchElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchElementView.swift; sourceTree = "<group>"; };
 		F67FD81E2C232D2B0023F0E3 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
@@ -190,7 +191,7 @@
 			isa = PBXGroup;
 			children = (
 				F67FD81A2C217D700023F0E3 /* SearchElementView.swift */,
-                F67FD8162C1F70660023F0E3 /* HomeView.swift */,
+				F67FD8162C1F70660023F0E3 /* HomeView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -241,6 +242,7 @@
 		F6DCD53C2BEBCDDE00AEFA6C = {
 			isa = PBXGroup;
 			children = (
+				F66DAC242C256B81006E5EDB /* Znajdz Termin.xctestplan */,
 				F6DCD5472BEBCDDE00AEFA6C /* Znajdz Termin */,
 				F6DCD55A2BEBCDE000AEFA6C /* Znajdz TerminTests */,
 				F6DCD5642BEBCDE000AEFA6C /* Znajdz TerminUITests */,

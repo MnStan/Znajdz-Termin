@@ -1,0 +1,43 @@
+{
+  "configurations" : [
+    {
+      "id" : "7010265B-D673-40D3-8A04-F785C401319C",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "environmentVariableEntries" : [
+      {
+        "key" : "IDEPreferLogStreaming",
+        "value" : "YES"
+      }
+    ],
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Znajdz Termin.xcodeproj",
+      "identifier" : "F6DCD5442BEBCDDE00AEFA6C",
+      "name" : "Znajdz Termin"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Znajdz Termin.xcodeproj",
+        "identifier" : "F6DCD5562BEBCDE000AEFA6C",
+        "name" : "Znajdz TerminTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Znajdz Termin.xcodeproj",
+        "identifier" : "F6DCD5602BEBCDE000AEFA6C",
+        "name" : "Znajdz TerminUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

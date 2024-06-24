@@ -65,15 +65,15 @@ class URLSessionMock: URLSessionProtocol {
 }
 
 final class NetworkManagerTests: XCTestCase {
-
+    
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
-
+    
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
-
+    
     func testExample() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
@@ -81,7 +81,7 @@ final class NetworkManagerTests: XCTestCase {
         // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
         // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
     }
-
+    
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
         self.measure {
@@ -157,44 +157,44 @@ final class NetworkManagerTests: XCTestCase {
     
     func testDecodingDataShouldSuccess() {
         let data = Data(mockData.utf8)
-            do {
-                let decodedData = try NetworkManager.shared.decodeData(from: data)
-                XCTAssertEqual(decodedData.meta.count, 50)
-            } catch {
-                XCTFail()
-            }
+        do {
+            let decodedData = try NetworkManager.shared.decodeData(from: data)
+            XCTAssertEqual(decodedData.meta.count, 50)
+        } catch {
+            XCTFail()
+        }
     }
     
     func testDecodingDataShouldSuccessBenefit() {
         let data = Data(mockData.utf8)
-            do {
-                let decodedData = try NetworkManager.shared.decodeData(from: data)
-                XCTAssertEqual(decodedData.data.first, "GABINET ORTOPEDII I TRAUMATOLOGII NARZĄDU RUCHU DLA DZIECI")
-            } catch {
-                XCTFail()
-            }
+        do {
+            let decodedData = try NetworkManager.shared.decodeData(from: data)
+            XCTAssertEqual(decodedData.data.first, "GABINET ORTOPEDII I TRAUMATOLOGII NARZĄDU RUCHU DLA DZIECI")
+        } catch {
+            XCTFail()
+        }
     }
     
     func testDecodingDataShouldSetResponseVariable() {
         let data = Data(mockData.utf8)
         let sut = NetworkManager.shared
-            do {
-                let decodedData = try sut.decodeData(from: data)
-                XCTAssertEqual(sut.apiResponseBenefit?.meta.dateModified, "2024-06-19T18:06:54+02:00")
-                
-            } catch {
-                XCTFail()
-            }
+        do {
+            let _ = try sut.decodeData(from: data)
+            XCTAssertEqual(sut.apiResponseBenefit?.meta.dateModified, "2024-06-19T18:06:54+02:00")
+            
+        } catch {
+            XCTFail()
+        }
     }
     
     func testDecodingDataShouldFail() {
         let data = Data("testData".utf8)
-            do {
-                let _ = try NetworkManager.shared.decodeData(from: data)
-                XCTFail()
-            } catch {
-                XCTAssertEqual(error as? NetworkError, NetworkError.badJSON)
-            }
+        do {
+            let _ = try NetworkManager.shared.decodeData(from: data)
+            XCTFail()
+        } catch {
+            XCTAssertEqual(error as? NetworkError, NetworkError.badJSON)
+        }
     }
     
     func testFetchingOnePageBenefit() {
@@ -202,11 +202,11 @@ final class NetworkManagerTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Fetching completed")
         
         sut.benefitsDataArray.removeAll()
-            Task {
-                await NetworkManager.shared.fetchBenefits(benefitName: "ortop")
-                XCTAssertEqual(sut.benefitsDataArray.count, 3)
-                expectation.fulfill()
-            }
+        Task {
+            await NetworkManager.shared.fetchBenefits(benefitName: "ortop")
+            XCTAssertEqual(sut.benefitsDataArray.count, 3)
+            expectation.fulfill()
+        }
         
         wait(for: [expectation], timeout: 5.0)
     }
@@ -216,12 +216,27 @@ final class NetworkManagerTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Fetching completed")
         
         sut.benefitsDataArray.removeAll()
+        Task {
+            await NetworkManager.shared.fetchBenefits(benefitName: "poradnia")
+            XCTAssertEqual(sut.benefitsDataArray.count, 163)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 30.0)
+    }
+    func testRateLimiterForApi() {
+        for _ in 0...5 {
+            let sut = NetworkManager.shared
+            let expectation = XCTestExpectation(description: "Fetching completed")
+            
+            sut.benefitsDataArray.removeAll()
             Task {
                 await NetworkManager.shared.fetchBenefits(benefitName: "poradnia")
                 XCTAssertEqual(sut.benefitsDataArray.count, 163)
                 expectation.fulfill()
             }
-        
-        wait(for: [expectation], timeout: 15.0)
+            
+            wait(for: [expectation], timeout: 30.0)
+        }
     }
 }
