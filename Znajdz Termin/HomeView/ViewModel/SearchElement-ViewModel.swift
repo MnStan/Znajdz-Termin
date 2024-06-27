@@ -10,10 +10,10 @@ import Combine
 
 extension SearchElementView {
     
-    @MainActor
     class ViewModel: ObservableObject {
         private let networkManager = NetworkManager.shared
         private let locationManager = AppLocationManager.shared
+        @Published var shouldShowHint = false
         @Published var benefitsArray: [String] = []
         private var cancellables = Set<AnyCancellable>()
         
@@ -24,6 +24,24 @@ extension SearchElementView {
                     self?.benefitsArray = array
                 }
                 .store(in: &self.cancellables)
+        }
+        
+        func checkNewValueInput(oldValue: String, newValue: String) {
+            if newValue.count == 3 {
+                fetchBenefitsNames(for: newValue)
+            }
+            
+            if newValue.count >= 3 {
+                if newValue.count - oldValue.count == 1 {
+                    shouldShowHint = true
+                }
+            } else {
+                clearBenefitsArray()
+            }
+        }
+        
+        func checkTextCount(text: String) -> Bool {
+            text.count >= 3
         }
         
         func fetchBenefitsNames(for benefit: String) {
@@ -48,6 +66,16 @@ extension SearchElementView {
         
         func getUserVoivodeship() -> String {
             locationManager.voivodeship.lowercased()
+        }
+        
+        func getVoivodeshipNumber(selectedVoivodeship: String) -> String? {
+            Voivodeship.allCases.first { $0.displayName == selectedVoivodeship }?.rawValue
+        }
+        
+        func fetchDates(benefit: String, caseNumber: Int, isForKids: Bool, province: String) {
+            Task {
+                await networkManager.fetchDates(benefitName: benefit, caseNumber: caseNumber ,isForKids: isForKids, province: province)
+            }
         }
     }
 }

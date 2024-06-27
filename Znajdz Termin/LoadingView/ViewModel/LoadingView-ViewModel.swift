@@ -11,7 +11,6 @@ import CoreLocation
 
 extension LoadingView {
     
-    @MainActor
     class ViewModel: ObservableObject {
         private let locationManager: AppLocationManager
         private let calendarManager: EventStoreProtocol

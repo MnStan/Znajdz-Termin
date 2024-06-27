@@ -45,6 +45,12 @@ struct HomeView: View {
                 .padding()
                 .accessibilityLabel("Ostatnie wyszukiwania")
             }
+            
+            List {
+                ForEach(NetworkManager.shared.datesDataArray, id: \.id) { element in
+                    Text(element.attributes.address ?? "coś")
+                }
+            }
         }
         .navigationTitle("Dzień dobry")
         .shadow(color: colorScheme == .light ? .gray.opacity(0.25) : Color.clear, radius: 5, y: 5)

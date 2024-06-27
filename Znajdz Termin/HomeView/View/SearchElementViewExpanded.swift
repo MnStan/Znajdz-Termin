@@ -17,7 +17,8 @@ struct SearchElementViewExpanded: View {
     @Binding var pickedVoivodeship: String
     @Binding var selectedIsForKids: Bool
     @Binding var selectedMedicalCase: Bool
-    @Binding var shouldShowHint: Bool
+    @State var shouldShowFetchedItemsView = false
+    @State var shouldShowAlert = false
     
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -39,17 +40,7 @@ struct SearchElementViewExpanded: View {
                             .textInputAutocapitalization(.never)
                             .focused($textViewFocus)
                             .onChange(of: searchText) { oldValue, newValue in
-                                if newValue.count == 3 {
-                                    viewModel.fetchBenefitsNames(for: newValue)
-                                }
-                                
-                                if newValue.count >= 3 {
-                                    if newValue.count - oldValue.count == 1 {
-                                        shouldShowHint = true
-                                    }
-                                } else {
-                                    viewModel.clearBenefitsArray()
-                                }
+                                viewModel.checkNewValueInput(oldValue: oldValue, newValue: newValue)
                             }
                         
                         
@@ -64,13 +55,13 @@ struct SearchElementViewExpanded: View {
                         }
                     }
                     
-                    if let suggestion = viewModel.prepareSuggestionToView(searchText: searchText), shouldShowHint {
+                    if let suggestion = viewModel.prepareSuggestionToView(searchText: searchText), viewModel.shouldShowHint {
                         Text("Podpowiedź:")
                             .opacity(0.5)
                         Button {
                             searchText = suggestion
                             textViewFocus = false
-                            shouldShowHint = false
+                            viewModel.shouldShowHint = false
                         } label: {
                             Text(suggestion)
                                 .multilineTextAlignment(.leading)
@@ -134,7 +125,14 @@ struct SearchElementViewExpanded: View {
                             .foregroundStyle(.primary)
                             
                             Button {
-                                
+                                if viewModel.checkTextCount(text: searchText) {
+                                    if let voivodeshipNumber = viewModel.getVoivodeshipNumber(selectedVoivodeship: pickedVoivodeship) {
+                                        viewModel.fetchDates(benefit: searchText, caseNumber: selectedMedicalCase ? 2 : 1, isForKids: selectedIsForKids, province: voivodeshipNumber)
+                                        shouldShowFetchedItemsView = true
+                                    }
+                                } else {
+                                    shouldShowAlert = true
+                                }
                             } label: {
                                 Text("Szukaj")
                                     .padding()
@@ -164,11 +162,17 @@ struct SearchElementViewExpanded: View {
         .onTapGesture {
             textViewFocus = false
         }
+        .navigationDestination(isPresented: $shouldShowFetchedItemsView) {
+            FetchedItemsView()
+        }
+        .alert("Tekst wyszukiwania powinien mieć długość co najmniej 3 liter", isPresented: $shouldShowAlert) {
+            Button("Ok", role: .cancel) { }
+        }
     }
 }
 
 #Preview {
     @FocusState var focus: Bool
     
-    return SearchElementViewExpanded(searchText: .constant("Test"), isSearchFocused: .constant(true), textViewFocus: $focus, viewModel: SearchElementView.ViewModel(), isSearchViewEditing: .constant(true), pickedVoivodeship: .constant("małopolskie"), selectedIsForKids: .constant(false), selectedMedicalCase: .constant(false), shouldShowHint: .constant(true))
+    return SearchElementViewExpanded(searchText: .constant("Test"), isSearchFocused: .constant(true), textViewFocus: $focus, viewModel: SearchElementView.ViewModel(), isSearchViewEditing: .constant(true), pickedVoivodeship: .constant("małopolskie"), selectedIsForKids: .constant(false), selectedMedicalCase: .constant(false))
 }
