@@ -37,7 +37,7 @@ class NetworkManager: ObservableObject {
         decoder.keyDecodingStrategy = .convertFromKebabCase
     }
     
-    func createURL(path: URLPathType, currentPage: Int = 1, caseNumber: Int = 1, province: String? = nil, benefit: String) throws -> URL {
+    func createURL(path: URLPathType, currentPage: Int = 1, caseNumber: Int = 1, province: String? = nil, benefit: String, isForKids: Bool = false) throws -> URL {
         guard var components = URLComponents(string: baseURL) else {
             throw NetworkError.invalidURL
         }
@@ -52,7 +52,7 @@ class NetworkManager: ObservableObject {
                 URLQueryItem(name: "case", value: String(caseNumber)),
                 URLQueryItem(name: "province", value: province),
                 URLQueryItem(name: "benefit", value: benefit),
-                URLQueryItem(name: "benefitForChildren", value: "false"),
+                URLQueryItem(name: "benefitForChildren", value: String(isForKids)),
                 URLQueryItem(name: "api-version", value: "1.3")
             ]
         case .benefits:
@@ -132,7 +132,7 @@ class NetworkManager: ObservableObject {
         }
     }
     
-    func fetchDates(benefitName: String, nextPage: URL? = nil, caseNumber: Int, province: String, onlyFirstPage: Bool = false) async {
+    func fetchDates(benefitName: String, nextPage: URL? = nil, caseNumber: Int, isForKids: Bool, province: String, onlyFirstPage: Bool = false) async {
         do {
             let url: URL
 
@@ -142,7 +142,7 @@ class NetworkManager: ObservableObject {
                 url = nextPage
             } else {
                 datesDataArray.removeAll()
-                url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName)
+                url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName, isForKids: isForKids)
             }
             
             let (data, _) = try await fetchData(from: url)
@@ -155,7 +155,7 @@ class NetworkManager: ObservableObject {
                 
                 if !onlyFirstPage {
                     if let nextPage = response.links.next {
-                        await fetchDates(benefitName: benefitName, nextPage: URL(string: baseURL + nextPage), caseNumber: caseNumber, province: province)
+                        await fetchDates(benefitName: benefitName, nextPage: URL(string: baseURL + nextPage), caseNumber: caseNumber, isForKids: isForKids, province: province)
                     }
                 }
             }

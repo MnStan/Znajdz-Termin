@@ -17,7 +17,6 @@ struct SearchElementView: View {
     @State private var selectedIsForKids = false
     @State private var selectedMedicalCase = false
     @Binding var isSearchViewEditing: Bool
-    @State private var shouldShowHint = true
     
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -48,8 +47,7 @@ struct SearchElementView: View {
                         isSearchViewEditing: $isSearchViewEditing,
                         pickedVoivodeship: $pickedVoivodeship,
                         selectedIsForKids: $selectedIsForKids,
-                        selectedMedicalCase: $selectedMedicalCase,
-                        shouldShowHint: $shouldShowHint
+                        selectedMedicalCase: $selectedMedicalCase
                     )
                 } else {
                     SearchFieldView(searchText: $searchText)
@@ -66,8 +64,7 @@ struct SearchElementView: View {
                 isSearchViewEditing: $isSearchViewEditing,
                 pickedVoivodeship: $pickedVoivodeship,
                 selectedIsForKids: $selectedIsForKids,
-                selectedMedicalCase: $selectedMedicalCase,
-                shouldShowHint: $shouldShowHint
+                selectedMedicalCase: $selectedMedicalCase
             )
         }
     }

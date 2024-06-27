@@ -10,7 +10,6 @@ import Combine
 
 extension FetchedItemsView {
     
-    @MainActor
     class ViewModel: ObservableObject {
         private let networkManager = NetworkManager.shared
         @Published var itemsArray: [DataElement] = []
