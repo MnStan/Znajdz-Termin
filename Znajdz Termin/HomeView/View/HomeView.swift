@@ -19,7 +19,7 @@ struct HomeView: View {
             SearchElementView(searchText: $search, isSearchFocused: $isSearchFocused, textViewFocus: $textViewFocus, isSearchViewEditing: $isSearchViewEditing)
                 .padding()
                 .onTapGesture {
-                    withAnimation(.spring(.bouncy, blendDuration: 1)) {
+                    withAnimation(.spring(.bouncy)) {
                         if isSearchViewEditing != true {
                             isSearchFocused = true
                             textViewFocus = true

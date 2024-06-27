@@ -31,10 +31,9 @@ struct SearchElementViewExpanded: View {
                 .accessibilityHidden(true)
                 .ignoresSafeArea()
             VStack {
-                HStack(alignment: shouldShowHint ? .top : .center) {
-                    Image(systemName: "magnifyingglass")
-                    
-                    VStack(alignment: .leading) {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
                         TextField("Szukaj", text: $searchText, axis: .vertical)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
@@ -54,35 +53,30 @@ struct SearchElementViewExpanded: View {
                             }
                         
                         
-                        if let suggestion = viewModel.prepareSuggestionToView(searchText: searchText), shouldShowHint {
-                            Text("Podpowiedź:")
-                                .opacity(0.5)
-                            Button(suggestion) {
-                                searchText = suggestion
-                                textViewFocus = false
-                                shouldShowHint = false
+                        if searchText != "" {
+                            Button {
+                                searchText = ""
+                            } label: {
+                                Image(systemName: "x.circle.fill")
+                                    .foregroundStyle(.gray)
+                                    .accessibilityLabel("Przycisk usuwania wprowadzonego tekstu")
                             }
-                            .multilineTextAlignment(.leading)
                         }
                     }
                     
-                    if searchText != "" {
+                    if let suggestion = viewModel.prepareSuggestionToView(searchText: searchText), shouldShowHint {
+                        Text("Podpowiedź:")
+                            .opacity(0.5)
                         Button {
-                            searchText = ""
+                            searchText = suggestion
+                            textViewFocus = false
+                            shouldShowHint = false
                         } label: {
-                            Image(systemName: "x.circle.fill")
-                                .foregroundStyle(.gray)
-                                .accessibilityLabel("Przycisk usuwania wprowadzonego tekstu")
+                            Text(suggestion)
+                                .multilineTextAlignment(.leading)
                         }
                     }
                 }
-                .padding()
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(.black, lineWidth: 1)
-                        .matchedGeometryEffect(id: "border", in: searchNamespace)
-                )
-                .accessibilityHidden(true)
                 
                 VStack {
                     if horizontalSizeClass == .compact && sizeCategory > .extraExtraExtraLarge {
@@ -127,6 +121,7 @@ struct SearchElementViewExpanded: View {
                             Button {
                                 withAnimation(.spring(.bouncy, blendDuration: 1)) {
                                     isSearchFocused = false
+                                    textViewFocus = false
                                 }
                             } label: {
                                 Text("Zamknij")
@@ -149,7 +144,7 @@ struct SearchElementViewExpanded: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                             .foregroundStyle(.primary)
-
+                            
                         }
                         .fixedSize(horizontal: false, vertical: true)
                     }
@@ -175,5 +170,5 @@ struct SearchElementViewExpanded: View {
 #Preview {
     @FocusState var focus: Bool
     
-    return SearchElementViewExpanded(searchText: .constant("Test"), isSearchFocused: .constant(true), textViewFocus: $focus, viewModel: SearchElementView.ViewModel(), isSearchViewEditing: .constant(true), pickedVoivodeship: .constant("małopolskie"), selectedIsForKids: .constant(false), selectedMedicalCase: .constant(false), shouldShowHint: .constant(false))
+    return SearchElementViewExpanded(searchText: .constant("Test"), isSearchFocused: .constant(true), textViewFocus: $focus, viewModel: SearchElementView.ViewModel(), isSearchViewEditing: .constant(true), pickedVoivodeship: .constant("małopolskie"), selectedIsForKids: .constant(false), selectedMedicalCase: .constant(false), shouldShowHint: .constant(true))
 }
