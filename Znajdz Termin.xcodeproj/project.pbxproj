@@ -19,10 +19,13 @@
 		F67773652C2C9900002C91EE /* SearchElementViewExpanded.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67773642C2C9900002C91EE /* SearchElementViewExpanded.swift */; };
 		F677736B2C2CA6A6002C91EE /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F677736A2C2CA6A6002C91EE /* MainView.swift */; };
 		F677736D2C2D50C1002C91EE /* SearchFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F677736C2C2D50C1002C91EE /* SearchFieldView.swift */; };
+		F677736F2C2D80FD002C91EE /* NetworkManagerTestsDates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F677736E2C2D80FD002C91EE /* NetworkManagerTestsDates.swift */; };
+		F67773712C2D8E65002C91EE /* FetchedItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67773702C2D8E65002C91EE /* FetchedItemsView.swift */; };
+		F67773732C2D9016002C91EE /* FetchedItemsView-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67773722C2D9016002C91EE /* FetchedItemsView-ViewModel.swift */; };
 		F67FD8172C1F70660023F0E3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD8162C1F70660023F0E3 /* HomeView.swift */; };
 		F67FD81B2C217D700023F0E3 /* SearchElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD81A2C217D700023F0E3 /* SearchElementView.swift */; };
 		F67FD81F2C232D2B0023F0E3 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD81E2C232D2B0023F0E3 /* NetworkManager.swift */; };
-		F67FD8232C232D7B0023F0E3 /* NetworkManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD8222C232D7B0023F0E3 /* NetworkManagerTests.swift */; };
+		F67FD8232C232D7B0023F0E3 /* NetworkManagerTestsBenefits.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD8222C232D7B0023F0E3 /* NetworkManagerTestsBenefits.swift */; };
 		F67FD8252C232E150023F0E3 /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD8242C232E150023F0E3 /* NetworkError.swift */; };
 		F67FD8282C232F2C0023F0E3 /* APIResulst.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD8272C232F2C0023F0E3 /* APIResulst.swift */; };
 		F67FD82A2C233FFC0023F0E3 /* CodingStrategy+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD8292C233FFC0023F0E3 /* CodingStrategy+ext.swift */; };
@@ -77,10 +80,13 @@
 		F67773642C2C9900002C91EE /* SearchElementViewExpanded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchElementViewExpanded.swift; sourceTree = "<group>"; };
 		F677736A2C2CA6A6002C91EE /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		F677736C2C2D50C1002C91EE /* SearchFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFieldView.swift; sourceTree = "<group>"; };
+		F677736E2C2D80FD002C91EE /* NetworkManagerTestsDates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerTestsDates.swift; sourceTree = "<group>"; };
+		F67773702C2D8E65002C91EE /* FetchedItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchedItemsView.swift; sourceTree = "<group>"; };
+		F67773722C2D9016002C91EE /* FetchedItemsView-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchedItemsView-ViewModel.swift"; sourceTree = "<group>"; };
 		F67FD8162C1F70660023F0E3 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		F67FD81A2C217D700023F0E3 /* SearchElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchElementView.swift; sourceTree = "<group>"; };
 		F67FD81E2C232D2B0023F0E3 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
-		F67FD8222C232D7B0023F0E3 /* NetworkManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerTests.swift; sourceTree = "<group>"; };
+		F67FD8222C232D7B0023F0E3 /* NetworkManagerTestsBenefits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerTestsBenefits.swift; sourceTree = "<group>"; };
 		F67FD8242C232E150023F0E3 /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
 		F67FD8272C232F2C0023F0E3 /* APIResulst.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIResulst.swift; sourceTree = "<group>"; };
 		F67FD8292C233FFC0023F0E3 /* CodingStrategy+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingStrategy+ext.swift"; sourceTree = "<group>"; };
@@ -286,6 +292,8 @@
 				F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */,
 				F6DCD5502BEBCDE000AEFA6C /* Preview Content */,
 				F677736A2C2CA6A6002C91EE /* MainView.swift */,
+				F67773702C2D8E65002C91EE /* FetchedItemsView.swift */,
+				F67773722C2D9016002C91EE /* FetchedItemsView-ViewModel.swift */,
 			);
 			path = "Znajdz Termin";
 			sourceTree = "<group>";
@@ -304,8 +312,9 @@
 				F6DCD55B2BEBCDE000AEFA6C /* Znajdz_TerminTests.swift */,
 				F66521702BEE2380001464A1 /* LocalizationManagerTests.swift */,
 				F60422E52BF4A9CE006FBE67 /* CalendarManagerTests.swift */,
-				F67FD8222C232D7B0023F0E3 /* NetworkManagerTests.swift */,
+				F67FD8222C232D7B0023F0E3 /* NetworkManagerTestsBenefits.swift */,
 				F65502682C2B2D9900B4B40D /* SearchElement-ViewModelTests.swift */,
+				F677736E2C2D80FD002C91EE /* NetworkManagerTestsDates.swift */,
 			);
 			path = "Znajdz TerminTests";
 			sourceTree = "<group>";
@@ -475,6 +484,7 @@
 				F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */,
 				F6F863F72C1F3D1B0088EE1A /* LocationError.swift in Sources */,
 				F67773652C2C9900002C91EE /* SearchElementViewExpanded.swift in Sources */,
+				F67773732C2D9016002C91EE /* FetchedItemsView-ViewModel.swift in Sources */,
 				F697329B2C182E6C00F87A2C /* HeartView.swift in Sources */,
 				F665216D2BEE2265001464A1 /* LocationManager.swift in Sources */,
 				F67FD82A2C233FFC0023F0E3 /* CodingStrategy+ext.swift in Sources */,
@@ -485,6 +495,7 @@
 				F677736D2C2D50C1002C91EE /* SearchFieldView.swift in Sources */,
 				F67FD8172C1F70660023F0E3 /* HomeView.swift in Sources */,
 				F697329E2C182FBF00F87A2C /* LoadingView-ViewModel.swift in Sources */,
+				F67773712C2D8E65002C91EE /* FetchedItemsView.swift in Sources */,
 				F69732A32C183A2100F87A2C /* Voivodeship.swift in Sources */,
 				F665216A2BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift in Sources */,
 				F6F863F52C1F09A50088EE1A /* CLLocation2D+ext.swift in Sources */,
@@ -502,8 +513,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F67FD8232C232D7B0023F0E3 /* NetworkManagerTests.swift in Sources */,
+				F67FD8232C232D7B0023F0E3 /* NetworkManagerTestsBenefits.swift in Sources */,
 				F60422E62BF4A9CE006FBE67 /* CalendarManagerTests.swift in Sources */,
+				F677736F2C2D80FD002C91EE /* NetworkManagerTestsDates.swift in Sources */,
 				F65502692C2B2D9900B4B40D /* SearchElement-ViewModelTests.swift in Sources */,
 				F66521712BEE2380001464A1 /* LocalizationManagerTests.swift in Sources */,
 				F6DCD55C2BEBCDE000AEFA6C /* Znajdz_TerminTests.swift in Sources */,

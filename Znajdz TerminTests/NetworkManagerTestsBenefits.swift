@@ -1,5 +1,5 @@
 //
-//  NetworkManagerTests.swift
+//  NetworkManagerTestsBenefits.swift
 //  Znajdz TerminTests
 //
 //  Created by Maksymilian Stan on 19/06/2024.
@@ -8,7 +8,7 @@
 import XCTest
 @testable import Znajdz_Termin
 
-var mockData = """
+var mockDataBenefit = """
 {
   "meta": {
     "context": "https://api.nfz.gov.pl/app-itl-api/schemas/#place",
@@ -64,7 +64,7 @@ class URLSessionMock: URLSessionProtocol {
     }
 }
 
-final class NetworkManagerTests: XCTestCase {
+final class NetworkManagerTestsBenefits: XCTestCase {
     
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -86,15 +86,6 @@ final class NetworkManagerTests: XCTestCase {
         // This is an example of a performance test case.
         self.measure {
             // Put the code you want to measure the time of here.
-        }
-    }
-    
-    func testCreatingURLForQueues() {
-        do {
-            let url = try NetworkManager.shared.createURL(path: .queues, province: "06", benefit: "orto")
-            XCTAssertEqual(url.absoluteString, "https://api.nfz.gov.pl/app-itl-api/queues?page=1&limit=25&format=json&case=1&province=06&benefit=orto&benefitForChildren=false&api-version=1.3")
-        } catch {
-            XCTFail()
         }
     }
     
@@ -120,7 +111,7 @@ final class NetworkManagerTests: XCTestCase {
         let url = URL(string: "https://example.com")!
         
         let mockSession = URLSessionMock()
-        mockSession.mockData = Data(mockData.utf8)
+        mockSession.mockData = Data(mockDataBenefit.utf8)
         mockSession.mockResponse = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)
         
         let expectation = XCTestExpectation(description: "Fetching completed")
@@ -143,7 +134,7 @@ final class NetworkManagerTests: XCTestCase {
         let url = URL(string: "https://example.com")!
         
         let mockSession = URLSessionMock()
-        mockSession.mockData = Data(mockData.utf8)
+        mockSession.mockData = Data(mockDataBenefit.utf8)
         mockSession.mockResponse = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)
         
         Task {
@@ -156,31 +147,46 @@ final class NetworkManagerTests: XCTestCase {
     }
     
     func testDecodingDataShouldSuccess() {
-        let data = Data(mockData.utf8)
+        let data = Data(mockDataBenefit.utf8)
         do {
             let decodedData = try NetworkManager.shared.decodeData(from: data)
-            XCTAssertEqual(decodedData.meta.count, 50)
+            
+            if let decodedBenefitsData = decodedData.apiResponseBenefit {
+                XCTAssertEqual(decodedBenefitsData.meta.count, 50)
+            } else {
+                XCTFail()
+            }
         } catch {
             XCTFail()
         }
     }
     
     func testDecodingDataShouldSuccessBenefit() {
-        let data = Data(mockData.utf8)
+        let data = Data(mockDataBenefit.utf8)
         do {
             let decodedData = try NetworkManager.shared.decodeData(from: data)
-            XCTAssertEqual(decodedData.data.first, "GABINET ORTOPEDII I TRAUMATOLOGII NARZĄDU RUCHU DLA DZIECI")
+            
+            if let decodedBenefitsData = decodedData.apiResponseBenefit{
+                XCTAssertEqual(decodedBenefitsData.data.first, "GABINET ORTOPEDII I TRAUMATOLOGII NARZĄDU RUCHU DLA DZIECI")
+            } else {
+                XCTFail()
+            }
         } catch {
             XCTFail()
         }
     }
     
     func testDecodingDataShouldSetResponseVariable() {
-        let data = Data(mockData.utf8)
+        let data = Data(mockDataBenefit.utf8)
         let sut = NetworkManager.shared
         do {
-            let _ = try sut.decodeData(from: data)
-            XCTAssertEqual(sut.apiResponseBenefit?.meta.dateModified, "2024-06-19T18:06:54+02:00")
+            let decodedData = try sut.decodeData(from: data)
+            
+            if let decodedBenefitsData = decodedData.apiResponseBenefit {
+                XCTAssertEqual(decodedBenefitsData.meta.dateModified, "2024-06-19T18:06:54+02:00")
+            } else {
+                XCTFail()
+            }
             
         } catch {
             XCTFail()
@@ -224,6 +230,7 @@ final class NetworkManagerTests: XCTestCase {
         
         wait(for: [expectation], timeout: 30.0)
     }
+    
     func testRateLimiterForApi() {
         for _ in 0...5 {
             let sut = NetworkManager.shared

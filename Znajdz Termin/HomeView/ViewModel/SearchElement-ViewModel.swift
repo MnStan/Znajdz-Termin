@@ -49,5 +49,15 @@ extension SearchElementView {
         func getUserVoivodeship() -> String {
             locationManager.voivodeship.lowercased()
         }
+        
+        func getVoivodeshipNumber(selectedVoivodeship: String) -> String? {
+            Voivodeship.allCases.first { $0.displayName == selectedVoivodeship }?.rawValue
+        }
+        
+        func fetchDates(benefit: String, caseNumber: Int, province: String) {
+            Task {
+                await networkManager.fetchDates(benefitName: benefit, caseNumber: caseNumber ,province: province)
+            }
+        }
     }
 }

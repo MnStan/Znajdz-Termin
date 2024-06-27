@@ -25,4 +25,16 @@ final class SearchElement_ViewModelTests: XCTestCase {
             // Put the code you want to measure the time of here.
         }
     }
+    
+    @MainActor func testConvertingStringVoivodeshipToStringNumber() {
+        let number = sut.getVoivodeshipNumber(selectedVoivodeship: "łódzkie")
+        
+        XCTAssertEqual(number, "05")
+    }
+    
+    @MainActor func testConvertingStringVoivodeshipToStringNumberShouldFail() {
+        let number = sut.getVoivodeshipNumber(selectedVoivodeship: "łódzkie")
+        
+        XCTAssertNotEqual(number, "11")
+    }
 }

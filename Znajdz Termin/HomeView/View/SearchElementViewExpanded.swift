@@ -18,6 +18,7 @@ struct SearchElementViewExpanded: View {
     @Binding var selectedIsForKids: Bool
     @Binding var selectedMedicalCase: Bool
     @Binding var shouldShowHint: Bool
+    @State var shouldShowFetchedItemsView = false
     
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -134,7 +135,10 @@ struct SearchElementViewExpanded: View {
                             .foregroundStyle(.primary)
                             
                             Button {
-                                
+                                if let voivodeshipNumber = viewModel.getVoivodeshipNumber(selectedVoivodeship: pickedVoivodeship) {
+                                    viewModel.fetchDates(benefit: searchText, caseNumber: selectedMedicalCase ? 2 : 1, province: voivodeshipNumber)
+                                    shouldShowFetchedItemsView = true
+                                }
                             } label: {
                                 Text("Szukaj")
                                     .padding()
@@ -163,6 +167,9 @@ struct SearchElementViewExpanded: View {
         .navigationBarBackButtonHidden()
         .onTapGesture {
             textViewFocus = false
+        }
+        .navigationDestination(isPresented: $shouldShowFetchedItemsView) {
+            FetchedItemsView()
         }
     }
 }

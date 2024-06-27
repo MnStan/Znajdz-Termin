@@ -152,3 +152,9 @@ struct APIResponseBenefit: Decodable {
     
     static let defaultResponse = APIResponse(meta: .defaultMeta, links: .defaultLinks, data: [])
 }
+
+// MARK: - General API response
+struct APIResponseGeneral: Decodable {
+    let apiResponseBenefit: APIResponseBenefit?
+    let apiResponse: APIResponse?
+}

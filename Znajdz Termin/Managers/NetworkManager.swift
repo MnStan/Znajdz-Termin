@@ -18,8 +18,8 @@ class NetworkManager: ObservableObject {
     let baseURL = "https://api.nfz.gov.pl"
     private let decoder = JSONDecoder()
     
-    @Published var apiResponseBenefit: APIResponseBenefit? = nil
     @Published var benefitsDataArray: [String] = []
+    @Published var datesDataArray: [DataElement] = []
     @Published var networkError: NetworkError? = nil
     
     let dateFormatter = {
@@ -75,18 +75,26 @@ class NetworkManager: ObservableObject {
     func fetchData(from url: URL, session: URLSessionProtocol = URLSession.shared) async throws -> (Data, URLResponse) {
         let (data, response) = try await session.data(from: url)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-            throw NetworkError.fetchError }
+            print(response)
+            throw NetworkError.fetchError
+        }
         
         return (data, response)
     }
     
-    func decodeData(from data: Data) throws -> APIResponseBenefit {
+    func decodeData(from data: Data, isDateData: Bool = false) throws -> APIResponseGeneral {
         do {
-            let decodedData = try decoder.decode(APIResponseBenefit.self, from: data)
-            
-            apiResponseBenefit = decodedData
-            return decodedData
+            if isDateData {
+                let decodedData = try decoder.decode(APIResponse.self, from: data)
+                
+                return APIResponseGeneral(apiResponseBenefit: nil, apiResponse: decodedData)
+            } else {
+                let decodedData = try decoder.decode(APIResponseBenefit.self, from: data)
+                
+                return APIResponseGeneral(apiResponseBenefit: decodedData, apiResponse: nil)
+            }
         } catch {
+            print(error, "\n", error.localizedDescription)
             throw NetworkError.badJSON
         }
     }
@@ -107,10 +115,49 @@ class NetworkManager: ObservableObject {
             
             let (data, _) = try await fetchData(from: url)
             let decodedData = try decodeData(from: data)
-            benefitsDataArray.append(contentsOf: decodedData.data)
+            
+            if let responseBenefit = decodedData.apiResponseBenefit {
+                
+                benefitsDataArray.append(contentsOf: responseBenefit.data)
+                
+                if let nextPage = responseBenefit.links.next {
+                    await fetchBenefits(benefitName: benefitName, nextPage: URL(string: baseURL + nextPage))
+                }
+            }
+            
+        } catch let error as NetworkError {
+            networkError = error
+        } catch {
+            networkError = .unknown
+        }
+    }
+    
+    func fetchDates(benefitName: String, nextPage: URL? = nil, caseNumber: Int, province: String, onlyFirstPage: Bool = false) async {
+        do {
+            let url: URL
 
-            if let nextPage = decodedData.links.next {
-                await fetchBenefits(benefitName: benefitName, nextPage: URL(string: baseURL + nextPage))
+            try await rateLimiter.limitRequests()
+            
+            if let nextPage = nextPage {
+                url = nextPage
+            } else {
+                datesDataArray.removeAll()
+                url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName)
+            }
+            
+            let (data, _) = try await fetchData(from: url)
+            let decodedData = try decodeData(from: data, isDateData: true)
+            
+            if let response = decodedData.apiResponse {
+                
+                datesDataArray.append(contentsOf: response.data)
+                print(datesDataArray.count)
+                
+                if !onlyFirstPage {
+                    if let nextPage = response.links.next {
+                        await fetchDates(benefitName: benefitName, nextPage: URL(string: baseURL + nextPage), caseNumber: caseNumber, province: province)
+                    }
+                }
             }
             
         } catch let error as NetworkError {
