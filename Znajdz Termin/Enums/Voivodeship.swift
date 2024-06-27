@@ -63,4 +63,43 @@ enum Voivodeship: String, CaseIterable {
             }
         }
     }
+    
+    var displayName: String {
+        get {
+            switch self {
+            case .dolnoslaskie:
+                "dolnośląskie"
+            case .kujawskopomorskie:
+                "kujawsko pomorskie"
+            case .lubelskie:
+                "lubelskie"
+            case .lubuskie:
+                "lubuskie"
+            case .lodzkie:
+                "łódzkie"
+            case .malopolskie:
+                "małopolskie"
+            case .mazowieckie:
+                "mazowieckie"
+            case .opolskie:
+                "opolskie"
+            case .podkarpackie:
+                "podkarpackie"
+            case .podlaskie:
+                "podlaskie"
+            case .pomorskie:
+                "pomorskie"
+            case .slaskie:
+                "śląskie"
+            case .swietokrzyskie:
+                "świętokrzyskie"
+            case .warminskomazurskie:
+                "warminsko mazurskie"
+            case .wielkopolskie:
+                "wielkopolskie"
+            case .zachodniopomorskie:
+                "zachodnio pomorskie"
+            }
+        }
+    }
 }

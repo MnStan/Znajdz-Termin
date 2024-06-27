@@ -13,6 +13,7 @@ struct PermissionInfoView: View {
     
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.sizeCategory) var sizeCategory
+    @Environment(\.accessibilityReduceMotion) var isReduceMotionEnabled
     
     private var imageSize: CGFloat {
         if verticalSizeClass == .compact {
@@ -35,7 +36,7 @@ struct PermissionInfoView: View {
                     .frame(width: imageSize, height: imageSize)
                     .padding(25)
                     .symbolRenderingMode(.multicolor)
-                    .symbolEffect(.variableColor)
+                    .symbolEffect(.pulse, isActive: !isReduceMotionEnabled)
                     .accessibilityHidden(true)
                 
                 if sizeCategory > .accessibilityMedium {

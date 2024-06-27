@@ -34,7 +34,7 @@ struct PermissionViewAndButtons: View {
             
             if pageIndex != 1 {
                 Button("Dalej", systemImage: "arrow.right") {
-                    withAnimation {
+                    withAnimation(.spring(.bouncy, blendDuration: 1)) {
                         pageIndex += 1
                     }
                 }
@@ -56,10 +56,6 @@ struct PermissionViewAndButtons: View {
                 .padding()
                 .background(.regularMaterial)
                 .clipShape(Capsule())
-
-                .navigationDestination(isPresented: $permissionAsked) {
-                    ContentView().navigationBarBackButtonHidden()
-                }
                 
                 .alert(Text("Coś poszło nie tak"), isPresented: $showingAlert) {
                     Button("OK", role: .cancel) { }

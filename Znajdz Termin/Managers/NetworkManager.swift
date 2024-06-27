@@ -108,7 +108,7 @@ class NetworkManager: ObservableObject {
             let (data, _) = try await fetchData(from: url)
             let decodedData = try decodeData(from: data)
             benefitsDataArray.append(contentsOf: decodedData.data)
-            
+
             if let nextPage = decodedData.links.next {
                 await fetchBenefits(benefitName: benefitName, nextPage: URL(string: baseURL + nextPage))
             }
