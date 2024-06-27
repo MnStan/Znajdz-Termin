@@ -17,6 +17,7 @@ struct LoadingView: View {
     @State private var scale: CGFloat = 1.0
     @State private var isSpinning = true
     @State private var shouldShowNextScreenAfterError = false
+    @Binding var isLoading: Bool
     
     private var logoSize: CGFloat {
         verticalSizeClass == .compact && sizeCategory >= .accessibilityMedium && (viewModel.locationError != nil) ? 100 : 200
@@ -27,17 +28,16 @@ struct LoadingView: View {
     }
     
     var body: some View {
-        let combinedBinding = Binding<Bool>(
-              get: {
-                  if viewModel.locationError == nil && viewModel.locationWorkDone {
-                      return true
-                  }
-                  return false
-              },
-              set: { _,_ in }
-          )
+        var combinedBinding = Binding<Bool>(
+            get: {
+                if viewModel.locationError == nil && viewModel.locationWorkDone {
+                    return true
+                }
+                return false
+            },
+            set: { _,_ in }
+        )
         
-        NavigationStack {
             VStack {
                 ZStack {
                     Heart()
@@ -91,10 +91,12 @@ struct LoadingView: View {
                     viewModel.getNearVoivodeshipsAgain()
                 }
             })
-                        .navigationDestination(isPresented: combinedBinding) {
-                            HomeView().navigationBarBackButtonHidden()
-                        }
-        }
+            .onChange(of: combinedBinding.wrappedValue, { oldValue, newValue in
+                if newValue == true { isLoading = false }
+            })
+            .navigationDestination(isPresented: combinedBinding) {
+                HomeView().navigationBarBackButtonHidden()
+            }
     }
 }
 
@@ -121,5 +123,5 @@ extension View {
 }
 
 #Preview {
-    LoadingView()
+    LoadingView(isLoading: .constant(true))
 }

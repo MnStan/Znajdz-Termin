@@ -10,49 +10,50 @@ import SwiftUI
 struct HomeView: View {
     @State var search = ""
     @State var isSearchFocused: Bool = false
-    //    @Namespace var namespace
     @FocusState var textViewFocus: Bool
+    @State var isSearchViewEditing = false
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                SearchElementView(searchText: $search, isSearchFocused: $isSearchFocused, textViewFocus: $textViewFocus)
-                    .padding()
-                    .onTapGesture {
-                        withAnimation(.easeInOut) {
+        ScrollView {
+            SearchElementView(searchText: $search, isSearchFocused: $isSearchFocused, textViewFocus: $textViewFocus, isSearchViewEditing: $isSearchViewEditing)
+                .padding()
+                .onTapGesture {
+                    withAnimation(.spring(.bouncy, blendDuration: 1)) {
+                        if isSearchViewEditing != true {
                             isSearchFocused = true
                             textViewFocus = true
                         }
                     }
-                
-                Group {
-                    GroupBox("Najpopularniejsze") {
-                        Text("Test")
-                        Text("Test")
-                    }
-                    .backgroundStyle(.ultraThickMaterial)
-                    .padding()
-                    
-                    GroupBox("Ostatnie wyszukiwania") {
-                        Text("Test")
-                        Text("Test")
-                    }
-                    .backgroundStyle(.ultraThickMaterial)
-                    .padding()
-                    
-                    GroupBox("Ostatnie wyszukiwania") {
-                        Text("Test")
-                        Text("Test")
-                    }
-                    .backgroundStyle(.ultraThickMaterial)
-                    .padding()
                 }
+                .accessibilityLabel("Pole wyszukiwania")
+            
+            Group {
+                GroupBox("Najpopularniejsze") {
+                    Text("Test")
+                    Text("Test")
+                }
+                .backgroundStyle(.regularMaterial)
+                .padding()
+                .accessibilityLabel("Najpopularniejsze wyszukiwania")
+                
+                GroupBox("Ostatnie wyszukiwania") {
+                    Text("Test")
+                    Text("Test")
+                }
+                .backgroundStyle(.regularMaterial)
+                .padding()
+                .accessibilityLabel("Ostatnie wyszukiwania")
             }
-            .navigationTitle("Dzień dobry")
-            .navigationBarTitleDisplayMode(.automatic)
         }
+        .navigationTitle("Dzień dobry")
+        .shadow(color: colorScheme == .light ? .gray.opacity(0.25) : Color.clear, radius: 5, y: 5)
+        .navigationBarTitleDisplayMode(.large)
+        
+        .background(.blue.opacity(0.1))
+        
         .onTapGesture {
-            withAnimation(.easeInOut) {
+            withAnimation(.spring(.bouncy, blendDuration: 1)) {
                 textViewFocus = false
                 isSearchFocused = false
             }

@@ -11,10 +11,14 @@
 		F614F9002BED3689000CA8A7 /* PermissionsViewAndButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = F614F8FF2BED3689000CA8A7 /* PermissionsViewAndButtons.swift */; };
 		F635A0362C05C650000C6715 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F635A0352C05C650000C6715 /* LoadingView.swift */; };
 		F6461DD12C242C63003283DD /* URLPathType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6461DD02C242C63003283DD /* URLPathType.swift */; };
+		F65502692C2B2D9900B4B40D /* SearchElement-ViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65502682C2B2D9900B4B40D /* SearchElement-ViewModelTests.swift */; };
 		F665216A2BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66521692BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift */; };
 		F665216D2BEE2265001464A1 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F665216C2BEE2265001464A1 /* LocationManager.swift */; };
 		F665216F2BEE2299001464A1 /* CalendarEventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F665216E2BEE2299001464A1 /* CalendarEventManager.swift */; };
 		F66521712BEE2380001464A1 /* LocalizationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66521702BEE2380001464A1 /* LocalizationManagerTests.swift */; };
+		F67773652C2C9900002C91EE /* SearchElementViewExpanded.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67773642C2C9900002C91EE /* SearchElementViewExpanded.swift */; };
+		F677736B2C2CA6A6002C91EE /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F677736A2C2CA6A6002C91EE /* MainView.swift */; };
+		F677736D2C2D50C1002C91EE /* SearchFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F677736C2C2D50C1002C91EE /* SearchFieldView.swift */; };
 		F67FD8172C1F70660023F0E3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD8162C1F70660023F0E3 /* HomeView.swift */; };
 		F67FD81B2C217D700023F0E3 /* SearchElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD81A2C217D700023F0E3 /* SearchElementView.swift */; };
 		F67FD81F2C232D2B0023F0E3 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67FD81E2C232D2B0023F0E3 /* NetworkManager.swift */; };
@@ -26,8 +30,8 @@
 		F697329E2C182FBF00F87A2C /* LoadingView-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */; };
 		F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69732A02C1830B000F87A2C /* PermissionsEnum.swift */; };
 		F69732A32C183A2100F87A2C /* Voivodeship.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69732A22C183A2100F87A2C /* Voivodeship.swift */; };
+		F6BEAB9B2C297D1400535937 /* SearchElement-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BEAB9A2C297D1400535937 /* SearchElement-ViewModel.swift */; };
 		F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */; };
-		F6DCD54B2BEBCDDE00AEFA6C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */; };
 		F6DCD54F2BEBCDE000AEFA6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */; };
 		F6DCD5522BEBCDE000AEFA6C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F6DCD5512BEBCDE000AEFA6C /* Preview Assets.xcassets */; };
 		F6DCD55C2BEBCDE000AEFA6C /* Znajdz_TerminTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD55B2BEBCDE000AEFA6C /* Znajdz_TerminTests.swift */; };
@@ -64,11 +68,15 @@
 		F614F9012BED4BF0000CA8A7 /* Znajdz-Termin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Znajdz-Termin-Info.plist"; sourceTree = SOURCE_ROOT; };
 		F635A0352C05C650000C6715 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		F6461DD02C242C63003283DD /* URLPathType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLPathType.swift; sourceTree = "<group>"; };
+		F65502682C2B2D9900B4B40D /* SearchElement-ViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchElement-ViewModelTests.swift"; sourceTree = "<group>"; };
 		F66521692BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PermissionsViewAndButtons-ViewModel.swift"; sourceTree = "<group>"; };
 		F665216C2BEE2265001464A1 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		F665216E2BEE2299001464A1 /* CalendarEventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEventManager.swift; sourceTree = "<group>"; };
 		F66521702BEE2380001464A1 /* LocalizationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManagerTests.swift; sourceTree = "<group>"; };
 		F66DAC242C256B81006E5EDB /* Znajdz Termin.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Znajdz Termin.xctestplan"; sourceTree = "<group>"; };
+		F67773642C2C9900002C91EE /* SearchElementViewExpanded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchElementViewExpanded.swift; sourceTree = "<group>"; };
+		F677736A2C2CA6A6002C91EE /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		F677736C2C2D50C1002C91EE /* SearchFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFieldView.swift; sourceTree = "<group>"; };
 		F67FD8162C1F70660023F0E3 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		F67FD81A2C217D700023F0E3 /* SearchElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchElementView.swift; sourceTree = "<group>"; };
 		F67FD81E2C232D2B0023F0E3 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
@@ -80,9 +88,9 @@
 		F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoadingView-ViewModel.swift"; sourceTree = "<group>"; };
 		F69732A02C1830B000F87A2C /* PermissionsEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsEnum.swift; sourceTree = "<group>"; };
 		F69732A22C183A2100F87A2C /* Voivodeship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Voivodeship.swift; sourceTree = "<group>"; };
+		F6BEAB9A2C297D1400535937 /* SearchElement-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchElement-ViewModel.swift"; sourceTree = "<group>"; };
 		F6DCD5452BEBCDDE00AEFA6C /* Znajdz Termin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Znajdz Termin.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Znajdz_TerminApp.swift; sourceTree = "<group>"; };
-		F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F6DCD5512BEBCDE000AEFA6C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F6DCD5572BEBCDE000AEFA6C /* Znajdz TerminTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Znajdz TerminTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -192,6 +200,8 @@
 			children = (
 				F67FD81A2C217D700023F0E3 /* SearchElementView.swift */,
 				F67FD8162C1F70660023F0E3 /* HomeView.swift */,
+				F67773642C2C9900002C91EE /* SearchElementViewExpanded.swift */,
+				F677736C2C2D50C1002C91EE /* SearchFieldView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -199,6 +209,7 @@
 		F67FD81D2C232B110023F0E3 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				F6BEAB9A2C297D1400535937 /* SearchElement-ViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -272,9 +283,9 @@
 				F614F9012BED4BF0000CA8A7 /* Znajdz-Termin-Info.plist */,
 				F6DCD5742BEBCF6D00AEFA6C /* PermissionsView */,
 				F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */,
-				F6DCD54A2BEBCDDE00AEFA6C /* ContentView.swift */,
 				F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */,
 				F6DCD5502BEBCDE000AEFA6C /* Preview Content */,
+				F677736A2C2CA6A6002C91EE /* MainView.swift */,
 			);
 			path = "Znajdz Termin";
 			sourceTree = "<group>";
@@ -294,6 +305,7 @@
 				F66521702BEE2380001464A1 /* LocalizationManagerTests.swift */,
 				F60422E52BF4A9CE006FBE67 /* CalendarManagerTests.swift */,
 				F67FD8222C232D7B0023F0E3 /* NetworkManagerTests.swift */,
+				F65502682C2B2D9900B4B40D /* SearchElement-ViewModelTests.swift */,
 			);
 			path = "Znajdz TerminTests";
 			sourceTree = "<group>";
@@ -457,11 +469,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				F67FD81F2C232D2B0023F0E3 /* NetworkManager.swift in Sources */,
-				F6DCD54B2BEBCDDE00AEFA6C /* ContentView.swift in Sources */,
+				F677736B2C2CA6A6002C91EE /* MainView.swift in Sources */,
 				F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */,
 				F6DCD5762BEBCF8200AEFA6C /* PermissionsView.swift in Sources */,
 				F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */,
 				F6F863F72C1F3D1B0088EE1A /* LocationError.swift in Sources */,
+				F67773652C2C9900002C91EE /* SearchElementViewExpanded.swift in Sources */,
 				F697329B2C182E6C00F87A2C /* HeartView.swift in Sources */,
 				F665216D2BEE2265001464A1 /* LocationManager.swift in Sources */,
 				F67FD82A2C233FFC0023F0E3 /* CodingStrategy+ext.swift in Sources */,
@@ -469,6 +482,7 @@
 				F6461DD12C242C63003283DD /* URLPathType.swift in Sources */,
 				F67FD8252C232E150023F0E3 /* NetworkError.swift in Sources */,
 				F6DCD5782BEBE0C900AEFA6C /* PermissionInfoView.swift in Sources */,
+				F677736D2C2D50C1002C91EE /* SearchFieldView.swift in Sources */,
 				F67FD8172C1F70660023F0E3 /* HomeView.swift in Sources */,
 				F697329E2C182FBF00F87A2C /* LoadingView-ViewModel.swift in Sources */,
 				F69732A32C183A2100F87A2C /* Voivodeship.swift in Sources */,
@@ -476,6 +490,7 @@
 				F6F863F52C1F09A50088EE1A /* CLLocation2D+ext.swift in Sources */,
 				F614F9002BED3689000CA8A7 /* PermissionsViewAndButtons.swift in Sources */,
 				F635A0362C05C650000C6715 /* LoadingView.swift in Sources */,
+				F6BEAB9B2C297D1400535937 /* SearchElement-ViewModel.swift in Sources */,
 				F67FD8282C232F2C0023F0E3 /* APIResulst.swift in Sources */,
 				F6F863F32C1F07450088EE1A /* LocationModel.swift in Sources */,
 				F6F863F12C1F001E0088EE1A /* CLLocation+ext.swift in Sources */,
@@ -489,6 +504,7 @@
 			files = (
 				F67FD8232C232D7B0023F0E3 /* NetworkManagerTests.swift in Sources */,
 				F60422E62BF4A9CE006FBE67 /* CalendarManagerTests.swift in Sources */,
+				F65502692C2B2D9900B4B40D /* SearchElement-ViewModelTests.swift in Sources */,
 				F66521712BEE2380001464A1 /* LocalizationManagerTests.swift in Sources */,
 				F6DCD55C2BEBCDE000AEFA6C /* Znajdz_TerminTests.swift in Sources */,
 			);
