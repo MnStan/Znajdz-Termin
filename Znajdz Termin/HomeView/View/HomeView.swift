@@ -12,7 +12,6 @@ struct HomeView: View {
     @State var isSearchFocused: Bool = false
     @FocusState var textViewFocus: Bool
     @State var isSearchViewEditing = false
-    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         ScrollView {
@@ -53,7 +52,7 @@ struct HomeView: View {
             }
         }
         .navigationTitle("Dzień dobry")
-        .shadow(color: colorScheme == .light ? .gray.opacity(0.25) : Color.clear, radius: 5, y: 5)
+        .shadow()
         .navigationBarTitleDisplayMode(.large)
         
         .background(.blue.opacity(0.1))

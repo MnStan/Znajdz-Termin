@@ -12,12 +12,51 @@ struct FetchedItemsView: View {
     @StateObject private var viewModel = ViewModel()
     @State private var selectedItemID: String? = nil
     @Namespace var itemsNamespace
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         ScrollViewReader { value in
             ScrollView {
                 LazyVStack {
+                    if let error = viewModel.networkError {
+                        GroupBox {
+                            ContentUnavailableView {
+                                Image(systemName: "exclamationmark.triangle")
+                                Text("Wystąpił błąd")
+                            } description: {
+                                Text(error.description)
+                            } actions: {
+                                Button("Spróbuj ponownie") {
+                                    dismiss()
+                                }
+                                .modifier(CustomButton(isCancel: false))
+                            }
+                        }
+                        .padding()
+                        .shadow()
+                    }
+                    
+                    if viewModel.itemsArray.isEmpty && viewModel.isNetworkWorkDone {
+                        GroupBox {
+                            ContentUnavailableView {
+                                Image(systemName: "magnifyingglass")
+                                    .padding(.bottom)
+                                Text("Brak danych dla tego wyszukiwania")
+                                    .padding(.bottom)
+                            } actions: {
+                                Button {
+                                    dismiss()
+                                } label: {
+                                    Text("Spróbuj ponownie")
+                                        .modifier(CustomButton(isCancel: false))
+                                }
+                                .foregroundStyle(.primary)
+                            }
+                        }
+                        .padding()
+                        .shadow()
+                    }
+                    
                     ForEach(viewModel.itemsArray, id: \.id) { item in
                         GroupBox {
                             ZStack {
@@ -38,7 +77,7 @@ struct FetchedItemsView: View {
                         .padding()
                         .frame(maxWidth: .infinity)
                     }
-                    .shadow(color: colorScheme == .light ? .gray.opacity(0.25) : Color.clear, radius: 5, y: 5)
+                    .shadow()
                     .frame(maxWidth: .infinity)
                     
                     if viewModel.canLoadMore() {

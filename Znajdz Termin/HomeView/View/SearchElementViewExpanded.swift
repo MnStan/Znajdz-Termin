@@ -116,11 +116,7 @@ struct SearchElementViewExpanded: View {
                                 }
                             } label: {
                                 Text("Zamknij")
-                                    .padding()
-                                    .dynamicTypeSize(...DynamicTypeSize.accessibility1)
-                                    .frame(maxWidth: .infinity)
-                                    .background(.red.opacity(0.25))
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .modifier(CustomButton(isCancel: true))
                             }
                             .foregroundStyle(.primary)
                             
@@ -135,11 +131,7 @@ struct SearchElementViewExpanded: View {
                                 }
                             } label: {
                                 Text("Szukaj")
-                                    .padding()
-                                    .dynamicTypeSize(...DynamicTypeSize.accessibility1)
-                                    .frame(maxWidth: .infinity)
-                                    .background(.gray.opacity(0.25))
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .modifier(CustomButton(isCancel: false))
                             }
                             .foregroundStyle(.primary)
                             

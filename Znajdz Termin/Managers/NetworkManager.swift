@@ -31,7 +31,7 @@ class NetworkManager: ObservableObject {
     @Published var benefitsArray: [String] = []
     private let rateLimiter = RateLimiter()
     var nextPageURL: String?
-    private var canFetchMorePages = true
+    @Published var canFetchMorePages = true
     
     init() {
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -101,7 +101,6 @@ class NetworkManager: ObservableObject {
                 return APIResponseGeneral(apiResponseBenefit: decodedData, apiResponse: nil)
             }
         } catch {
-            print(error, "\n", error.localizedDescription)
             throw NetworkError.badJSON
         }
     }
@@ -179,9 +178,6 @@ class NetworkManager: ObservableObject {
     func fetchMoreDates() async {
         if canFetchMorePages, let nextPage = nextPageURL, let nextPageURL = createNextPageURL(nextPageString: nextPage) {
             await fetchDates(nextPage: nextPageURL, onlyOnePage: true)
-//            completion?()
-        } else {
-//            completion?()
         }
     }
     
