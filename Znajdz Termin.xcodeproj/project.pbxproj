@@ -33,6 +33,7 @@
 		F6962C7B2C2DFB3F00CC68D7 /* DetailItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C7A2C2DFB3F00CC68D7 /* DetailItemView.swift */; };
 		F6962C7D2C33032D00CC68D7 /* ButtonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C7C2C33032D00CC68D7 /* ButtonModifier.swift */; };
 		F6962C7F2C3304A900CC68D7 /* ShadowModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C7E2C3304A900CC68D7 /* ShadowModifier.swift */; };
+		F6962C812C33069900CC68D7 /* FadeAnimationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C802C33069900CC68D7 /* FadeAnimationModifier.swift */; };
 		F697329B2C182E6C00F87A2C /* HeartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F697329A2C182E6C00F87A2C /* HeartView.swift */; };
 		F697329E2C182FBF00F87A2C /* LoadingView-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */; };
 		F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69732A02C1830B000F87A2C /* PermissionsEnum.swift */; };
@@ -98,6 +99,7 @@
 		F6962C7A2C2DFB3F00CC68D7 /* DetailItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailItemView.swift; sourceTree = "<group>"; };
 		F6962C7C2C33032D00CC68D7 /* ButtonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonModifier.swift; sourceTree = "<group>"; };
 		F6962C7E2C3304A900CC68D7 /* ShadowModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowModifier.swift; sourceTree = "<group>"; };
+		F6962C802C33069900CC68D7 /* FadeAnimationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FadeAnimationModifier.swift; sourceTree = "<group>"; };
 		F697329A2C182E6C00F87A2C /* HeartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartView.swift; sourceTree = "<group>"; };
 		F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoadingView-ViewModel.swift"; sourceTree = "<group>"; };
 		F69732A02C1830B000F87A2C /* PermissionsEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsEnum.swift; sourceTree = "<group>"; };
@@ -269,6 +271,7 @@
 				F697329A2C182E6C00F87A2C /* HeartView.swift */,
 				F6962C7C2C33032D00CC68D7 /* ButtonModifier.swift */,
 				F6962C7E2C3304A900CC68D7 /* ShadowModifier.swift */,
+				F6962C802C33069900CC68D7 /* FadeAnimationModifier.swift */,
 			);
 			path = CustomViews;
 			sourceTree = "<group>";
@@ -518,6 +521,7 @@
 				F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */,
 				F6DCD5762BEBCF8200AEFA6C /* PermissionsView.swift in Sources */,
 				F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */,
+				F6962C812C33069900CC68D7 /* FadeAnimationModifier.swift in Sources */,
 				F6F863F72C1F3D1B0088EE1A /* LocationError.swift in Sources */,
 				F6962C7F2C3304A900CC68D7 /* ShadowModifier.swift in Sources */,
 				F67773652C2C9900002C91EE /* SearchElementViewExpanded.swift in Sources */,

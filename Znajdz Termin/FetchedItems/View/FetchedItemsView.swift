@@ -55,6 +55,31 @@ struct FetchedItemsView: View {
                         }
                         .padding()
                         .shadow()
+                    } else if viewModel.itemsArray.isEmpty {
+                        VStack {
+                            ZStack {
+                                Heart()
+                                    .foregroundStyle(Color.gray)
+                                    .foregroundStyle(.thinMaterial)
+                                    .fadeAnimation()
+                                
+                                Heart()
+                                    .rotation3DEffect(
+                                        Angle(degrees: 180),
+                                        axis: (x: 0.0, y: 1.0, z: 0.0)
+                                    )
+                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(.thinMaterial)
+                                    .fadeAnimation()
+                            }
+                            .frame(width: 100, height: 100)
+                            .accessibilityLabel("Dwukolorowe logo w kształcie serca")
+                            
+                            Text("Ładowanie...")
+                                .padding(.top, 50)
+                                .font(.title).bold()
+                                .accessibilityLabel("Trwa ładowanie")
+                        }
                     }
                     
                     ForEach(viewModel.itemsArray, id: \.id) { item in
