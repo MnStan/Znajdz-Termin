@@ -28,7 +28,7 @@ struct LoadingView: View {
     }
     
     var body: some View {
-        var combinedBinding = Binding<Bool>(
+        let combinedBinding = Binding<Bool>(
             get: {
                 if viewModel.locationError == nil && viewModel.locationWorkDone {
                     return true

@@ -74,7 +74,7 @@ extension SearchElementView {
         
         func fetchDates(benefit: String, caseNumber: Int, isForKids: Bool, province: String) {
             Task {
-                await networkManager.fetchDates(benefitName: benefit, caseNumber: caseNumber ,isForKids: isForKids, province: province)
+                await networkManager.fetchDates(benefitName: benefit, caseNumber: caseNumber ,isForKids: isForKids, province: province, onlyOnePage: true)
             }
         }
     }

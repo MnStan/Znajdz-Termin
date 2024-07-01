@@ -27,5 +27,17 @@ extension FetchedItemsView {
         deinit {
             cancellables.forEach { $0.cancel() }
         }
+        
+        func fetchNextPage() async {
+            await networkManager.fetchMoreDates()
+        }
+        
+        func resetNetworkManager() {
+            networkManager.resetNetworkFetchingDates()
+        }
+        
+        func canLoadMore() -> Bool {
+            networkManager.nextPageURL != nil
+        }
     }
 }

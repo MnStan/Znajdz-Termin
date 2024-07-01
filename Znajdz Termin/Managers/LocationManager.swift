@@ -24,7 +24,8 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     private var locationManager: CLLocationManager
     private let geocoder = CLGeocoder()
     private let radius: CLLocationDistance = 100000 // 100 km
-    private let numberOfPoints = 22
+    #warning("Changed numberOfPoints for testing purposes")
+    private let numberOfPoints = 2
     var nearVoivodeships: [String] = []
     @Published var nearLocations: [LocationData] = []
     let locationErrorPublished = PassthroughSubject<LocationError?, Never>()
