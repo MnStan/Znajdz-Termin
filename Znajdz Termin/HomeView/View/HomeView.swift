@@ -17,15 +17,6 @@ struct HomeView: View {
         ScrollView {
             SearchElementView(searchText: $search, isSearchFocused: $isSearchFocused, textViewFocus: $textViewFocus, isSearchViewEditing: $isSearchViewEditing)
                 .padding()
-                .onTapGesture {
-                    withAnimation(.spring(.bouncy)) {
-                        if isSearchViewEditing != true {
-                            isSearchFocused = true
-                            textViewFocus = true
-                        }
-                    }
-                }
-                .accessibilityLabel("Pole wyszukiwania")
             
             Group {
                 GroupBox("Najpopularniejsze") {
@@ -58,7 +49,7 @@ struct HomeView: View {
         .background(.blue.opacity(0.1))
         
         .onTapGesture {
-            withAnimation(.spring(.bouncy, blendDuration: 1)) {
+            withAnimation(.spring(.bouncy)) {
                 textViewFocus = false
                 isSearchFocused = false
             }

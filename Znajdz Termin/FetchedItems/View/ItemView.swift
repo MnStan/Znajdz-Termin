@@ -14,13 +14,14 @@ struct ItemView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(dataElement.attributes.provider ?? "nic")
+            Text(dataElement.attributes.provider ?? "Nieznane")
                 .font(.title3.bold())
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity)
                 .drawingGroup()
                 .matchedGeometryEffect(id: "provider\(dataElement.id)", in: itemsNamespace, properties: .size)
+                .accessibilityLabel("\(dataElement.attributes.provider ?? "Nieznane") dotknij aby rozwinąć szczegóły")
         }
     }
 }

@@ -35,6 +35,7 @@ struct SearchElementViewExpanded: View {
                 VStack(alignment: .leading) {
                     HStack {
                         Image(systemName: "magnifyingglass")
+                            .accessibilityHidden(true)
                         TextField("Szukaj", text: $searchText, axis: .vertical)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
@@ -56,16 +57,21 @@ struct SearchElementViewExpanded: View {
                     }
                     
                     if let suggestion = viewModel.prepareSuggestionToView(searchText: searchText), viewModel.shouldShowHint {
-                        Text("Podpowiedź:")
-                            .opacity(0.5)
-                        Button {
-                            searchText = suggestion
-                            textViewFocus = false
-                            viewModel.shouldShowHint = false
-                        } label: {
-                            Text(suggestion)
-                                .multilineTextAlignment(.leading)
+                        Group {
+                            Text("Podpowiedź:")
+                                .accessibilityHidden(true)
+                                .opacity(0.5)
+                            Button {
+                                searchText = suggestion
+                                textViewFocus = false
+                                viewModel.shouldShowHint = false
+                            } label: {
+                                Text(suggestion)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .accessibilityLabel("Podpowiedź \(suggestion) kliknij aby użyć podpowiedzi")
                         }
+                        .accessibilityElement(children: .combine)
                     }
                 }
                 
@@ -73,6 +79,7 @@ struct SearchElementViewExpanded: View {
                     if horizontalSizeClass == .compact && sizeCategory > .extraExtraExtraLarge {
                         VStack {
                             Text("Województwo")
+                                .accessibilityHidden(true)
                             
                             Picker("Województwo", selection: $pickedVoivodeship) {
                                 ForEach(Voivodeship.allCases, id: \.displayName) {

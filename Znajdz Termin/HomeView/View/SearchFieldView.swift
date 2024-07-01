@@ -15,14 +15,13 @@ struct SearchFieldView: View {
             RoundedRectangle(cornerRadius: 12)
                 .matchedGeometryEffect(id: "background", in: searchNamespace)
                 .foregroundStyle(.regularMaterial)
-                .accessibilityHidden(true)
+                
             VStack {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .accessibilityLabel("Ikona lupy")
+                        .accessibilityHidden(true)
                     
                     TextField("Szukaj", text: $searchText)
-                        .disabled(true)
                     
                 }
                 .overlay(
@@ -30,7 +29,6 @@ struct SearchFieldView: View {
                         .stroke(.black, lineWidth: 0)
                         .matchedGeometryEffect(id: "border", in: searchNamespace)
                 )
-                .accessibilityHidden(true)
             }
             .padding()
         }
