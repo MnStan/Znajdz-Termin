@@ -185,6 +185,7 @@ class NetworkManager: ObservableObject {
         nextPageURL = nil
         datesDataArray.removeAll()
         canFetchMorePages = true
+        networkError = nil
     }
 }
 

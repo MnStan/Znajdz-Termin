@@ -88,7 +88,7 @@ struct FetchedItemsView: View {
                                 if selectedItemID != item.id {
                                     ItemView(itemsNamespace: itemsNamespace, dataElement: item)
                                 } else {
-                                    DetailItemView(itemsNamespace: itemsNamespace, dataElement: item)
+                                    DetailItemView(itemsNamespace: itemsNamespace, dataElement: item, selectedItemID: $selectedItemID)
                                         .id(item.id)
                                 }
                             }
@@ -99,7 +99,8 @@ struct FetchedItemsView: View {
                                 value.scrollTo(item.id, anchor: .top)
                             }
                         }
-                        .padding()
+                        .padding([.leading, .trailing])
+                        .padding([.top, .bottom], 5)
                         .frame(maxWidth: .infinity)
                     }
                     .shadow()

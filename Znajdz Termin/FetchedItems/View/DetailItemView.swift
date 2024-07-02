@@ -9,27 +9,156 @@ import SwiftUI
 
 struct DetailItemView: View {
     var itemsNamespace: Namespace.ID
-    @Environment(\.sizeCategory) var sizeCategory
     var dataElement: DataElement
+    @Binding var selectedItemID: String?
+    @Environment(\.sizeCategory) var sizeCategory
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(dataElement.attributes.provider ?? "nic")
-                .font(.headline)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
+        VStack {
+            HStack {
+                Spacer()
+                Button {
+                    withAnimation(.spring(duration: 0.5, bounce: 0.15)) {
+                        selectedItemID = nil
+                    }
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                }
+                .foregroundStyle(.primary)
+                .accessibilityLabel("Zamknij widok szczegółowy")
+            }
+            VStack(alignment: .center, spacing: 10) {
+                HStack(spacing: 10) {
+                    Image(systemName: "person.fill")
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                    
+                    VStack {
+                        Text(dataElement.attributes.provider ?? "Brak informacji")
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity)
+                            .drawingGroup()
+                            .matchedGeometryEffect(id: "provider\(dataElement.id)", in: itemsNamespace, properties: .size)
+                        
+                        Text(dataElement.attributes.locality ?? "Brak informacji")
+                            .font(.subheadline).bold()
+                            .padding(2)
+                        
+                        Text(dataElement.attributes.address ?? "Brak informacji")
+                            .font(.subheadline).bold()
+                            .padding(2)
+                    }
+                }
                 .frame(maxWidth: .infinity)
-                .drawingGroup()
-                .matchedGeometryEffect(id: "provider\(dataElement.id)", in: itemsNamespace, properties: .size)
+            }
+            .padding()
             
-            Text(dataElement.attributes.address ?? "nic")
-            Text(dataElement.attributes.carPark ?? "nic")
-            Text(dataElement.attributes.benefitsForChildren ?? "nic")
+            GroupBox(label: Text("Udogodnienia")) {
+                VStack(alignment: .leading, spacing: 10) {
+                    let benefitsForChildren = dataElement.attributes.benefitsForChildren
+                    if benefitsForChildren == "Y" {
+                        HStack {
+                            Image(systemName: "figure.and.child.holdinghands")
+                            Text("Świadczenia dla dzieci")
+                        }
+                    }
+                    
+                    let toilet = dataElement.attributes.toilet
+                    if toilet == "Y" {
+                        HStack {
+                            Image(systemName: "toilet.fill")
+                            Text("Toalety")
+                        }
+                    }
+                    
+                    let ramp = dataElement.attributes.ramp
+                    if ramp == "Y" {
+                        HStack {
+                            Image(systemName: "figure.roll")
+                            Text("Rampa dla niepełnosprawnych")
+                        }
+                    }
+                    
+                    let carPark = dataElement.attributes.carPark
+                    if carPark == "Y" {
+                        HStack {
+                            Image(systemName: "parkingsign.circle.fill")
+                            Text("Parking")
+                        }
+                    }
+                    
+                    let elevator = dataElement.attributes.elevator
+                    if elevator == "Y" {
+                        HStack {
+                            Image(systemName: "arrow.up.arrow.down")
+                            Text("Winda")
+                        }
+                    }
+                }
+                .padding(.top, 15)
+                .frame(maxWidth: .infinity)
+            }
+            
+            GroupBox(label: Text("Informacje o kolejce")) {
+                HStack {
+                    let statistics = dataElement.attributes.statistics
+                    let providerData = statistics?.providerData ?? nil
+                    
+                    GroupBox(label: (providerData != nil && statistics != nil) ? Text("Ostatnia aktualizacja: \(providerData!.update)") : Text("")) {
+                        if statistics != nil  {
+                            if let providerData {
+                                VStack {
+                                    Text("Oczekujący")
+                                    Text("\(providerData.awaiting)")
+                                        .bold()
+                                }
+                                .padding(.top, 3)
+                                
+                                VStack {
+                                    Text("Średni czas oczekiwania")
+                                        .multilineTextAlignment(.center)
+                                    Text("\(providerData.averagePeriod ?? 0) dni")
+                                        .bold()
+                                }
+                                .padding(.top, 3)
+                                
+                            }
+                        }
+                        
+                        if let firstDate = dataElement.attributes.dates?.date {
+                            VStack {
+                                Text("Najbliższy termin")
+                                    .multilineTextAlignment(.center)
+                                Text(firstDate)
+                                    .bold()
+                            }
+                            .padding(.top, 3)
+                        }
+                    }
+                    .padding(.top, 10)
+                }
+            }
+            
+            GroupBox {
+                if let phoneURL = URL(string: "tel:+\(dataElement.attributes.phone)") {
+                    Link("\(dataElement.attributes.phone)", destination: phoneURL)
+                        .foregroundColor(.blue)
+                        .padding()
+                } else {
+                    Text("Unable to create phone link.")
+                        .foregroundColor(.red)
+                        .padding()
+                }
+            }
+            .padding(.top, 3)
+            
         }
     }
 }
 
 #Preview {
     @Namespace var previewNamespace
-    return DetailItemView(itemsNamespace: previewNamespace, dataElement: DataElement.defaultDataElement)
+    return DetailItemView(itemsNamespace: previewNamespace, dataElement: .defaultDataElement, selectedItemID: .constant(""))
 }
