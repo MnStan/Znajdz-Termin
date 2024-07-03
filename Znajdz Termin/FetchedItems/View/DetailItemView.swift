@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DetailItemView: View {
     var itemsNamespace: Namespace.ID
-    var dataElement: DataElement
+    var dataElement: QueueItem
     @Binding var selectedItemID: String?
     @Environment(\.sizeCategory) var sizeCategory
     
@@ -34,21 +34,27 @@ struct DetailItemView: View {
                         .frame(width: 50, height: 50)
                     
                     VStack {
-                        Text(dataElement.attributes.provider ?? "Brak informacji")
+                        Text(dataElement.queueResult.attributes.provider ?? "Brak informacji")
                             .font(.headline)
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity)
                             .drawingGroup()
-                            .matchedGeometryEffect(id: "provider\(dataElement.id)", in: itemsNamespace, properties: .size)
+                            .matchedGeometryEffect(id: "provider\(dataElement.id)", in: itemsNamespace)
                         
-                        Text(dataElement.attributes.locality ?? "Brak informacji")
+                        Text(dataElement.queueResult.attributes.locality ?? "Brak informacji")
+                            .font(.subheadline).bold()
+                            .padding(2)
+                            .matchedGeometryEffect(id: "locality\(dataElement.id)", in: itemsNamespace)
+                        
+                        Text(dataElement.queueResult.attributes.address ?? "Brak informacji")
                             .font(.subheadline).bold()
                             .padding(2)
                         
-                        Text(dataElement.attributes.address ?? "Brak informacji")
-                            .font(.subheadline).bold()
+                        Text(dataElement.distance)
+                            .font(.subheadline.bold())
                             .padding(2)
+                            .matchedGeometryEffect(id: "distance\(dataElement.id)", in: itemsNamespace)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -57,7 +63,7 @@ struct DetailItemView: View {
             
             GroupBox(label: Text("Udogodnienia")) {
                 VStack(alignment: .leading, spacing: 10) {
-                    let benefitsForChildren = dataElement.attributes.benefitsForChildren
+                    let benefitsForChildren = dataElement.queueResult.attributes.benefitsForChildren
                     if benefitsForChildren == "Y" {
                         HStack {
                             Image(systemName: "figure.and.child.holdinghands")
@@ -65,7 +71,7 @@ struct DetailItemView: View {
                         }
                     }
                     
-                    let toilet = dataElement.attributes.toilet
+                    let toilet = dataElement.queueResult.attributes.toilet
                     if toilet == "Y" {
                         HStack {
                             Image(systemName: "toilet.fill")
@@ -73,7 +79,7 @@ struct DetailItemView: View {
                         }
                     }
                     
-                    let ramp = dataElement.attributes.ramp
+                    let ramp = dataElement.queueResult.attributes.ramp
                     if ramp == "Y" {
                         HStack {
                             Image(systemName: "figure.roll")
@@ -81,7 +87,7 @@ struct DetailItemView: View {
                         }
                     }
                     
-                    let carPark = dataElement.attributes.carPark
+                    let carPark = dataElement.queueResult.attributes.carPark
                     if carPark == "Y" {
                         HStack {
                             Image(systemName: "parkingsign.circle.fill")
@@ -89,7 +95,7 @@ struct DetailItemView: View {
                         }
                     }
                     
-                    let elevator = dataElement.attributes.elevator
+                    let elevator = dataElement.queueResult.attributes.elevator
                     if elevator == "Y" {
                         HStack {
                             Image(systemName: "arrow.up.arrow.down")
@@ -103,7 +109,7 @@ struct DetailItemView: View {
             
             GroupBox(label: Text("Informacje o kolejce")) {
                 HStack {
-                    let statistics = dataElement.attributes.statistics
+                    let statistics = dataElement.queueResult.attributes.statistics
                     let providerData = statistics?.providerData ?? nil
                     
                     GroupBox(label: (providerData != nil && statistics != nil) ? Text("Ostatnia aktualizacja: \(providerData!.update)") : Text("")) {
@@ -127,12 +133,13 @@ struct DetailItemView: View {
                             }
                         }
                         
-                        if let firstDate = dataElement.attributes.dates?.date {
+                        if let firstDate = dataElement.queueResult.attributes.dates?.date {
                             VStack {
                                 Text("Najbliższy termin")
                                     .multilineTextAlignment(.center)
                                 Text(firstDate)
                                     .bold()
+                                    .matchedGeometryEffect(id: "date\(dataElement.id)", in: itemsNamespace)
                             }
                             .padding(.top, 3)
                         }
@@ -142,8 +149,8 @@ struct DetailItemView: View {
             }
             
             GroupBox {
-                if let phoneURL = URL(string: "tel:+\(dataElement.attributes.phone)") {
-                    Link("\(dataElement.attributes.phone)", destination: phoneURL)
+                if let phoneURL = URL(string: "tel:+\(dataElement.queueResult.attributes.phone)") {
+                    Link("\(dataElement.queueResult.attributes.phone)", destination: phoneURL)
                         .foregroundColor(.blue)
                         .padding()
                 } else {
@@ -160,5 +167,5 @@ struct DetailItemView: View {
 
 #Preview {
     @Namespace var previewNamespace
-    return DetailItemView(itemsNamespace: previewNamespace, dataElement: .defaultDataElement, selectedItemID: .constant(""))
+    return DetailItemView(itemsNamespace: previewNamespace, dataElement: QueueItem(queueResult: .defaultDataElement, distance: "120 km"), selectedItemID: .constant(""))
 }

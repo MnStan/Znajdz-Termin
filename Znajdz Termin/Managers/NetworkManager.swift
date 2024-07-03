@@ -13,7 +13,28 @@ protocol URLSessionProtocol {
 
 extension URLSession: URLSessionProtocol { }
 
-class NetworkManager: ObservableObject {
+protocol NetworkManagerProtocol: ObservableObject {
+    var benefitsDataArray: [String] { get set }
+    var benefitsDataArrayPublisher: Published<[String]>.Publisher { get }
+    var datesDataArray: [DataElement] { get set }
+    var datesDataArrayPublisher: Published<[DataElement]>.Publisher { get }
+    var networkError: NetworkError? { get set }
+    var networkErrorPublisher: Published<NetworkError?>.Publisher { get }
+    var benefitsArray: [String] { get set }
+    var benefitsArrayPublisher: Published<[String]>.Publisher { get }
+    var canFetchMorePages: Bool { get set }
+    var canFetchMorePagesPublisher: Published<Bool>.Publisher { get }
+    var nextPageURL: String? { get set }
+    
+    func createURL(path: URLPathType, currentPage: Int, caseNumber: Int, province: String?, benefit: String, isForKids: Bool) throws -> URL
+    func fetchData(from url: URL, session: URLSessionProtocol) async throws -> (Data, URLResponse)
+    func createNextPageURL(nextPageString: String?) -> URL?
+    func fetchDates(benefitName: String, nextPage: URL?, caseNumber: Int, isForKids: Bool, province: String, onlyOnePage: Bool) async
+    func fetchMoreDates() async
+    func resetNetworkFetchingDates()
+}
+
+class NetworkManager: NetworkManagerProtocol, ObservableObject {
     static let shared = NetworkManager()
     let baseURL = "https://api.nfz.gov.pl"
     private let decoder = JSONDecoder()
@@ -22,6 +43,10 @@ class NetworkManager: ObservableObject {
     @Published var datesDataArray: [DataElement] = []
     @Published var networkError: NetworkError? = nil
     
+    var benefitsDataArrayPublisher: Published<[String]>.Publisher { $benefitsDataArray }
+    var datesDataArrayPublisher: Published<[DataElement]>.Publisher { $datesDataArray }
+    var networkErrorPublisher: Published<NetworkError?>.Publisher { $networkError }
+    
     let dateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -29,9 +54,11 @@ class NetworkManager: ObservableObject {
     }()
     
     @Published var benefitsArray: [String] = []
+    var benefitsArrayPublisher: Published<[String]>.Publisher { $benefitsArray }
     private let rateLimiter = RateLimiter()
     var nextPageURL: String?
     @Published var canFetchMorePages = true
+    var canFetchMorePagesPublisher: Published<Bool>.Publisher { $canFetchMorePages }
     
     init() {
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -85,7 +112,7 @@ class NetworkManager: ObservableObject {
     
     func createNextPageURL(nextPageString: String?) -> URL? {
         guard let nextPageString else { return nil}
-        print(nextPageString)
+
         return URL(string: baseURL + nextPageString)
     }
     
@@ -147,8 +174,6 @@ class NetworkManager: ObservableObject {
                 url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName, isForKids: isForKids)
             }
             
-            print(url)
-            
             let (data, _) = try await fetchData(from: url)
             let decodedData = try decodeData(from: data, isDateData: true)
             
@@ -197,14 +222,18 @@ actor RateLimiter {
     func limitRequests() async throws {
         let now = Date()
         
-        requestTimestamps = requestTimestamps.filter { now.timeIntervalSince($0) < 2.0 }
+        requestTimestamps = requestTimestamps.filter { now.timeIntervalSince($0) < 5 }
         if requestTimestamps.count >= maxRequestsPerSecond {
-            let oldestTimestamp = requestTimestamps.first!
-            let waitTime = max(1 - now.timeIntervalSince(oldestTimestamp), 1.25)
-            try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
-            requestTimestamps.removeFirst()
+            
+            if let mostRecentTimestamp = requestTimestamps.last {
+                let waitTime = 5 - now.timeIntervalSince(mostRecentTimestamp)
+                
+                try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
+                
+                requestTimestamps.removeAll()
+            }
         }
         
-        requestTimestamps.append(now)
+        requestTimestamps.append(Date())
     }
 }

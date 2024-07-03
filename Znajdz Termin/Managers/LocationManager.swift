@@ -17,6 +17,8 @@ protocol LocationManagerProtocol {
     var locationWorkDone: PassthroughSubject<Bool, Never> { get }
     
     func requestWhenInUseAuthorization()
+    func calculateDistanceFromPoint(to location: CLLocation) -> CLLocationDistance?
+    func findCoordinatesOfCityName(name: String) async throws -> CLLocation?
 }
 
 class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDelegate {
@@ -24,12 +26,13 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     private var locationManager: CLLocationManager
     private let geocoder = CLGeocoder()
     private let radius: CLLocationDistance = 100000 // 100 km
-    #warning("Changed numberOfPoints for testing purposes")
+#warning("Changed numberOfPoints for testing purposes")
     private let numberOfPoints = 2
     var nearVoivodeships: [String] = []
     @Published var nearLocations: [LocationData] = []
     let locationErrorPublished = PassthroughSubject<LocationError?, Never>()
     var locationWorkDone = PassthroughSubject<Bool, Never>()
+    private let semaphore = DispatchSemaphore(value: 1)
     
     var authorizationStatus: CLAuthorizationStatus {
         locationManager.authorizationStatus
@@ -40,6 +43,8 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     }
     
     var voivodeship = "Nieznane"
+    
+    private let rateLimiter = LocationRateLimiter()
     
     init(locationManager: CLLocationManager) {
         self.locationManager = locationManager
@@ -174,6 +179,74 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
             locationManager.requestWhenInUseAuthorization()
         default:
             locationErrorPublished.send(LocationError.localizationUnknown)
+        }
+    }
+    
+    func findCoordinatesOfCityName(name: String) async throws -> CLLocation? {
+        semaphore.wait()
+        defer { semaphore.signal() }
+        
+        do {
+            await rateLimiter.limitRequests()
+            
+            try await Task.sleep(nanoseconds: 250_000)
+            let place = try await geocoder.geocodeAddressString(name)
+            
+            if let firstPlace = place.first {
+                return firstPlace.location
+            }
+        } catch {
+            throw error
+        }
+        
+        return nil
+    }
+    
+    func calculateDistanceFromPoint(to location: CLLocation) -> CLLocationDistance? {
+        return locationManager.location?.distance(from: location)
+    }
+}
+
+
+actor LocationRateLimiter {
+    private var requestTimestamps: [Date] = []
+    private let maxRequestsPerMinute = 50
+    private var requestQueue: [CheckedContinuation<Void, Never>] = []
+    private var isProcessing = false
+
+    func limitRequests() async {
+        await withCheckedContinuation { continuation in
+            requestTimestamps = requestTimestamps.filter { Date().timeIntervalSince($0) < 60 }
+            requestQueue.append(continuation)
+            
+            if !isProcessing {
+                processQueue()
+            }
+        }
+    }
+    
+    private func processQueue() {
+        guard !isProcessing, !requestQueue.isEmpty else { return }
+        
+        isProcessing = true
+        Task {
+            while !requestQueue.isEmpty {
+                let now = Date()
+                if requestTimestamps.count < maxRequestsPerMinute {
+                    let continuation = requestQueue.removeFirst()
+                    requestTimestamps.append(now)
+                    continuation.resume()
+                } else {
+                    if let oldestTimestamp = requestTimestamps.first {
+                        let waitTime = 60 - now.timeIntervalSince(oldestTimestamp)
+                        if waitTime > 0 {
+                            try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
+                        }
+                        requestTimestamps.removeFirst()
+                    }
+                }
+            }
+            isProcessing = false
         }
     }
 }

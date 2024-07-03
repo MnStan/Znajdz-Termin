@@ -36,7 +36,7 @@ struct FetchedItemsView: View {
                         .shadow()
                     }
                     
-                    if viewModel.itemsArray.isEmpty && viewModel.isNetworkWorkDone {
+                    if viewModel.queueItems.isEmpty && viewModel.isNetworkWorkDone {
                         GroupBox {
                             ContentUnavailableView {
                                 Image(systemName: "magnifyingglass")
@@ -55,7 +55,7 @@ struct FetchedItemsView: View {
                         }
                         .padding()
                         .shadow()
-                    } else if viewModel.itemsArray.isEmpty {
+                    } else if viewModel.queueItems.isEmpty {
                         VStack {
                             ZStack {
                                 Heart()
@@ -82,7 +82,7 @@ struct FetchedItemsView: View {
                         }
                     }
                     
-                    ForEach(viewModel.itemsArray, id: \.id) { item in
+                    ForEach(viewModel.queueItems, id: \.id) { item in
                         GroupBox {
                             ZStack {
                                 if selectedItemID != item.id {
