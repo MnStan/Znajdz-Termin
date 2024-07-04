@@ -13,7 +13,28 @@ protocol URLSessionProtocol {
 
 extension URLSession: URLSessionProtocol { }
 
-class NetworkManager: ObservableObject {
+protocol NetworkManagerProtocol: ObservableObject {
+    var benefitsDataArray: [String] { get set }
+    var benefitsDataArrayPublisher: Published<[String]>.Publisher { get }
+    var datesDataArray: [DataElement] { get set }
+    var datesDataArrayPublisher: Published<[DataElement]>.Publisher { get }
+    var networkError: NetworkError? { get set }
+    var networkErrorPublisher: Published<NetworkError?>.Publisher { get }
+    var benefitsArray: [String] { get set }
+    var benefitsArrayPublisher: Published<[String]>.Publisher { get }
+    var canFetchMorePages: Bool { get set }
+    var canFetchMorePagesPublisher: Published<Bool>.Publisher { get }
+    var nextPageURL: String? { get set }
+    
+    func createURL(path: URLPathType, currentPage: Int, caseNumber: Int, province: String?, benefit: String, isForKids: Bool) throws -> URL
+    func fetchData(from url: URL, session: URLSessionProtocol) async throws -> (Data, URLResponse)
+    func createNextPageURL(nextPageString: String?) -> URL?
+    func fetchDates(benefitName: String, nextPage: URL?, caseNumber: Int, isForKids: Bool, province: String, onlyOnePage: Bool) async
+    func fetchMoreDates() async
+    func resetNetworkFetchingDates()
+}
+
+class NetworkManager: NetworkManagerProtocol, ObservableObject {
     static let shared = NetworkManager()
     let baseURL = "https://api.nfz.gov.pl"
     private let decoder = JSONDecoder()
@@ -22,6 +43,10 @@ class NetworkManager: ObservableObject {
     @Published var datesDataArray: [DataElement] = []
     @Published var networkError: NetworkError? = nil
     
+    var benefitsDataArrayPublisher: Published<[String]>.Publisher { $benefitsDataArray }
+    var datesDataArrayPublisher: Published<[DataElement]>.Publisher { $datesDataArray }
+    var networkErrorPublisher: Published<NetworkError?>.Publisher { $networkError }
+    
     let dateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -29,7 +54,11 @@ class NetworkManager: ObservableObject {
     }()
     
     @Published var benefitsArray: [String] = []
+    var benefitsArrayPublisher: Published<[String]>.Publisher { $benefitsArray }
     private let rateLimiter = RateLimiter()
+    var nextPageURL: String?
+    @Published var canFetchMorePages = true
+    var canFetchMorePagesPublisher: Published<Bool>.Publisher { $canFetchMorePages }
     
     init() {
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -75,11 +104,16 @@ class NetworkManager: ObservableObject {
     func fetchData(from url: URL, session: URLSessionProtocol = URLSession.shared) async throws -> (Data, URLResponse) {
         let (data, response) = try await session.data(from: url)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-            print(response)
             throw NetworkError.fetchError
         }
         
         return (data, response)
+    }
+    
+    func createNextPageURL(nextPageString: String?) -> URL? {
+        guard let nextPageString else { return nil}
+
+        return URL(string: baseURL + nextPageString)
     }
     
     func decodeData(from data: Data, isDateData: Bool = false) throws -> APIResponseGeneral {
@@ -94,16 +128,14 @@ class NetworkManager: ObservableObject {
                 return APIResponseGeneral(apiResponseBenefit: decodedData, apiResponse: nil)
             }
         } catch {
-            print(error, "\n", error.localizedDescription)
             throw NetworkError.badJSON
         }
     }
     
-    @MainActor
     func fetchBenefits(benefitName: String, nextPage: URL? = nil) async {
         do {
             let url: URL
-  
+            
             try await rateLimiter.limitRequests()
             
             if let nextPage = nextPage {
@@ -124,7 +156,6 @@ class NetworkManager: ObservableObject {
                     await fetchBenefits(benefitName: benefitName, nextPage: URL(string: baseURL + nextPage))
                 }
             }
-            
         } catch let error as NetworkError {
             networkError = error
         } catch {
@@ -132,18 +163,18 @@ class NetworkManager: ObservableObject {
         }
     }
     
-    func fetchDates(benefitName: String, nextPage: URL? = nil, caseNumber: Int, isForKids: Bool, province: String, onlyFirstPage: Bool = false) async {
+    func fetchDates(benefitName: String = "", nextPage: URL? = nil, caseNumber: Int = 1, isForKids: Bool = false, province: String = "", onlyOnePage: Bool = false) async {
         do {
             let url: URL
-
-            try await rateLimiter.limitRequests()
             
+            try await rateLimiter.limitRequests()
             if let nextPage = nextPage {
                 url = nextPage
             } else {
-                datesDataArray.removeAll()
                 url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName, isForKids: isForKids)
             }
+            
+            print(url)
             
             let (data, _) = try await fetchData(from: url)
             let decodedData = try decodeData(from: data, isDateData: true)
@@ -151,12 +182,16 @@ class NetworkManager: ObservableObject {
             if let response = decodedData.apiResponse {
                 
                 datesDataArray.append(contentsOf: response.data)
-                print(datesDataArray.count)
-                
-                if !onlyFirstPage {
-                    if let nextPage = response.links.next {
-                        await fetchDates(benefitName: benefitName, nextPage: URL(string: baseURL + nextPage), caseNumber: caseNumber, isForKids: isForKids, province: province)
+                if let nextPage = response.links.next {
+                    self.nextPageURL = nextPage
+                    
+                    if !onlyOnePage {
+                        let nextPageURL = createNextPageURL(nextPageString: nextPage)
+                        await fetchDates(benefitName: benefitName, nextPage: nextPageURL, caseNumber: caseNumber, isForKids: isForKids, province: province)
                     }
+                } else {
+                    canFetchMorePages = false
+                    nextPageURL = nil
                 }
             }
             
@@ -165,6 +200,19 @@ class NetworkManager: ObservableObject {
         } catch {
             networkError = .unknown
         }
+    }
+    
+    func fetchMoreDates() async {
+        if canFetchMorePages, let nextPage = nextPageURL, let nextPageURL = createNextPageURL(nextPageString: nextPage) {
+            await fetchDates(nextPage: nextPageURL, onlyOnePage: true)
+        }
+    }
+    
+    func resetNetworkFetchingDates() {
+        nextPageURL = nil
+        datesDataArray.removeAll()
+        canFetchMorePages = true
+        networkError = nil
     }
 }
 
@@ -176,14 +224,18 @@ actor RateLimiter {
     func limitRequests() async throws {
         let now = Date()
         
-        requestTimestamps = requestTimestamps.filter { now.timeIntervalSince($0) < 2.0 }
+        requestTimestamps = requestTimestamps.filter { now.timeIntervalSince($0) < 5 }
         if requestTimestamps.count >= maxRequestsPerSecond {
-            let oldestTimestamp = requestTimestamps.first!
-            let waitTime = max(1 - now.timeIntervalSince(oldestTimestamp), 1.25)
-            try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
-            requestTimestamps.removeFirst()
+            
+            if let mostRecentTimestamp = requestTimestamps.last {
+                let waitTime = 5 - now.timeIntervalSince(mostRecentTimestamp)
+                
+                try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
+                
+                requestTimestamps.removeAll()
+            }
         }
         
-        requestTimestamps.append(now)
+        requestTimestamps.append(Date())
     }
 }

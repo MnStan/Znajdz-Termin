@@ -167,15 +167,15 @@ final class LocalizationManagerTests: XCTestCase {
     func testGetPointVoivodeship() {
         let mockLocation = CLLocation(latitude: 50.023604, longitude: 22.000681) // Rzeszów coordinates -> Podkarpackie
         let expectedVoivodeship = "Podkarpackie"
-
+        
         let expectation = XCTestExpectation(description: "Get point voivodeship completed")
-
+        
         Task {
             let pointVoivodeship = await self.sut.getPointVoivodeship(for: mockLocation)
             XCTAssertEqual(pointVoivodeship, expectedVoivodeship)
             expectation.fulfill()
         }
-
+        
         wait(for: [expectation], timeout: 5.0)
     }
     
@@ -217,5 +217,83 @@ final class LocalizationManagerTests: XCTestCase {
         XCTAssertEqual(locationError, .geocodeError)
         
         cancellables.forEach { $0.cancel() }
+    }
+    
+    func testCalculatingDistance() {
+        let mockLocation = CLLocation(latitude: 50.061049, longitude: 19.937617) // Cracow coordinates -> Małopolskie
+        mockLocationManager.mockLocation = mockLocation
+        
+        if let distance = sut.calculateDistanceFromPoint(to: CLLocation(latitude: 50.041114, longitude: 21.999135)) {
+            XCTAssertEqual(distance, 147900, accuracy: CLLocationDistance(250)) // 250m accuracy because of unaccurate measure in maps done to check manager calculations
+        } else {
+            XCTFail("Calculation returned nil")
+        }
+    }
+    
+    func testCalculatingDistanceShouldFail() {
+        let mockLocation = CLLocation(latitude: 51.061049, longitude: 19.123617) // Cracow coordinates -> Małopolskie
+        mockLocationManager.mockLocation = mockLocation
+        
+        if let distance = sut.calculateDistanceFromPoint(to: CLLocation(latitude: 50.041114, longitude: 21.999135)) {
+            XCTAssertNotEqual(distance, 147900, accuracy: CLLocationDistance(250)) // 250m accuracy because of unaccurate measure in maps done to check manager calculations
+        } else {
+            XCTFail("Calculation returned nil")
+        }
+    }
+
+    func testFindingCoordinatesForCityName() {
+        let expectation = XCTestExpectation(description: "Geocoding work done")
+        
+        Task {
+            let coordinate = try await sut.findCoordinatesOfCityName(name: "Kraków")
+            
+            XCTAssertNotNil(coordinate)
+            
+            if let coordinate = coordinate {
+                XCTAssertEqual(coordinate.coordinate.latitude, CLLocation(latitude: 50.05917200, longitude: 19.93704350).coordinate.latitude)
+                XCTAssertEqual(coordinate.coordinate.longitude, CLLocation(latitude: 50.05917200, longitude: 19.93704350).coordinate.longitude)
+                expectation.fulfill()
+            }
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+    }
+    
+    func testFindingCoordinatesForCityNameShouldFail() {
+        let expectation = XCTestExpectation(description: "Geocoding work done")
+        
+        Task {
+            let coordinate = try await sut.findCoordinatesOfCityName(name: "Warszawa")
+            
+            XCTAssertNotNil(coordinate)
+            
+            if let coordinate = coordinate {
+                XCTAssertNotEqual(coordinate.coordinate.latitude, CLLocation(latitude: 50.05917200, longitude: 19.93704350).coordinate.latitude)
+                XCTAssertNotEqual(coordinate.coordinate.longitude, CLLocation(latitude: 50.05917200, longitude: 19.93704350).coordinate.longitude)
+                expectation.fulfill()
+            }
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+    }
+    
+    func testGeocodingRateLimiter() {
+        for i in 0...125 {
+            let expectation = XCTestExpectation(description: "Geocoding work done")
+            
+            Task {
+                let coordinate = try await sut.findCoordinatesOfCityName(name: "Mielec")
+
+                XCTAssertNotNil(coordinate)
+                
+                if let coordinate = coordinate {
+                    XCTAssertNotEqual(coordinate.coordinate.latitude, CLLocation(latitude: 50.05917200, longitude: 19.93704350).coordinate.latitude)
+                    XCTAssertNotEqual(coordinate.coordinate.longitude, CLLocation(latitude: 50.05917200, longitude: 19.93704350).coordinate.longitude)
+                    expectation.fulfill()
+                }
+            }
+            
+            wait(for: [expectation], timeout: 180.0)
+        }
     }
 }

@@ -36,6 +36,12 @@ struct SearchElementView: View {
         ZStack {
             if !isSearchFocused {
                 SearchFieldView(searchText: $searchText)
+                    .onTapGesture {
+                        withAnimation(.spring(.bouncy)) {
+                            isSearchFocused = true
+                            textViewFocus = true
+                        }
+                    }
             } else {
                 if !isReduceMotionEnabled {
                     SearchElementViewExpanded(

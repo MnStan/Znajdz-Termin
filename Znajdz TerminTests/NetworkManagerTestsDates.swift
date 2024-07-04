@@ -212,7 +212,7 @@ final class NetworkManagerTestsDates: XCTestCase {
         sut.datesDataArray.removeAll()
         Task {
             await NetworkManager.shared.fetchDates(benefitName: "poradnia", caseNumber: 1, province: "06")
-            XCTAssertEqual(sut.datesDataArray.count, 2344)
+            XCTAssertEqual(sut.datesDataArray.count, 2360)
             expectation.fulfill()
         }
         
@@ -225,12 +225,49 @@ final class NetworkManagerTestsDates: XCTestCase {
         
         sut.datesDataArray.removeAll()
         Task {
-            await NetworkManager.shared.fetchDates(benefitName: "poradnia", caseNumber: 1, province: "06", onlyFirstPage: true)
+            await NetworkManager.shared.fetchDates(benefitName: "poradnia", caseNumber: 1, province: "06", onlyOnePage: true)
             XCTAssertEqual(sut.datesDataArray.count, 25)
             expectation.fulfill()
         }
         
         wait(for: [expectation], timeout: 10.0)
     }
+    
+    func testCreatingNextPagerURL() {
+        let sut = NetworkManager.shared
+        
+        let nextPage = sut.createNextPageURL(nextPageString: "/app-itl-api/queues?page=2&limit=25&format=json&case=1&province=06&benefit=poradnia")
+        
+        XCTAssertEqual(nextPage, URL(string:"https://api.nfz.gov.pl/app-itl-api/queues?page=2&limit=25&format=json&case=1&province=06&benefit=poradnia"))
+    }
 
+    func testPaginationFetchingForDates() {
+        let sut = NetworkManager.shared
+        
+        let expectation = XCTestExpectation(description: "Fetching first page completed")
+        let expectation2 = XCTestExpectation(description: "Fetching second page completed")
+        let expectation3 = XCTestExpectation(description: "Fetching third page completed")
+        let expectation4 = XCTestExpectation(description: "Fetching next page nil page")
+        
+        sut.datesDataArray.removeAll()
+        Task {
+            await sut.fetchDates(benefitName: "poradnia alergologiczna", caseNumber: 1, province: "06", onlyOnePage: true)
+            expectation.fulfill()
+            XCTAssertEqual(sut.datesDataArray.count, 25)
+            
+            await sut.fetchMoreDates()
+            expectation2.fulfill()
+            XCTAssertEqual(sut.datesDataArray.count, 50)
+            
+            await sut.fetchMoreDates()
+            expectation3.fulfill()
+            XCTAssertEqual(sut.datesDataArray.count, 59)
+            
+            await sut.fetchMoreDates()
+            expectation4.fulfill()
+            XCTAssertEqual(sut.datesDataArray.count, 59)
+        }
+        
+        wait(for: [expectation, expectation2, expectation3, expectation4], timeout: 15.0)
+    }
 }

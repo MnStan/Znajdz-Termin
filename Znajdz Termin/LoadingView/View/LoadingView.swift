@@ -28,7 +28,7 @@ struct LoadingView: View {
     }
     
     var body: some View {
-        var combinedBinding = Binding<Bool>(
+        let combinedBinding = Binding<Bool>(
             get: {
                 if viewModel.locationError == nil && viewModel.locationWorkDone {
                     return true
@@ -97,28 +97,6 @@ struct LoadingView: View {
             .navigationDestination(isPresented: combinedBinding) {
                 HomeView().navigationBarBackButtonHidden()
             }
-    }
-}
-
-struct FadeAnimation: ViewModifier {
-    @Environment(\.accessibilityReduceMotion) var isReduceMotionEnabled
-    func body(content: Content) -> some View {
-        if !isReduceMotionEnabled {
-            content
-                .phaseAnimator([0.5, 0.75, 1]) { view, phase in
-                    view
-                        .scaleEffect(phase)
-                        .opacity(phase == 1 ? 1 : 0)
-                }
-        } else {
-            content
-        }
-    }
-}
-
-extension View {
-    func fadeAnimation() -> some View {
-        modifier(FadeAnimation())
     }
 }
 
