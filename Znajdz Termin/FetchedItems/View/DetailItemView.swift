@@ -11,6 +11,7 @@ struct DetailItemView: View {
     var itemsNamespace: Namespace.ID
     var dataElement: QueueItem
     @Binding var selectedItemID: String?
+    @ObservedObject var viewModel = ViewModel()
     @Environment(\.sizeCategory) var sizeCategory
     
     var body: some View {
@@ -35,7 +36,7 @@ struct DetailItemView: View {
                         .accessibilityHidden(true)
                     
                     VStack {
-                        Text(dataElement.queueResult.attributes.provider ?? "Brak informacji")
+                        Text(dataElement.queueResult.attributes.provider ?? "")
                             .font(.headline)
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
@@ -43,13 +44,17 @@ struct DetailItemView: View {
                             .drawingGroup()
                             .matchedGeometryEffect(id: "provider\(dataElement.id)", in: itemsNamespace)
                         
-                        Text(dataElement.queueResult.attributes.locality ?? "Brak informacji")
+                        Text(dataElement.queueResult.attributes.locality ?? "")
                             .font(.subheadline).bold()
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
                             .padding(2)
                             .matchedGeometryEffect(id: "locality\(dataElement.id)", in: itemsNamespace)
                         
-                        Text(dataElement.queueResult.attributes.address ?? "Brak informacji")
+                        Text(dataElement.queueResult.attributes.address ?? "")
                             .font(.subheadline).bold()
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
                             .padding(2)
                         
                         Text(dataElement.distance)
@@ -64,61 +69,67 @@ struct DetailItemView: View {
             }
             .padding()
             
-            GroupBox {
-                VStack(alignment: .leading, spacing: 10) {
-                    let benefitsForChildren = dataElement.queueResult.attributes.benefitsForChildren
-                    if benefitsForChildren == "Y" {
-                        HStack {
-                            Image(systemName: "figure.and.child.holdinghands")
-                                .accessibilityHidden(true)
-                            Text("Świadczenia dla dzieci")
+            if viewModel.checkIfShouldShowFacilities(attributes: dataElement.queueResult.attributes) {
+                GroupBox {
+                    VStack(alignment: .leading, spacing: 10) {
+                        let benefitsForChildren = dataElement.queueResult.attributes.benefitsForChildren
+                        if benefitsForChildren == "Y" {
+                            HStack {
+                                Image(systemName: "figure.and.child.holdinghands")
+                                    .accessibilityHidden(true)
+                                Text("Świadczenia dla dzieci")
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        
+                        let toilet = dataElement.queueResult.attributes.toilet
+                        if toilet == "Y" {
+                            HStack {
+                                Image(systemName: "toilet.fill")
+                                    .accessibilityHidden(true)
+                                Text("Toalety")
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        
+                        let ramp = dataElement.queueResult.attributes.ramp
+                        if ramp == "Y" {
+                            HStack {
+                                Image(systemName: "figure.roll")
+                                    .accessibilityHidden(true)
+                                Text("Rampa dla niepełnosprawnych")
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        
+                        let carPark = dataElement.queueResult.attributes.carPark
+                        if carPark == "Y" {
+                            HStack {
+                                Image(systemName: "parkingsign.circle.fill")
+                                    .accessibilityHidden(true)
+                                Text("Parking")
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        
+                        let elevator = dataElement.queueResult.attributes.elevator
+                        if elevator == "Y" {
+                            HStack {
+                                Image(systemName: "arrow.up.arrow.down")
+                                    .accessibilityHidden(true)
+                                Text("Winda")
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                         }
                     }
-                    
-                    let toilet = dataElement.queueResult.attributes.toilet
-                    if toilet == "Y" {
-                        HStack {
-                            Image(systemName: "toilet.fill")
-                                .accessibilityHidden(true)
-                            Text("Toalety")
-                        }
-                    }
-                    
-                    let ramp = dataElement.queueResult.attributes.ramp
-                    if ramp == "Y" {
-                        HStack {
-                            Image(systemName: "figure.roll")
-                                .accessibilityHidden(true)
-                            Text("Rampa dla niepełnosprawnych")
-                        }
-                    }
-                    
-                    let carPark = dataElement.queueResult.attributes.carPark
-                    if carPark == "Y" {
-                        HStack {
-                            Image(systemName: "parkingsign.circle.fill")
-                                .accessibilityHidden(true)
-                            Text("Parking")
-                        }
-                    }
-                    
-                    let elevator = dataElement.queueResult.attributes.elevator
-                    if elevator == "Y" {
-                        HStack {
-                            Image(systemName: "arrow.up.arrow.down")
-                                .accessibilityHidden(true)
-                            Text("Winda")
-                        }
-                    }
+                    .padding(.top, 15)
+                    .frame(maxWidth: .infinity)
+                } label: {
+                    Text("Udogodnienia")
                 }
-                .padding(.top, 15)
-                .frame(maxWidth: .infinity)
-            } label: {
-                Text("Udogodnienia")
-//                    .accessibilityRemoveTraits(.isHeader)
+                .accessibilityElement(children: .combine)
+                .accessibilityRemoveTraits(.isHeader)
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityRemoveTraits(.isHeader)
             
             GroupBox {
                 HStack {
@@ -177,18 +188,15 @@ struct DetailItemView: View {
             }
             .accessibilityElement(children: .combine)
             
-            GroupBox {
-                if let phoneURL = URL(string: "tel:+\(dataElement.queueResult.attributes.phone)") {
-                    Link("\(dataElement.queueResult.attributes.phone)", destination: phoneURL)
+            
+            ForEach(viewModel.preparePhoneNumberToDisplay(phoneNumber: dataElement.queueResult.attributes.phone)) { number in
+                GroupBox {
+                    Link("\(number.phoneNumber)", destination: number.urlPhoneNumber)
                         .foregroundColor(.blue)
                         .padding()
-                } else {
-                    Text("Unable to create phone link.")
-                        .foregroundColor(.red)
-                        .padding()
+                        .accessibilityLabel("Kliknij aby zadzwonić")
                 }
             }
-            .padding(.top, 3)
         }
     }
 }

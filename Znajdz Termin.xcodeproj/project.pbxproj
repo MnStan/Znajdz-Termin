@@ -36,6 +36,9 @@
 		F6962C812C33069900CC68D7 /* FadeAnimationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C802C33069900CC68D7 /* FadeAnimationModifier.swift */; };
 		F6962C852C3438F800CC68D7 /* QueueItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C842C3438F800CC68D7 /* QueueItem.swift */; };
 		F6962C872C35D21500CC68D7 /* FetchedItems-ViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C862C35D21500CC68D7 /* FetchedItems-ViewModelTests.swift */; };
+		F6962C892C369C4E00CC68D7 /* DetailItemView-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C882C369C4E00CC68D7 /* DetailItemView-ViewModel.swift */; };
+		F6962C8B2C369C8A00CC68D7 /* DetailItem-ViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C8A2C369C8A00CC68D7 /* DetailItem-ViewModelTests.swift */; };
+		F6962C8D2C36CD6100CC68D7 /* PhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6962C8C2C36CD6100CC68D7 /* PhoneNumber.swift */; };
 		F697329B2C182E6C00F87A2C /* HeartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F697329A2C182E6C00F87A2C /* HeartView.swift */; };
 		F697329E2C182FBF00F87A2C /* LoadingView-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */; };
 		F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69732A02C1830B000F87A2C /* PermissionsEnum.swift */; };
@@ -104,6 +107,9 @@
 		F6962C802C33069900CC68D7 /* FadeAnimationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FadeAnimationModifier.swift; sourceTree = "<group>"; };
 		F6962C842C3438F800CC68D7 /* QueueItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueItem.swift; sourceTree = "<group>"; };
 		F6962C862C35D21500CC68D7 /* FetchedItems-ViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchedItems-ViewModelTests.swift"; sourceTree = "<group>"; };
+		F6962C882C369C4E00CC68D7 /* DetailItemView-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DetailItemView-ViewModel.swift"; sourceTree = "<group>"; };
+		F6962C8A2C369C8A00CC68D7 /* DetailItem-ViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DetailItem-ViewModelTests.swift"; sourceTree = "<group>"; };
+		F6962C8C2C36CD6100CC68D7 /* PhoneNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumber.swift; sourceTree = "<group>"; };
 		F697329A2C182E6C00F87A2C /* HeartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartView.swift; sourceTree = "<group>"; };
 		F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoadingView-ViewModel.swift"; sourceTree = "<group>"; };
 		F69732A02C1830B000F87A2C /* PermissionsEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsEnum.swift; sourceTree = "<group>"; };
@@ -192,6 +198,7 @@
 		F677737A2C2DED36002C91EE /* FetchedItems */ = {
 			isa = PBXGroup;
 			children = (
+				F6962C8E2C36EB4E00CC68D7 /* Model */,
 				F677737C2C2DED4E002C91EE /* ViewModel */,
 				F677737B2C2DED42002C91EE /* View */,
 				F6962C842C3438F800CC68D7 /* QueueItem.swift */,
@@ -213,6 +220,7 @@
 			isa = PBXGroup;
 			children = (
 				F67773722C2D9016002C91EE /* FetchedItemsView-ViewModel.swift */,
+				F6962C882C369C4E00CC68D7 /* DetailItemView-ViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -266,6 +274,14 @@
 			isa = PBXGroup;
 			children = (
 				F67FD8272C232F2C0023F0E3 /* APIResulst.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		F6962C8E2C36EB4E00CC68D7 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				F6962C8C2C36CD6100CC68D7 /* PhoneNumber.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -360,6 +376,7 @@
 				F65502682C2B2D9900B4B40D /* SearchElement-ViewModelTests.swift */,
 				F677736E2C2D80FD002C91EE /* NetworkManagerTestsDates.swift */,
 				F6962C862C35D21500CC68D7 /* FetchedItems-ViewModelTests.swift */,
+				F6962C8A2C369C8A00CC68D7 /* DetailItem-ViewModelTests.swift */,
 			);
 			path = "Znajdz TerminTests";
 			sourceTree = "<group>";
@@ -523,6 +540,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F67FD81F2C232D2B0023F0E3 /* NetworkManager.swift in Sources */,
+				F6962C8D2C36CD6100CC68D7 /* PhoneNumber.swift in Sources */,
 				F677736B2C2CA6A6002C91EE /* MainView.swift in Sources */,
 				F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */,
 				F6DCD5762BEBCF8200AEFA6C /* PermissionsView.swift in Sources */,
@@ -549,6 +567,7 @@
 				F665216A2BEE14BE001464A1 /* PermissionsViewAndButtons-ViewModel.swift in Sources */,
 				F6F863F52C1F09A50088EE1A /* CLLocation2D+ext.swift in Sources */,
 				F614F9002BED3689000CA8A7 /* PermissionsViewAndButtons.swift in Sources */,
+				F6962C892C369C4E00CC68D7 /* DetailItemView-ViewModel.swift in Sources */,
 				F6962C852C3438F800CC68D7 /* QueueItem.swift in Sources */,
 				F635A0362C05C650000C6715 /* LoadingView.swift in Sources */,
 				F6962C7D2C33032D00CC68D7 /* ButtonModifier.swift in Sources */,
@@ -564,6 +583,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6962C8B2C369C8A00CC68D7 /* DetailItem-ViewModelTests.swift in Sources */,
 				F67FD8232C232D7B0023F0E3 /* NetworkManagerTestsBenefits.swift in Sources */,
 				F6962C872C35D21500CC68D7 /* FetchedItems-ViewModelTests.swift in Sources */,
 				F60422E62BF4A9CE006FBE67 /* CalendarManagerTests.swift in Sources */,

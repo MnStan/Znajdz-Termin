@@ -163,7 +163,7 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
         }
     }
     
-    func fetchDates(benefitName: String = "", nextPage: URL? = nil, caseNumber: Int = 0, isForKids: Bool = false, province: String = "", onlyOnePage: Bool = false) async {
+    func fetchDates(benefitName: String = "", nextPage: URL? = nil, caseNumber: Int = 1, isForKids: Bool = false, province: String = "", onlyOnePage: Bool = false) async {
         do {
             let url: URL
             
@@ -173,6 +173,8 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
             } else {
                 url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName, isForKids: isForKids)
             }
+            
+            print(url)
             
             let (data, _) = try await fetchData(from: url)
             let decodedData = try decodeData(from: data, isDateData: true)
@@ -184,18 +186,24 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
                     self.nextPageURL = nextPage
                     
                     if !onlyOnePage {
+                        print(onlyOnePage)
                         let nextPageURL = createNextPageURL(nextPageString: nextPage)
                         await fetchDates(benefitName: benefitName, nextPage: nextPageURL, caseNumber: caseNumber, isForKids: isForKids, province: province)
                     }
                 } else {
                     canFetchMorePages = false
                     nextPageURL = nil
+                    datesDataArray.forEach {
+                        print($0.attributes.phone)
+                    }
                 }
             }
             
         } catch let error as NetworkError {
+            print(error)
             networkError = error
         } catch {
+            print(error)
             networkError = .unknown
         }
     }

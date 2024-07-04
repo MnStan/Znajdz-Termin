@@ -35,12 +35,6 @@ struct HomeView: View {
                 .padding()
                 .accessibilityLabel("Ostatnie wyszukiwania")
             }
-            
-            List {
-                ForEach(NetworkManager.shared.datesDataArray, id: \.id) { element in
-                    Text(element.attributes.address ?? "coś")
-                }
-            }
         }
         .navigationTitle("Dzień dobry")
         .shadow()
@@ -52,6 +46,12 @@ struct HomeView: View {
             withAnimation(.spring(.bouncy)) {
                 textViewFocus = false
                 isSearchFocused = false
+            }
+        }
+        
+        Button("Get all") {
+            Task {
+                await NetworkManager.shared.fetchDates(benefitName: "poradnia",province: "06", onlyOnePage: false)
             }
         }
     }
