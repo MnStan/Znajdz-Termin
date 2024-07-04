@@ -13,6 +13,7 @@ struct DetailItemView: View {
     @Binding var selectedItemID: String?
     @ObservedObject var viewModel = ViewModel()
     @Environment(\.sizeCategory) var sizeCategory
+    @ScaledMetric var symbolWidth: CGFloat = 50
     
     var body: some View {
         VStack {
@@ -77,6 +78,7 @@ struct DetailItemView: View {
                             HStack {
                                 Image(systemName: "figure.and.child.holdinghands")
                                     .accessibilityHidden(true)
+                                    .frame(width: symbolWidth)
                                 Text("Świadczenia dla dzieci")
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -87,6 +89,7 @@ struct DetailItemView: View {
                             HStack {
                                 Image(systemName: "toilet.fill")
                                     .accessibilityHidden(true)
+                                    .frame(width: symbolWidth)
                                 Text("Toalety")
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -97,6 +100,7 @@ struct DetailItemView: View {
                             HStack {
                                 Image(systemName: "figure.roll")
                                     .accessibilityHidden(true)
+                                    .frame(width: symbolWidth)
                                 Text("Rampa dla niepełnosprawnych")
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -107,6 +111,7 @@ struct DetailItemView: View {
                             HStack {
                                 Image(systemName: "parkingsign.circle.fill")
                                     .accessibilityHidden(true)
+                                    .frame(width: symbolWidth)
                                 Text("Parking")
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -117,6 +122,7 @@ struct DetailItemView: View {
                             HStack {
                                 Image(systemName: "arrow.up.arrow.down")
                                     .accessibilityHidden(true)
+                                    .frame(width: symbolWidth)
                                 Text("Winda")
                                     .fixedSize(horizontal: false, vertical: true)
                             }

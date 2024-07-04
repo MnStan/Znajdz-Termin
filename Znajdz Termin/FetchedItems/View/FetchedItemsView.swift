@@ -94,7 +94,7 @@ struct FetchedItemsView: View {
                             }
                         }
                         .onTapGesture {
-                            withAnimation(.spring(duration: 0.5, bounce: 0.15)) {
+                            withAnimation(.spring(duration: 0.5)) {
                                 selectedItemID = item.id
                                 value.scrollTo(item.id, anchor: .top)
                             }

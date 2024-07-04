@@ -205,6 +205,12 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     func calculateDistanceFromPoint(to location: CLLocation) -> CLLocationDistance? {
         return locationManager.location?.distance(from: location)
     }
+    
+    func resetQueue() {
+        Task {
+            await rateLimiter.reset()
+        }
+    }
 }
 
 
@@ -248,5 +254,9 @@ actor LocationRateLimiter {
             }
             isProcessing = false
         }
+    }
+    
+    func reset() {
+        requestQueue.removeAll()
     }
 }

@@ -186,24 +186,18 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
                     self.nextPageURL = nextPage
                     
                     if !onlyOnePage {
-                        print(onlyOnePage)
                         let nextPageURL = createNextPageURL(nextPageString: nextPage)
                         await fetchDates(benefitName: benefitName, nextPage: nextPageURL, caseNumber: caseNumber, isForKids: isForKids, province: province)
                     }
                 } else {
                     canFetchMorePages = false
                     nextPageURL = nil
-                    datesDataArray.forEach {
-                        print($0.attributes.phone)
-                    }
                 }
             }
             
         } catch let error as NetworkError {
-            print(error)
             networkError = error
         } catch {
-            print(error)
             networkError = .unknown
         }
     }

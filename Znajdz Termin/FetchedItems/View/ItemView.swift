@@ -10,10 +10,15 @@ import SwiftUI
 struct ItemView: View {
     var itemsNamespace: Namespace.ID
     @Environment(\.sizeCategory) var sizeCategory
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     var dataElement: QueueItem
+    @State private var isHStackLayout = false
     
     var body: some View {
-        VStack(alignment: .leading) {
+        let shouldShowVStack = (sizeCategory >= .accessibilityMedium) && (horizontalSizeClass == .compact)
+        let layout = shouldShowVStack == false ? AnyLayout(HStackLayout()) : AnyLayout(VStackLayout(spacing: 10))
+
+        VStack(alignment: shouldShowVStack ? .center :.leading, spacing: 10) {
             Text(dataElement.queueResult.attributes.provider ?? "Nieznane")
                 .font(.title3.bold())
                 .multilineTextAlignment(.center)
@@ -23,25 +28,29 @@ struct ItemView: View {
                 .matchedGeometryEffect(id: "provider\(dataElement.id)", in: itemsNamespace)
                 .accessibilityLabel("\(dataElement.queueResult.attributes.provider ?? "Nieznane") dotknij aby rozwinąć szczegóły")
             
-            HStack {
-                VStack(alignment: .leading) {
+            layout {
+                VStack(alignment: shouldShowVStack ? .center :.leading) {
                     Text("Najbliższy termin")
                         .matchedGeometryEffect(id: "firstTermin\(dataElement.id)", in: itemsNamespace)
+                        .multilineTextAlignment(shouldShowVStack ? .center :.leading)
                     Text(dataElement.queueResult.attributes.dates?.date ?? "")
                         .matchedGeometryEffect(id: "date\(dataElement.id)", in: itemsNamespace)
+                        .multilineTextAlignment(shouldShowVStack ? .center :.leading)
                 }
-//                .accessibilityElement(children: .combine)
                 
-                Spacer()
+                if !shouldShowVStack {
+                    Spacer()
+                }
                 
-                VStack(alignment: .trailing) {
+                VStack(alignment: shouldShowVStack ? .center :.leading) {
                     Text(dataElement.queueResult.attributes.locality ?? "Nieznana")
                         .matchedGeometryEffect(id: "locality\(dataElement.id)", in: itemsNamespace)
+                        .multilineTextAlignment(shouldShowVStack ? .center :.trailing)
                     Text(dataElement.distance)
                         .matchedGeometryEffect(id: "distance\(dataElement.id)", in: itemsNamespace)
                         .accessibilityLabel("Odległość od Twojej lokalizacji to \(dataElement.distance)")
+                        .multilineTextAlignment(shouldShowVStack ? .center :.trailing)
                 }
-//                .accessibilityElement(children: .combine)
             }
         }
         .accessibilityElement(children: .combine)

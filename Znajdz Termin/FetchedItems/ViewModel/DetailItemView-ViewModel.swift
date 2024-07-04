@@ -15,14 +15,11 @@ extension DetailItemView {
         
         func removeNumberFromBrackets(number: String) -> String {
             if let numberInBracketRange = number.range(of: ")")?.lowerBound, let restOfNumberRange = number.range(of: ")")?.upperBound {
-                print(number.prefix(upTo: numberInBracketRange))
                 var numberToReturn = number.prefix(upTo: numberInBracketRange).trimmingCharacters(in: .whitespaces)
                 numberToReturn = numberToReturn.replacingOccurrences(of: "(", with: "")
                 numberToReturn = numberToReturn.replacingOccurrences(of: "0", with: "")
-                print(numberToReturn)
                 
                 let goodNumber = number.suffix(from: restOfNumberRange)
-                print("Good number ", goodNumber)
                 
                 return "+48 " + numberToReturn + " " + goodNumber
             }

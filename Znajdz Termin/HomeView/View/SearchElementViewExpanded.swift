@@ -137,6 +137,7 @@ struct SearchElementViewExpanded: View {
                                 if viewModel.checkTextCount(text: searchText) {
                                     if let voivodeshipNumber = viewModel.getVoivodeshipNumber(selectedVoivodeship: pickedVoivodeship) {
                                         viewModel.fetchDates(benefit: searchText, caseNumber: selectedMedicalCase ? 2 : 1, isForKids: selectedIsForKids, province: voivodeshipNumber)
+                                        NetworkManager.shared.resetNetworkFetchingDates()
                                         shouldShowFetchedItemsView = true
                                     }
                                 } else {
