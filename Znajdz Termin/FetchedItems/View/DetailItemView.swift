@@ -32,6 +32,7 @@ struct DetailItemView: View {
                     Image(systemName: "person.fill")
                         .resizable()
                         .frame(width: 50, height: 50)
+                        .accessibilityHidden(true)
                     
                     VStack {
                         Text(dataElement.queueResult.attributes.provider ?? "Brak informacji")
@@ -55,18 +56,21 @@ struct DetailItemView: View {
                             .font(.subheadline.bold())
                             .padding(2)
                             .matchedGeometryEffect(id: "distance\(dataElement.id)", in: itemsNamespace)
+                            .accessibilityLabel("Odległość od Twojej lokalizacji to \(dataElement.distance)")
                     }
+                    .accessibilityElement(children: .combine)
                 }
                 .frame(maxWidth: .infinity)
             }
             .padding()
             
-            GroupBox(label: Text("Udogodnienia")) {
+            GroupBox {
                 VStack(alignment: .leading, spacing: 10) {
                     let benefitsForChildren = dataElement.queueResult.attributes.benefitsForChildren
                     if benefitsForChildren == "Y" {
                         HStack {
                             Image(systemName: "figure.and.child.holdinghands")
+                                .accessibilityHidden(true)
                             Text("Świadczenia dla dzieci")
                         }
                     }
@@ -75,6 +79,7 @@ struct DetailItemView: View {
                     if toilet == "Y" {
                         HStack {
                             Image(systemName: "toilet.fill")
+                                .accessibilityHidden(true)
                             Text("Toalety")
                         }
                     }
@@ -83,6 +88,7 @@ struct DetailItemView: View {
                     if ramp == "Y" {
                         HStack {
                             Image(systemName: "figure.roll")
+                                .accessibilityHidden(true)
                             Text("Rampa dla niepełnosprawnych")
                         }
                     }
@@ -91,6 +97,7 @@ struct DetailItemView: View {
                     if carPark == "Y" {
                         HStack {
                             Image(systemName: "parkingsign.circle.fill")
+                                .accessibilityHidden(true)
                             Text("Parking")
                         }
                     }
@@ -99,20 +106,26 @@ struct DetailItemView: View {
                     if elevator == "Y" {
                         HStack {
                             Image(systemName: "arrow.up.arrow.down")
+                                .accessibilityHidden(true)
                             Text("Winda")
                         }
                     }
                 }
                 .padding(.top, 15)
                 .frame(maxWidth: .infinity)
+            } label: {
+                Text("Udogodnienia")
+//                    .accessibilityRemoveTraits(.isHeader)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityRemoveTraits(.isHeader)
             
-            GroupBox(label: Text("Informacje o kolejce")) {
+            GroupBox {
                 HStack {
                     let statistics = dataElement.queueResult.attributes.statistics
                     let providerData = statistics?.providerData ?? nil
                     
-                    GroupBox(label: (providerData != nil && statistics != nil) ? Text("Ostatnia aktualizacja: \(providerData!.update)") : Text("")) {
+                    GroupBox {
                         if statistics != nil  {
                             if let providerData {
                                 VStack {
@@ -121,6 +134,7 @@ struct DetailItemView: View {
                                         .bold()
                                 }
                                 .padding(.top, 3)
+                                .accessibilityElement(children: .combine)
                                 
                                 VStack {
                                     Text("Średni czas oczekiwania")
@@ -129,24 +143,39 @@ struct DetailItemView: View {
                                         .bold()
                                 }
                                 .padding(.top, 3)
+                                .accessibilityElement(children: .combine)
                                 
                             }
-                        }
-                        
-                        if let firstDate = dataElement.queueResult.attributes.dates?.date {
-                            VStack {
-                                Text("Najbliższy termin")
-                                    .multilineTextAlignment(.center)
-                                Text(firstDate)
-                                    .bold()
-                                    .matchedGeometryEffect(id: "date\(dataElement.id)", in: itemsNamespace)
+                            
+                            
+                            if let firstDate = dataElement.queueResult.attributes.dates?.date {
+                                VStack {
+                                    Text("Najbliższy termin")
+                                        .multilineTextAlignment(.center)
+                                        .matchedGeometryEffect(id: "firstTermin\(dataElement.id)", in: itemsNamespace)
+                                    Text(firstDate)
+                                        .bold()
+                                        .matchedGeometryEffect(id: "date\(dataElement.id)", in: itemsNamespace)
+                                }
+                                .padding(.top, 3)
+                                .accessibilityElement(children: .combine)
                             }
-                            .padding(.top, 3)
+                        }
+                    } label: {
+                        if providerData != nil && statistics != nil {
+                            Text("Ostatnia aktualizacja: \(providerData!.update)")
+                        } else {
+                            Text("")
                         }
                     }
                     .padding(.top, 10)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityRemoveTraits(.isHeader)
                 }
+            } label: {
+                Text("Informacje o kolejce")
             }
+            .accessibilityElement(children: .combine)
             
             GroupBox {
                 if let phoneURL = URL(string: "tel:+\(dataElement.queueResult.attributes.phone)") {
@@ -160,7 +189,6 @@ struct DetailItemView: View {
                 }
             }
             .padding(.top, 3)
-            
         }
     }
 }

@@ -72,6 +72,9 @@ struct SearchElementViewExpanded: View {
                             .accessibilityLabel("Podpowiedź \(suggestion) kliknij aby użyć podpowiedzi")
                         }
                         .accessibilityElement(children: .combine)
+                        .onAppear {
+                            UIAccessibility.post(notification: .announcement, argument: "Poniżej pojawiła się podpowiedź do twojego wyszukiwania")
+                        }
                     }
                 }
                 
@@ -92,6 +95,7 @@ struct SearchElementViewExpanded: View {
                     } else {
                         HStack {
                             Text("Województwo")
+                                .accessibilityHidden(true)
                             
                             Spacer()
                             
@@ -101,7 +105,9 @@ struct SearchElementViewExpanded: View {
                                 }
                             }
                             .tint(.primary)
+                            .accessibilityLabel("Wybrane województwo \(pickedVoivodeship)")
                         }
+                        .accessibilityElement(children: .combine)
                     }
                     
                     Toggle(isOn: $selectedMedicalCase) {

@@ -25,10 +25,12 @@ struct ItemView: View {
             
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Najbliższa termin")
+                    Text("Najbliższy termin")
+                        .matchedGeometryEffect(id: "firstTermin\(dataElement.id)", in: itemsNamespace)
                     Text(dataElement.queueResult.attributes.dates?.date ?? "")
                         .matchedGeometryEffect(id: "date\(dataElement.id)", in: itemsNamespace)
                 }
+//                .accessibilityElement(children: .combine)
                 
                 Spacer()
                 
@@ -37,9 +39,12 @@ struct ItemView: View {
                         .matchedGeometryEffect(id: "locality\(dataElement.id)", in: itemsNamespace)
                     Text(dataElement.distance)
                         .matchedGeometryEffect(id: "distance\(dataElement.id)", in: itemsNamespace)
+                        .accessibilityLabel("Odległość od Twojej lokalizacji to \(dataElement.distance)")
                 }
+//                .accessibilityElement(children: .combine)
             }
         }
+        .accessibilityElement(children: .combine)
     }
 }
 
