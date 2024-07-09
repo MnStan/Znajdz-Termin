@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct HomeView: View {
+    @EnvironmentObject var locationManager: AppLocationManager
+    @EnvironmentObject var networkManager: NetworkManager
     @State var search = ""
     @State var isSearchFocused: Bool = false
     @FocusState var textViewFocus: Bool
@@ -15,7 +17,7 @@ struct HomeView: View {
     
     var body: some View {
         ScrollView {
-            SearchElementView(searchText: $search, isSearchFocused: $isSearchFocused, textViewFocus: $textViewFocus, isSearchViewEditing: $isSearchViewEditing)
+            SearchElementView(locationManager: locationManager, networkManager: networkManager, searchText: $search, isSearchFocused: $isSearchFocused, textViewFocus: $textViewFocus, isSearchViewEditing: $isSearchViewEditing)
                 .padding()
             
             Group {
@@ -51,7 +53,7 @@ struct HomeView: View {
         
         Button("Get all") {
             Task {
-                await NetworkManager.shared.fetchDates(benefitName: "poradnia",province: "06", onlyOnePage: false)
+//                await NetworkManager.shared.fetchDates(benefitName: "poradnia",province: "06", onlyOnePage: false)
             }
         }
     }

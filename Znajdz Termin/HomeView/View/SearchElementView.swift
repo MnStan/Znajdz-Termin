@@ -12,7 +12,7 @@ struct SearchElementView: View {
     @Binding var isSearchFocused: Bool
     @Namespace var searchNamespace
     @FocusState.Binding var textViewFocus: Bool
-    @StateObject private var viewModel = ViewModel()
+    @StateObject var viewModel: ViewModel
     @State private var pickedVoivodeship: String = "dolnośląskie"
     @State private var selectedIsForKids = false
     @State private var selectedMedicalCase = false
@@ -30,6 +30,14 @@ struct SearchElementView: View {
                 self.isSearchFocused = newValue
             }
         )
+    }
+    
+    init(locationManager: any LocationManagerProtocol, networkManager: NetworkManager, searchText: Binding<String>, isSearchFocused: Binding<Bool>, textViewFocus: FocusState<Bool>.Binding, isSearchViewEditing: Binding<Bool>) {
+        _searchText = searchText
+        _isSearchFocused = isSearchFocused
+        _textViewFocus = textViewFocus
+        _isSearchViewEditing = isSearchViewEditing
+        _viewModel = StateObject(wrappedValue: ViewModel(locationManager: locationManager, networkManager: networkManager))
     }
     
     var body: some View {
@@ -79,5 +87,5 @@ struct SearchElementView: View {
 #Preview {
     @FocusState var focus: Bool
     
-    return SearchElementView(searchText: .constant(""), isSearchFocused: .constant(true), textViewFocus: $focus, isSearchViewEditing: .constant(true))
+    return SearchElementView(locationManager: AppLocationManager(), networkManager: NetworkManager(), searchText: .constant(""), isSearchFocused: .constant(true), textViewFocus: $focus, isSearchViewEditing: .constant(true))
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct QueueItem: Identifiable {
+struct QueueItem: Identifiable {    
     let queueResult: DataElement
     let id: String
     var distance: String

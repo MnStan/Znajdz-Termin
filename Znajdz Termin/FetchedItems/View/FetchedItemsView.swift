@@ -9,10 +9,20 @@ import SwiftUI
 import Combine
 
 struct FetchedItemsView: View {
-    @StateObject private var viewModel = ViewModel()
+    @EnvironmentObject var locationManager: AppLocationManager
+    @EnvironmentObject var networkManager: NetworkManager
+    @StateObject private var viewModel: FetchedItemsView.ViewModel
     @State private var selectedItemID: String? = nil
     @Namespace var itemsNamespace
     @Environment(\.dismiss) var dismiss
+    
+    @State var selectedSorting = QuerySortingOptions.date
+    
+    init(locationManager: any LocationManagerProtocol, networkManager: NetworkManager, selectedItemID: String? = nil, selectedSorting: QuerySortingOptions = QuerySortingOptions.date) {
+        self.selectedItemID = selectedItemID
+        self.selectedSorting = selectedSorting
+        _viewModel = StateObject(wrappedValue: ViewModel(networkManager: networkManager, locationManager: locationManager))
+    }
     
     var body: some View {
         ScrollViewReader { value in
@@ -118,10 +128,29 @@ struct FetchedItemsView: View {
         .background(.blue.opacity(0.1))
         .onDisappear {
             viewModel.resetNetworkManager()
+            viewModel.cancelCalculateDistances()
+        }
+        .toolbar {
+            Menu {
+                Section("Sortowanie") {
+                    Picker(selection: $selectedSorting) {
+                        ForEach(QuerySortingOptions.allCases, id: \.self) { item in
+                            Text(item.description)
+                        }
+                    } label: {
+                        Image(systemName: "gear")
+                    }
+                }
+            } label: {
+                Image(systemName: "gear")
+            }
+        }
+        .onChange(of: selectedSorting) { oldValue, newValue in
+            viewModel.sortItems(oldValue: oldValue, newValue: newValue)
         }
     }
 }
 
 #Preview {
-    FetchedItemsView()
+    FetchedItemsView(locationManager: AppLocationManager(), networkManager: NetworkManager())
 }

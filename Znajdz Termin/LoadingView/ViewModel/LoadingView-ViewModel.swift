@@ -20,8 +20,8 @@ extension LoadingView {
         private var cancellables = Set<AnyCancellable>()
         private var timerCancellable: AnyCancellable?
         
-        init(locationManager: LocationManagerProtocol = AppLocationManager.shared, calendarManager: EventStoreProtocol = AppCalendarEventManager.shared) {
-            self.locationManager = locationManager as! AppLocationManager
+        init(locationManager: any LocationManagerProtocol = AppLocationManager(), calendarManager: EventStoreProtocol = AppCalendarEventManager.shared) {
+            self.locationManager = locationManager as? AppLocationManager ?? AppLocationManager()
             self.calendarManager = calendarManager
             
             locationManager.locationErrorPublished

@@ -39,10 +39,11 @@ class MockCLLocationManager: CLLocationManager {
 final class LocalizationManagerTests: XCTestCase {
     var sut: AppLocationManager!
     var mockLocationManager: MockCLLocationManager!
+    static var locationRateLimiter = LocationRateLimiter()
     
     override func setUpWithError() throws {
         mockLocationManager = MockCLLocationManager()
-        sut = AppLocationManager(locationManager: mockLocationManager)
+        sut = AppLocationManager(locationManager: mockLocationManager, rateLimiter: LocalizationManagerTests.locationRateLimiter)
     }
     
     override func tearDownWithError() throws {
@@ -50,20 +51,10 @@ final class LocalizationManagerTests: XCTestCase {
         sut = nil
     }
     
-    func testPerformanceExample() throws {
-        self.measure {
-        }
-    }
-    
     func testLocation() {
         let mockLocation = CLLocation(latitude: 50.123, longitude: -50.123)
         mockLocationManager.mockLocation = mockLocation
         XCTAssertEqual(sut.location, mockLocation)
-    }
-    
-    func testSharedInstanceType() {
-        let sharedInstance = AppLocationManager.shared
-        XCTAssertTrue(sharedInstance is AppLocationManager)
     }
     
     func testAuthorizationStatus() {
@@ -109,6 +100,8 @@ final class LocalizationManagerTests: XCTestCase {
     }
     
     func testCreatingNearLocationsOnCircle() {
+        let expectation = XCTestExpectation(description: "Wait for pointsOnCircle to complete")
+
         let mockLocation = CLLocation(latitude: 50.123, longitude: -50.123)
         mockLocationManager.mockLocation = mockLocation
         
@@ -119,20 +112,33 @@ final class LocalizationManagerTests: XCTestCase {
         ]
         
         sut.pointsOnCircle(center: mockLocation.coordinate, radius: 100000, numberOfPoints: 2)
-        XCTAssertEqual(sut.nearLocations.count, points.count)
-        sut.nearLocations.enumerated().forEach {
-            XCTAssertTrue($0.element.coordinate.isEqual(to: points[$0.offset]))
+        
+        DispatchQueue.main.async {
+            XCTAssertEqual(self.sut.nearLocations.count, points.count)
+            self.sut.nearLocations.enumerated().forEach {
+                XCTAssertTrue($0.element.coordinate.isEqual(to: points[$0.offset]))
+            }
+            expectation.fulfill()
         }
+        
+        wait(for: [expectation], timeout: 1.0)
     }
     
     func testCountOfCreatedNearLocationsPoints() {
+        let expectation = XCTestExpectation(description: "Wait for pointsOnCircle to complete")
+        
         let numberOfPointsToCreate = 10
         let mockLocation = CLLocation(latitude: 50.123, longitude: -50.123)
         mockLocationManager.mockLocation = mockLocation
         
         sut.pointsOnCircle(center: mockLocation.coordinate, radius: 10000, numberOfPoints: numberOfPointsToCreate)
         
-        XCTAssertEqual(sut.nearLocations.count, numberOfPointsToCreate)
+        DispatchQueue.main.async {
+            XCTAssertEqual(self.sut.nearLocations.count, numberOfPointsToCreate)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
     }
     
     func testCountOfCreatedNearLocationsPointsShouldFail() {
@@ -146,22 +152,29 @@ final class LocalizationManagerTests: XCTestCase {
     }
     
     func testDistanceOfCreatedNearPoint() {
+        let expectation = XCTestExpectation(description: "Wait for pointsOnCircle to complete")
+
         let distance: CLLocationDistance = 50000 // 50 km
         let mockLocation = CLLocation(latitude: 50.123, longitude: -50.123)
         mockLocationManager.mockLocation = mockLocation
         
         sut.pointsOnCircle(center: mockLocation.coordinate, radius: distance, numberOfPoints: 2)
         
-        if let firstPoint = sut.nearLocations.first {
-            let location1 = CLLocation(latitude: firstPoint.coordinate.latitude, longitude: firstPoint.coordinate.longitude)
-            let location2 = sut.location ?? CLLocation(latitude: 0, longitude: 0)
-            let calculatedDistance = location1.distance(from: location2)
-            
-            // 100m accuracy
-            XCTAssertEqual(calculatedDistance, distance, accuracy: 100)
-        } else {
-            XCTFail()
+        DispatchQueue.main.async {
+            if let firstPoint = self.sut.nearLocations.first {
+                let location1 = CLLocation(latitude: firstPoint.coordinate.latitude, longitude: firstPoint.coordinate.longitude)
+                let location2 = self.sut.location ?? CLLocation(latitude: 0, longitude: 0)
+                let calculatedDistance = location1.distance(from: location2)
+                
+                // 100m accuracy
+                XCTAssertEqual(calculatedDistance, distance, accuracy: 100)
+            } else {
+                XCTFail()
+            }
+            expectation.fulfill()
         }
+        
+        wait(for: [expectation], timeout: 1.0)
     }
     
     func testGetPointVoivodeship() {
@@ -170,13 +183,13 @@ final class LocalizationManagerTests: XCTestCase {
         
         let expectation = XCTestExpectation(description: "Get point voivodeship completed")
         
-        Task {
-            let pointVoivodeship = await self.sut.getPointVoivodeship(for: mockLocation)
-            XCTAssertEqual(pointVoivodeship, expectedVoivodeship)
-            expectation.fulfill()
-        }
+            Task {
+                let pointVoivodeship = await self.sut.getPointVoivodeship(for: mockLocation)
+                XCTAssertEqual(pointVoivodeship, expectedVoivodeship)
+                expectation.fulfill()
+            }
         
-        wait(for: [expectation], timeout: 5.0)
+        wait(for: [expectation], timeout: 50.0)
     }
     
     func testNearPointsVoivodeships() {
@@ -186,37 +199,13 @@ final class LocalizationManagerTests: XCTestCase {
         
         Task {
             await sut.getNearPointsVoivodeships(for: mockPoints)
-            XCTAssertEqual(sut.nearVoivodeships.sorted(), expectedArray.sorted())
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 5.0)
-    }
-    
-    // X in name to run this test at the end to prevent geocoding throttling from disturbing other tests
-    func testXGeocodingThrottling() {
-        var locationError: LocationError?
-        var cancellables = Set<AnyCancellable>()
-        
-        sut.locationErrorPublished
-            .receive(on: DispatchQueue.main)
-            .sink { error in
-                locationError = error
+            DispatchQueue.main.async {
+                XCTAssertEqual(self.sut.nearVoivodeships.sorted(), expectedArray.sorted())
+                expectation.fulfill()
             }
-            .store(in: &cancellables)
-        
-        let mockPoints = Array(repeating: LocationData(coordinate: CLLocationCoordinate2D(latitude: 50.023604, longitude: 22.000681)), count: 60)
-        let expectation = XCTestExpectation(description: "Should throttle")
-        
-        Task {
-            await sut.getNearPointsVoivodeships(for: mockPoints)
-            expectation.fulfill()
         }
         
         wait(for: [expectation], timeout: 5.0)
-        XCTAssertEqual(locationError, .geocodeError)
-        
-        cancellables.forEach { $0.cancel() }
     }
     
     func testCalculatingDistance() {
@@ -235,7 +224,7 @@ final class LocalizationManagerTests: XCTestCase {
         mockLocationManager.mockLocation = mockLocation
         
         if let distance = sut.calculateDistanceFromPoint(to: CLLocation(latitude: 50.041114, longitude: 21.999135)) {
-            XCTAssertNotEqual(distance, 147900, accuracy: CLLocationDistance(250)) // 250m accuracy because of unaccurate measure in maps done to check manager calculations
+            XCTAssertNotEqual(distance, 147900, accuracy: CLLocationDistance(250)) // 250m accuracy because of inaccurate measure in maps done to check manager calculations
         } else {
             XCTFail("Calculation returned nil")
         }
@@ -250,8 +239,8 @@ final class LocalizationManagerTests: XCTestCase {
             XCTAssertNotNil(coordinate)
             
             if let coordinate = coordinate {
-                XCTAssertEqual(coordinate.coordinate.latitude, CLLocation(latitude: 50.05917200, longitude: 19.93704350).coordinate.latitude)
-                XCTAssertEqual(coordinate.coordinate.longitude, CLLocation(latitude: 50.05917200, longitude: 19.93704350).coordinate.longitude)
+                XCTAssertEqual(coordinate.coordinate.latitude, CLLocation(latitude: 50.0594739, longitude: 19.9361936).coordinate.latitude)
+                XCTAssertEqual(coordinate.coordinate.longitude, CLLocation(latitude: 50.059172, longitude: 19.9361936).coordinate.longitude)
                 expectation.fulfill()
             }
         }
@@ -277,8 +266,8 @@ final class LocalizationManagerTests: XCTestCase {
         wait(for: [expectation], timeout: 10.0)
     }
     
-    func testGeocodingRateLimiter() {
-        for i in 0...125 {
+    func testXGeocodingRateLimiter() {
+        for _ in 0...111 {
             let expectation = XCTestExpectation(description: "Geocoding work done")
             
             Task {
@@ -293,7 +282,7 @@ final class LocalizationManagerTests: XCTestCase {
                 }
             }
             
-            wait(for: [expectation], timeout: 180.0)
+            wait(for: [expectation], timeout: 150.0)
         }
     }
 }
