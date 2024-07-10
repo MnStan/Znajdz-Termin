@@ -142,7 +142,6 @@ final class FetchedItems_ViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 30.0)
         
         sut.queueItems.forEach {
-            print($0.distance)
             XCTAssertEqual($0.distance, "118.16 km")
         }
     }
@@ -159,8 +158,7 @@ final class FetchedItems_ViewModelTests: XCTestCase {
             QueueItem(queueResult: DataElement(type: "", id: "2", attributes: .defaultAttributes), distance: "12.93 km"),
             QueueItem(queueResult: DataElement.defaultDataElement, distance: "225.99 km")
         ]
-        
-        print(sut.queueItems)
+
         XCTAssertEqual(sut.queueItems.last?.id, sortedItemsToProcess.last?.id)
     }
     

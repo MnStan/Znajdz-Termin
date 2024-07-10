@@ -172,7 +172,7 @@ struct SearchElementViewExpanded: View {
             textViewFocus = false
         }
         .navigationDestination(isPresented: $shouldShowFetchedItemsView) {
-            FetchedItemsView(locationManager: locationManager, networkManager: networkManager)
+            FetchedItemsView(locationManager: locationManager, networkManager: networkManager, selectedBenefit: searchText)
         }
         .alert("Tekst wyszukiwania powinien mieć długość co najmniej 3 liter", isPresented: $shouldShowAlert) {
             Button("Ok", role: .cancel) { }

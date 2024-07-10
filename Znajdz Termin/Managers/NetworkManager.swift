@@ -13,7 +13,7 @@ protocol URLSessionProtocol {
 
 extension URLSession: URLSessionProtocol { }
 
-protocol NetworkManagerProtocol: ObservableObject {
+protocol NetworkManagerProtocol: AnyObject {
     var benefitsDataArray: [String] { get set }
     var benefitsDataArrayPublisher: Published<[String]>.Publisher { get }
     var datesDataArray: [DataElement] { get set }
@@ -60,7 +60,6 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
     var canFetchMorePagesPublisher: Published<Bool>.Publisher { $canFetchMorePages }
     
     init(rateLimiter: RateLimiter = RateLimiter()) {
-        print("         NetWORK MANAGER INITI")
         self.rateLimiter = rateLimiter
         dateFormatter.dateFormat = "yyyy-MM-dd"
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
@@ -135,8 +134,6 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
     
     func fetchBenefits(benefitName: String, nextPage: URL? = nil) async {
         do {
-            print("Starting fetchBenefits for \(benefitName) with nextPage: \(String(describing: nextPage))")
-
             let url: URL
             
             try await rateLimiter.limitRequests()
@@ -175,10 +172,7 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
     }
     
     func fetchDates(benefitName: String = "", nextPage: URL? = nil, caseNumber: Int = 1, isForKids: Bool = false, province: String = "", onlyOnePage: Bool = false) async {
-        print(" Fetching mooore")
         do {
-            print("Starting fetchDates for \(benefitName) with nextPage: \(String(describing: nextPage))")
-
             let url: URL
             
             try await rateLimiter.limitRequests()
@@ -187,8 +181,6 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
             } else {
                 url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName, isForKids: isForKids)
             }
-            
-            print(url)
             
             let (data, _) = try await fetchData(from: url)
             let decodedData = try decodeData(from: data, isDateData: true)
@@ -220,7 +212,6 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
             }
         } catch {
             await MainActor.run {
-                print(error, error.localizedDescription)
                 networkError = .unknown
             }
         }
@@ -247,13 +238,11 @@ actor RateLimiter {
     
     func limitRequests() async throws {
         let now = Date()
-        print("Limiting", requestTimestamps.count)
         requestTimestamps = requestTimestamps.filter { now.timeIntervalSince($0) < 5 }
         if requestTimestamps.count >= maxRequestsPerSecond {
             
             if let mostRecentTimestamp = requestTimestamps.first {
                 let waitTime = 5 - now.timeIntervalSince(mostRecentTimestamp)
-                print("    NE   TW  oRK wait ", waitTime)
                 try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
                 
                 requestTimestamps.removeAll()
@@ -261,6 +250,5 @@ actor RateLimiter {
         }
         
         requestTimestamps.append(Date())
-        print("Request allowed at \(now)")
     }
 }

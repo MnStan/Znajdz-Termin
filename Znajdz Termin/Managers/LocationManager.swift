@@ -9,7 +9,7 @@ import Foundation
 import MapKit
 import Combine
 
-protocol LocationManagerProtocol: ObservableObject {
+protocol LocationManagerProtocol: AnyObject {
     var authorizationStatus: CLAuthorizationStatus { get }
     var location: CLLocation? { get }
     var voivodeship: String { get }
@@ -45,7 +45,6 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     private let rateLimiter: LocationRateLimiter
     
     init(locationManager: CLLocationManager = CLLocationManager(), rateLimiter: LocationRateLimiter = LocationRateLimiter()) {
-        print("INITIALIZATION")
         self.locationManager = locationManager
         self.rateLimiter = rateLimiter
         super.init()
@@ -199,7 +198,6 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     }
     
     func findCoordinatesOfCityName(name: String) async throws -> CLLocation? {
-        print("Finding for \(name)")
         do {
             await rateLimiter.limitRequests()
             
@@ -210,7 +208,6 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
             let place = try await geocoder.geocodeAddressString(name)
             
             if let firstPlace = place.first {
-                print("Found for \(name) \(firstPlace.location)")
                 return firstPlace.location
             }
         } catch {
@@ -239,7 +236,6 @@ actor LocationRateLimiter {
     private var isProcessing = false
     
     init(requestTimestamps: [Date] = [], requestQueue: [CheckedContinuation<Void, Never>] = [], isProcessing: Bool = false) {
-        print("             RATE LIMITER INININININIT")
         self.requestTimestamps = requestTimestamps
         self.requestQueue = requestQueue
         self.isProcessing = isProcessing
@@ -247,7 +243,6 @@ actor LocationRateLimiter {
     
     
     func limitRequests() async {
-        print(requestTimestamps.count)
         await withCheckedContinuation { continuation in
             requestTimestamps = requestTimestamps.filter { Date().timeIntervalSince($0) < 60 }
             requestQueue.append(continuation)
@@ -264,7 +259,6 @@ actor LocationRateLimiter {
         isProcessing = true
         Task {
             while !requestQueue.isEmpty {
-                print("     Requestqueue ", requestQueue.count)
                 let now = Date()
                 if requestTimestamps.count < maxRequestsPerMinute {
                     let continuation = requestQueue.removeFirst()
@@ -273,10 +267,8 @@ actor LocationRateLimiter {
                 } else {
                     if let oldestTimestamp = requestTimestamps.last {
                         let waitTime = 60 - now.timeIntervalSince(oldestTimestamp)
-                        print("     Will wait ", waitTime)
                         if waitTime > 0 {
                             try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
-                            print("         WAIT TIME \(waitTime)")
                             requestTimestamps.removeFirst(50)
                         } else {
                             requestTimestamps.removeFirst()

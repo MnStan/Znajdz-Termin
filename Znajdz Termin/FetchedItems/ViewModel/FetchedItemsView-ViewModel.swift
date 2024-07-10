@@ -26,8 +26,7 @@ extension FetchedItemsView {
         private var calculateDistancesTask: Task<Void, Never>?
         @Published var locationError: LocationError?
         
-        init(networkManager: any NetworkManagerProtocol, locationManager: any LocationManagerProtocol) {
-            print("Viewmodel init ")
+        init(networkManager: NetworkManagerProtocol, locationManager: LocationManagerProtocol) {
             self.networkManager = networkManager
             self.locationManager = locationManager
             
@@ -74,10 +73,6 @@ extension FetchedItemsView {
         
         func resetLocationManager() {
             //            locationManager.resetTasks()
-        }
-        
-        func canLoadMore() -> Bool {
-            networkManager.nextPageURL != nil
         }
         
         func processNewItems(newItems: [DataElement]) {
@@ -146,7 +141,6 @@ extension FetchedItemsView {
                     
                     if let index = self.queueItems.firstIndex(where: { $0.id == item.id }) {
                         self.queueItems[index].distance = distance
-                        print(self.queueItems[index].distance)
                     }
                 }
                 
@@ -176,7 +170,6 @@ extension FetchedItemsView {
                 self.queueItems = itemsToSort.sorted  { item1, item2 in
                     if let awaiting1 = item1.queueResult.attributes.statistics?.providerData?.awaiting {
                         if let awaiting2 = item2.queueResult.attributes.statistics?.providerData?.awaiting {
-                            print(awaiting1, awaiting2)
                             return awaiting1 < awaiting2
                         }
                     }

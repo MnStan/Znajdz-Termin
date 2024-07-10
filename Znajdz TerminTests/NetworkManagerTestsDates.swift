@@ -234,20 +234,6 @@ final class NetworkManagerTestsDates: XCTestCase {
         wait(for: [expectation], timeout: 30.0)
     }
     
-//    func testFetchingMultiPageBenefitsManyPlaces() {
-//        let sut = NetworkManager.shared
-//        let expectation = XCTestExpectation(description: "Fetching completed")
-//        
-//        sut.datesDataArray.removeAll()
-//        Task {
-//            await sut.fetchDates(benefitName: "poradnia", caseNumber: 1, province: "06")
-//            XCTAssertEqual(sut.datesDataArray.count, 2360)
-//            expectation.fulfill()
-//        }
-//        
-//        wait(for: [expectation], timeout: 120.0)
-//    }
-    
     func testFetchingMultiPageBenefitsManyPlacesOnlyFirstPage() {
         let expectation = XCTestExpectation(description: "Fetching completed")
         
@@ -336,7 +322,7 @@ final class NetworkManagerTestsDates: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
     
-    #warning("TU wywala nil przy testowaniu wszystkiego?")
+    #warning("Check this test!")
 //    func testfetchBenefitsShouldThrowError() {
 //        let url = URL(string: "https://example.com")!
 //        
