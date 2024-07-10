@@ -13,7 +13,7 @@ protocol URLSessionProtocol {
 
 extension URLSession: URLSessionProtocol { }
 
-protocol NetworkManagerProtocol: ObservableObject {
+protocol NetworkManagerProtocol: AnyObject {
     var benefitsDataArray: [String] { get set }
     var benefitsDataArrayPublisher: Published<[String]>.Publisher { get }
     var datesDataArray: [DataElement] { get set }
@@ -35,7 +35,6 @@ protocol NetworkManagerProtocol: ObservableObject {
 }
 
 class NetworkManager: NetworkManagerProtocol, ObservableObject {
-    static let shared = NetworkManager()
     let baseURL = "https://api.nfz.gov.pl"
     private let decoder = JSONDecoder()
     
@@ -55,12 +54,13 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
     
     @Published var benefitsArray: [String] = []
     var benefitsArrayPublisher: Published<[String]>.Publisher { $benefitsArray }
-    private let rateLimiter = RateLimiter()
+    private let rateLimiter: RateLimiter
     var nextPageURL: String?
     @Published var canFetchMorePages = true
     var canFetchMorePagesPublisher: Published<Bool>.Publisher { $canFetchMorePages }
     
-    init() {
+    init(rateLimiter: RateLimiter = RateLimiter()) {
+        self.rateLimiter = rateLimiter
         dateFormatter.dateFormat = "yyyy-MM-dd"
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
         decoder.keyDecodingStrategy = .convertFromKebabCase
@@ -141,7 +141,9 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
             if let nextPage = nextPage {
                 url = nextPage
             } else {
-                benefitsDataArray.removeAll()
+                await MainActor.run {
+                    self.benefitsDataArray.removeAll()
+                }
                 url = try createURL(path: .benefits, benefit: benefitName)
             }
             
@@ -150,16 +152,22 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
             
             if let responseBenefit = decodedData.apiResponseBenefit {
                 
-                benefitsDataArray.append(contentsOf: responseBenefit.data)
+                await MainActor.run {
+                    self.benefitsDataArray.append(contentsOf: responseBenefit.data)
+                }
                 
                 if let nextPage = responseBenefit.links.next {
                     await fetchBenefits(benefitName: benefitName, nextPage: URL(string: baseURL + nextPage))
                 }
             }
         } catch let error as NetworkError {
-            networkError = error
+            await MainActor.run {
+                networkError = error
+            }
         } catch {
-            networkError = .unknown
+            await MainActor.run {
+                networkError = .unknown
+            }
         }
     }
     
@@ -174,14 +182,15 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
                 url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName, isForKids: isForKids)
             }
             
-            print(url)
-            
             let (data, _) = try await fetchData(from: url)
             let decodedData = try decodeData(from: data, isDateData: true)
             
             if let response = decodedData.apiResponse {
                 
-                datesDataArray.append(contentsOf: response.data)
+                await MainActor.run {
+                    self.datesDataArray.append(contentsOf: response.data)
+                }
+                
                 if let nextPage = response.links.next {
                     self.nextPageURL = nextPage
                     
@@ -190,15 +199,21 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
                         await fetchDates(benefitName: benefitName, nextPage: nextPageURL, caseNumber: caseNumber, isForKids: isForKids, province: province)
                     }
                 } else {
-                    canFetchMorePages = false
-                    nextPageURL = nil
+                    await MainActor.run {
+                        canFetchMorePages = false
+                        nextPageURL = nil
+                    }
                 }
             }
             
         } catch let error as NetworkError {
-            networkError = error
+            await MainActor.run {
+                networkError = error
+            }
         } catch {
-            networkError = .unknown
+            await MainActor.run {
+                networkError = .unknown
+            }
         }
     }
     
@@ -223,13 +238,11 @@ actor RateLimiter {
     
     func limitRequests() async throws {
         let now = Date()
-        
         requestTimestamps = requestTimestamps.filter { now.timeIntervalSince($0) < 5 }
         if requestTimestamps.count >= maxRequestsPerSecond {
             
-            if let mostRecentTimestamp = requestTimestamps.last {
+            if let mostRecentTimestamp = requestTimestamps.first {
                 let waitTime = 5 - now.timeIntervalSince(mostRecentTimestamp)
-                
                 try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
                 
                 requestTimestamps.removeAll()

@@ -11,13 +11,16 @@ import Combine
 extension SearchElementView {
     
     class ViewModel: ObservableObject {
-        private let networkManager = NetworkManager.shared
-        private let locationManager = AppLocationManager.shared
+        private let networkManager: NetworkManager
+        private let locationManager: AppLocationManager
         @Published var shouldShowHint = false
         @Published var benefitsArray: [String] = []
         private var cancellables = Set<AnyCancellable>()
         
-        init() {
+        init(locationManager: any LocationManagerProtocol = AppLocationManager(), networkManager: NetworkManager = NetworkManager()) {
+            self.locationManager = locationManager as? AppLocationManager ?? AppLocationManager()
+            self.networkManager = networkManager
+            
             networkManager.$benefitsDataArray
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] array in

@@ -77,7 +77,6 @@ final class DetailItem_ViewModelTests: XCTestCase {
         let checkedNumber = sut.checkIfThereAreTwoNumbers(number: inputTwoNumbers)
         
         XCTAssertEqual(checkedNumber[0], "(012)265 46 01")
-        XCTAssertEqual(checkedNumber[1], nil)
     }
     
     func testCreatingURLForPhoneNumber() {

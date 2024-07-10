@@ -12,19 +12,21 @@ import CoreLocation
 extension FetchedItemsView {
     @MainActor
     class ViewModel: ObservableObject {
-        //        private let networkManager = NetworkManager.shared
         private let networkManager: any NetworkManagerProtocol
-        private let locationManager: LocationManagerProtocol
+        private var locationManager: any LocationManagerProtocol
         @Published var itemsArray: [DataElement] = []
         @Published var queueItems: [QueueItem] = []
+        var initialQueueItems: [QueueItem] = []
         private var cancellables = Set<AnyCancellable>()
         @Published var networkError: NetworkError?
         @Published var isNetworkWorkDone: Bool = false
         var processedItemIDs: Set<String> = []
         var alreadyProcessedCities: [String: CLLocation] = [:]
         @Published var findingCoordinatesError: Bool = false
+        private var calculateDistancesTask: Task<Void, Never>?
+        @Published var locationError: LocationError?
         
-        init(networkManager: any NetworkManagerProtocol = NetworkManager.shared, locationManager: LocationManagerProtocol = AppLocationManager.shared) {
+        init(networkManager: NetworkManagerProtocol, locationManager: LocationManagerProtocol) {
             self.networkManager = networkManager
             self.locationManager = locationManager
             
@@ -48,6 +50,13 @@ extension FetchedItemsView {
                     self?.isNetworkWorkDone = !canFetchMore
                 }
                 .store(in: &self.cancellables)
+            
+            locationManager.locationErrorPublished
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] locationError in
+                    self?.locationError = locationError
+                }
+                .store(in: &self.cancellables)
         }
         
         deinit {
@@ -62,62 +71,110 @@ extension FetchedItemsView {
             networkManager.resetNetworkFetchingDates()
         }
         
-        func canLoadMore() -> Bool {
-            networkManager.nextPageURL != nil
+        func resetLocationManager() {
+            //            locationManager.resetTasks()
         }
         
         func processNewItems(newItems: [DataElement]) {
             let newItemsToProcess = newItems.filter { !processedItemIDs.contains($0.id) }
-            newItemsToProcess.forEach { processedItemIDs.insert($0.id) }
+            processedItemIDs.formUnion(newItemsToProcess.map { $0.id })
             
-            newItemsToProcess.forEach { item in
-                if queueItems.firstIndex(where: { $0.id == item.id }) == nil {
-                    let queueItem = QueueItem(queueResult: item, distance: "Czekam...")
-                    queueItems.append(queueItem)
+            let newQueueItems = newItemsToProcess.compactMap { item -> QueueItem? in
+                guard queueItems.firstIndex(where: { $0.id == item.id }) == nil else {
+                    return nil
                 }
+                let initialDistance = calculateInitialDistance(for: item)
+                return QueueItem(queueResult: item, distance: initialDistance)
             }
             
-            Task {
-                await calculateDistances(for: newItemsToProcess)
-            }
+            queueItems.append(contentsOf: newQueueItems)
+            
+            calculateDistances(for: newItemsToProcess)
         }
         
-        
-        func calculateDistances(for itemsToProcess: [DataElement]) async {
-            guard let userLocation = locationManager.location else {
-                return
+        private func calculateInitialDistance(for item: DataElement) -> String {
+            guard let userLocation = locationManager.location,
+                  let latitude = item.attributes.latitude,
+                  let longitude = item.attributes.longitude else {
+                return "Obliczam..."
             }
             
-            for item in itemsToProcess {
-                var distance: String
+            let itemLocation = CLLocation(latitude: latitude, longitude: longitude)
+            let distanceValue = userLocation.distance(from: itemLocation)
+            return String(format: "%.2f km", distanceValue / 1000)
+        }
+        
+        func calculateDistances(for itemsToProcess: [DataElement]) {
+            calculateDistancesTask = Task { [weak self] in
+                guard let self = self, let userLocation = self.locationManager.location else { return }
                 
-                if let latitude = item.attributes.latitude, let longitude = item.attributes.longitude {
-                    let itemLocation = CLLocation(latitude: latitude, longitude: longitude)
-                    let distanceValue = userLocation.distance(from: itemLocation)
-                    distance = String(format: "%.2f", distanceValue / 1000) + " km"
-                } else {
-                    distance = "Czekam..."
-                    if let city = item.attributes.locality {
-                        if let address = item.attributes.address {
-                            if let processedName = alreadyProcessedCities["\(city) \(address)"] {
-                                let distanceValue = userLocation.distance(from: processedName)
-                                distance = String(format: "%.2f", distanceValue / 1000) + " km"
-                            }
+                for item in itemsToProcess {
+                    if Task.isCancelled { return }
+                    
+                    var distance: String = "Obliczam..."
+                    
+                    if let latitude = item.attributes.latitude, let longitude = item.attributes.longitude {
+                        let itemLocation = CLLocation(latitude: latitude, longitude: longitude)
+                        let distanceValue = userLocation.distance(from: itemLocation)
+                        distance = String(format: "%.2f km", distanceValue / 1000)
+                    } else if let city = item.attributes.locality, let address = item.attributes.address {
+                        let fullAddress = "\(city) \(address)"
+                        if let processedLocation = self.alreadyProcessedCities[fullAddress] {
+                            let distanceValue = userLocation.distance(from: processedLocation)
+                            distance = String(format: "%.2f km", distanceValue / 1000)
+                        } else {
                             do {
-                                if let location = try await locationManager.findCoordinatesOfCityName(name: "\(city) \(address)") {
+                                if Task.isCancelled { return }
+                                if let location = try await self.locationManager.findCoordinatesOfCityName(name: fullAddress) {
                                     let distanceValue = userLocation.distance(from: location)
-                                    distance = String(format: "%.2f", distanceValue / 1000) + " km"
-                                    alreadyProcessedCities[city] = location
+                                    distance = String(format: "%.2f km", distanceValue / 1000)
+                                    self.alreadyProcessedCities[fullAddress] = location
                                 }
                             } catch {
                                 distance = "Brak odległości"
+                                self.findingCoordinatesError = true
                             }
                         }
                     }
+                    
+                    if Task.isCancelled { return }
+                    
+                    if let index = self.queueItems.firstIndex(where: { $0.id == item.id }) {
+                        self.queueItems[index].distance = distance
+                    }
                 }
                 
-                if let index = queueItems.firstIndex(where: { $0.id == item.id }) {
-                    queueItems[index].distance = distance
+                initialQueueItems = queueItems
+            }
+        }
+        
+        func cancelCalculateDistances() {
+            calculateDistancesTask?.cancel()
+        }
+        
+        func sortItems(oldValue: QuerySortingOptions, newValue: QuerySortingOptions, queryItems: [QueueItem]? = nil ) {
+            guard oldValue != newValue else { return }
+            
+            let itemsToSort = queryItems ?? queueItems
+            
+            switch newValue {
+            case .date:
+                self.queueItems = self.initialQueueItems
+            case .distance:
+                self.queueItems = itemsToSort.sorted  { item1, item2 in
+                    let distance1 = Double(item1.distance.replacingOccurrences(of: " km", with: "")) ?? 0.0
+                    let distance2 = Double(item2.distance.replacingOccurrences(of: " km", with: "")) ?? 0.0
+                    return distance1 < distance2
+                }
+            case .awaiting:
+                self.queueItems = itemsToSort.sorted  { item1, item2 in
+                    if let awaiting1 = item1.queueResult.attributes.statistics?.providerData?.awaiting {
+                        if let awaiting2 = item2.queueResult.attributes.statistics?.providerData?.awaiting {
+                            return awaiting1 < awaiting2
+                        }
+                    }
+                    
+                    return false
                 }
             }
         }

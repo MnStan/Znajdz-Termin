@@ -8,11 +8,13 @@
 import SwiftUI
 
 struct SearchElementViewExpanded: View {
+    @EnvironmentObject var locationManager: AppLocationManager
+    @EnvironmentObject var networkManager: NetworkManager
     @Binding var searchText: String
     @Binding var isSearchFocused: Bool
     @Namespace var searchNamespace: Namespace.ID
     @FocusState.Binding var textViewFocus: Bool
-    @ObservedObject var viewModel: SearchElementView.ViewModel
+    @StateObject var viewModel: SearchElementView.ViewModel
     @Binding var isSearchViewEditing: Bool
     @Binding var pickedVoivodeship: String
     @Binding var selectedIsForKids: Bool
@@ -137,7 +139,8 @@ struct SearchElementViewExpanded: View {
                                 if viewModel.checkTextCount(text: searchText) {
                                     if let voivodeshipNumber = viewModel.getVoivodeshipNumber(selectedVoivodeship: pickedVoivodeship) {
                                         viewModel.fetchDates(benefit: searchText, caseNumber: selectedMedicalCase ? 2 : 1, isForKids: selectedIsForKids, province: voivodeshipNumber)
-                                        NetworkManager.shared.resetNetworkFetchingDates()
+                                        #warning("Reseting fetching dates?")
+//                                        NetworkManager.shared.resetNetworkFetchingDates()
                                         shouldShowFetchedItemsView = true
                                     }
                                 } else {
@@ -169,7 +172,7 @@ struct SearchElementViewExpanded: View {
             textViewFocus = false
         }
         .navigationDestination(isPresented: $shouldShowFetchedItemsView) {
-            FetchedItemsView()
+            FetchedItemsView(locationManager: locationManager, networkManager: networkManager, selectedBenefit: searchText)
         }
         .alert("Tekst wyszukiwania powinien mieć długość co najmniej 3 liter", isPresented: $shouldShowAlert) {
             Button("Ok", role: .cancel) { }

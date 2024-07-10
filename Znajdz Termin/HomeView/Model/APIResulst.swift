@@ -80,6 +80,10 @@ struct Attributes: Decodable {
     static let defaultAttributes = Attributes(case: 1, benefit: "PORADNIA STOMATOLOGICZNA", manyPlaces: "N", provider: "PZU ZDROWIE SPÓŁKA AKCYJNA", providerCode: "064/400267", regonProvider: "491882749", nipProvider: "7351029116", terytProvider: "1215052", place: "PORADNIA STOMATOLOGICZNA", address: "UL. OSIELEC 540", locality: "OSIELEC", phone: "(032)623 22 11 WEW 223;(032)623 22 12", terytPlace: "1215052", registryNumber: "000000034125-L-51", idResortPartVII: "001", idResortPartVIII: "1800", benefitsForChildren: "Y", covid19: "N", toilet: "Y", ramp: "Y", carPark: "Y", elevator: "Y", latitude: 49.03282250, longitude: 20.34864810, statistics: Statistics.defaultStatistics, dates: Dates.defaultDates, benefitsProvided: .defaultBenefitsProvided)
     
     static let defaultAttributesWithoutLocation = Attributes(case: 1, benefit: "PORADNIA", manyPlaces: "N", provider: "SPÓŁKA AKCYJNA", providerCode: "064/400267", regonProvider: "491882749", nipProvider: "7351029116", terytProvider: "1215052", place: "PORADNIA STOMATOLOGICZNA", address: "UL. OSIELEC 540", locality: "OSIELEC", phone: "+24 277-35 51", terytPlace: "1215052", registryNumber: "000000034125-L-51", idResortPartVII: "001", idResortPartVIII: "1800", benefitsForChildren: "Y", covid19: "N", toilet: "Y", ramp: "Y", carPark: "Y", elevator: "Y", latitude: nil, longitude: nil, statistics: Statistics.defaultStatistics, dates: Dates.defaultDates, benefitsProvided: .defaultBenefitsProvided)
+    
+    static let defaultAttributesWithoutLocation2 = Attributes(case: 1, benefit: "PORADNIA", manyPlaces: "N", provider: "SPÓŁKA AKCYJNA", providerCode: "064/400267", regonProvider: "491882749", nipProvider: "7351029116", terytProvider: "1215052", place: "PORADNIA STOMATOLOGICZNA", address: "UL. OSIELEC 540", locality: "OSIELEC", phone: "+24 277-35 51", terytPlace: "1215052", registryNumber: "000000034125-L-51", idResortPartVII: "001", idResortPartVIII: "1800", benefitsForChildren: "Y", covid19: "N", toilet: "Y", ramp: "Y", carPark: "Y", elevator: "Y", latitude: nil, longitude: nil, statistics: Statistics.defaultStatistics2, dates: Dates.defaultDates, benefitsProvided: .defaultBenefitsProvided)
+    
+    static let defaultAttributesWithoutLocation3 = Attributes(case: 1, benefit: "PORADNIA", manyPlaces: "N", provider: "SPÓŁKA AKCYJNA", providerCode: "064/400267", regonProvider: "491882749", nipProvider: "7351029116", terytProvider: "1215052", place: "PORADNIA STOMATOLOGICZNA", address: "UL. OSIELEC 540", locality: "OSIELEC", phone: "+24 277-35 51", terytPlace: "1215052", registryNumber: "000000034125-L-51", idResortPartVII: "001", idResortPartVIII: "1800", benefitsForChildren: "Y", covid19: "N", toilet: "Y", ramp: "Y", carPark: "Y", elevator: "Y", latitude: nil, longitude: nil, statistics: Statistics.defaultStatistics3, dates: Dates.defaultDates, benefitsProvided: .defaultBenefitsProvided)
 }
 
 // MARK: - Statistics
@@ -87,7 +91,9 @@ struct Statistics: Decodable {
     let providerData: ProviderData?
     let computedData: ComputedData?
     
-    static let defaultStatistics = Statistics(providerData: ProviderData.defaultProviderData, computedData: nil)
+    static let defaultStatistics = Statistics(providerData: ProviderData.defaultProviderData4, computedData: nil)
+    static let defaultStatistics2 = Statistics(providerData: ProviderData.defaultProviderData2, computedData: nil)
+    static let defaultStatistics3 = Statistics(providerData: ProviderData.defaultProviderData3, computedData: nil)
 }
 
 // MARK: - ProviderData
@@ -98,6 +104,9 @@ struct ProviderData: Decodable {
     let update: String
     
     static let defaultProviderData = ProviderData(awaiting: 10, removed: 5, averagePeriod: 5, update: "2024-04")
+    static let defaultProviderData2 = ProviderData(awaiting: 25, removed: 5, averagePeriod: 5, update: "2024-04")
+    static let defaultProviderData3 = ProviderData(awaiting: 1, removed: 5, averagePeriod: 5, update: "2024-04")
+    static let defaultProviderData4 = ProviderData(awaiting: 100, removed: 5, averagePeriod: 5, update: "2024-04")
 }
 
 // MARK: - ComputedData
@@ -129,7 +138,7 @@ struct DataElement: Decodable, Identifiable {
     let id: String
     let attributes: Attributes
     
-    static let defaultDataElement = DataElement(type: "", id: "", attributes: Attributes.defaultAttributes)
+    static let defaultDataElement = DataElement(type: "", id: "1", attributes: Attributes.defaultAttributes)
 }
 
 // MARK: - API Response Root

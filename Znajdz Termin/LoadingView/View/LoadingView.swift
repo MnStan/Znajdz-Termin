@@ -13,7 +13,7 @@ struct LoadingView: View {
     @Environment(\.accessibilityReduceMotion) var reduceMotionEnabled
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.sizeCategory) var sizeCategory
-    @StateObject private var viewModel = ViewModel()
+    @StateObject private var viewModel: ViewModel
     @State private var scale: CGFloat = 1.0
     @State private var isSpinning = true
     @State private var shouldShowNextScreenAfterError = false
@@ -25,6 +25,11 @@ struct LoadingView: View {
     
     private var shouldShowTextInScrollView: Bool {
         verticalSizeClass == .compact && sizeCategory >= .accessibilityExtraLarge && (viewModel.locationError != nil) ? true : false
+    }
+    
+    init(isLoading: Binding<Bool>, locationManager: any LocationManagerProtocol) {
+        _isLoading = isLoading
+        _viewModel = StateObject(wrappedValue: ViewModel(locationManager: locationManager))
     }
     
     var body: some View {
@@ -101,5 +106,5 @@ struct LoadingView: View {
 }
 
 #Preview {
-    LoadingView(isLoading: .constant(true))
+    LoadingView(isLoading: .constant(true), locationManager: AppLocationManager())
 }

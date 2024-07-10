@@ -9,7 +9,7 @@ import Foundation
 import MapKit
 import Combine
 
-protocol LocationManagerProtocol {
+protocol LocationManagerProtocol: AnyObject {
     var authorizationStatus: CLAuthorizationStatus { get }
     var location: CLLocation? { get }
     var voivodeship: String { get }
@@ -21,8 +21,7 @@ protocol LocationManagerProtocol {
     func findCoordinatesOfCityName(name: String) async throws -> CLLocation?
 }
 
-class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDelegate {
-    static let shared: LocationManagerProtocol = AppLocationManager(locationManager: CLLocationManager())
+class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDelegate, ObservableObject {
     private var locationManager: CLLocationManager
     private let geocoder = CLGeocoder()
     private let radius: CLLocationDistance = 100000 // 100 km
@@ -32,7 +31,6 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     @Published var nearLocations: [LocationData] = []
     let locationErrorPublished = PassthroughSubject<LocationError?, Never>()
     var locationWorkDone = PassthroughSubject<Bool, Never>()
-    private let semaphore = DispatchSemaphore(value: 1)
     
     var authorizationStatus: CLAuthorizationStatus {
         locationManager.authorizationStatus
@@ -44,10 +42,11 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     
     var voivodeship = "Nieznane"
     
-    private let rateLimiter = LocationRateLimiter()
+    private let rateLimiter: LocationRateLimiter
     
-    init(locationManager: CLLocationManager) {
+    init(locationManager: CLLocationManager = CLLocationManager(), rateLimiter: LocationRateLimiter = LocationRateLimiter()) {
         self.locationManager = locationManager
+        self.rateLimiter = rateLimiter
         super.init()
         self.locationManager.delegate = self
     }
@@ -55,6 +54,7 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     func getUserVoivodeship() async {
         if let location = locationManager.location {
             do {
+                await rateLimiter.limitRequests()
                 let placemark = try await geocoder.reverseGeocodeLocation(location)
                 if let placemark = placemark.first {
                     if let placemarkVoivodeship = placemark.administrativeArea {
@@ -88,11 +88,14 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
             points.append(LocationData(coordinate: CLLocationCoordinate2D(latitude: lat2Degrees, longitude: lon2Degrees)))
         }
         
-        self.nearLocations = points
+        DispatchQueue.main.async {
+             self.nearLocations = points
+         }
     }
     
     func getPointVoivodeship(for point: CLLocation) async -> String? {
         do {
+            await rateLimiter.limitRequests()
             let placemark = try await geocoder.reverseGeocodeLocation(point)
             if let placemark = placemark.first {
                 if placemark.country == "Polska" {
@@ -110,16 +113,28 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     }
     
     func getNearPointsVoivodeships(for points: [LocationData]) async {
-        var pointsVoivodeships: [String] = []
+        var pointsVoivodeships: Set<String> = []
         
-        for point in points {
-            if let voivodeship = await getPointVoivodeship(for: CLLocation(latitude: point.coordinate.latitude, longitude: point.coordinate.longitude)) {
-                pointsVoivodeships.append(voivodeship)
+        await withTaskGroup(of: String?.self) { group in
+            for point in points {
+                group.addTask {
+                    await self.rateLimiter.limitRequests()
+                    let location = CLLocation(latitude: point.coordinate.latitude, longitude: point.coordinate.longitude)
+                    return await self.getPointVoivodeship(for: location)
+                }
+                
+                for await result in group {
+                    if let voivodeship = result {
+                        pointsVoivodeships.insert(voivodeship)
+                    }
+                }
             }
         }
         
-        nearVoivodeships = Array(Set(pointsVoivodeships))
-        locationWorkDone.send(true)
+        DispatchQueue.main.async {
+            self.nearVoivodeships = Array(pointsVoivodeships)
+            self.locationWorkDone.send(true)
+        }
     }
     
     func getLocationAgain() {
@@ -183,13 +198,13 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     }
     
     func findCoordinatesOfCityName(name: String) async throws -> CLLocation? {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        
         do {
             await rateLimiter.limitRequests()
             
             try await Task.sleep(nanoseconds: 250_000)
+            
+            try Task.checkCancellation()
+            
             let place = try await geocoder.geocodeAddressString(name)
             
             if let firstPlace = place.first {
@@ -219,7 +234,14 @@ actor LocationRateLimiter {
     private let maxRequestsPerMinute = 50
     private var requestQueue: [CheckedContinuation<Void, Never>] = []
     private var isProcessing = false
-
+    
+    init(requestTimestamps: [Date] = [], requestQueue: [CheckedContinuation<Void, Never>] = [], isProcessing: Bool = false) {
+        self.requestTimestamps = requestTimestamps
+        self.requestQueue = requestQueue
+        self.isProcessing = isProcessing
+    }
+    
+    
     func limitRequests() async {
         await withCheckedContinuation { continuation in
             requestTimestamps = requestTimestamps.filter { Date().timeIntervalSince($0) < 60 }
@@ -243,12 +265,14 @@ actor LocationRateLimiter {
                     requestTimestamps.append(now)
                     continuation.resume()
                 } else {
-                    if let oldestTimestamp = requestTimestamps.first {
+                    if let oldestTimestamp = requestTimestamps.last {
                         let waitTime = 60 - now.timeIntervalSince(oldestTimestamp)
                         if waitTime > 0 {
                             try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
+                            requestTimestamps.removeFirst(50)
+                        } else {
+                            requestTimestamps.removeFirst()
                         }
-                        requestTimestamps.removeFirst()
                     }
                 }
             }

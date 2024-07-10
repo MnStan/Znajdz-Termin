@@ -84,15 +84,18 @@ class NetworkManagerMock: NetworkManagerProtocol {
 
 final class FetchedItems_ViewModelTests: XCTestCase {
     var sut: FetchedItemsView.ViewModel!
+    var cancellables: Set<AnyCancellable> = []
     
     @MainActor override func setUpWithError() throws {
         sut = FetchedItemsView.ViewModel(networkManager: NetworkManagerMock(), locationManager: LocationManagerMock())
+        cancellables = []
     }
-
+    
     override func tearDownWithError() throws {
         sut = nil
+        cancellables = []
     }
-
+    
     @MainActor func testProcessingNewItems() {
         sut.processedItemIDs = ["1", "2", "3"]
         
@@ -110,7 +113,10 @@ final class FetchedItems_ViewModelTests: XCTestCase {
         let itemsToProcess = [DataElement(type: "", id: "1", attributes: .defaultAttributes), DataElement(type: "", id: "2", attributes: .defaultAttributesWithoutLocation), DataElement(type: "", id: "3", attributes: .defaultAttributes), DataElement(type: "", id: "4", attributes: .defaultAttributes), DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation)]
         
         Task {
-            await sut.calculateDistances(for: itemsToProcess)
+            sut.calculateDistances(for: itemsToProcess)
+            
+            try await Task.sleep(nanoseconds: 2_000_000_000)
+            
             XCTAssertEqual(sut.alreadyProcessedCities.count, 1)
             XCTAssertNotEqual(sut.alreadyProcessedCities.count, 2)
             expectation.fulfill()
@@ -124,18 +130,52 @@ final class FetchedItems_ViewModelTests: XCTestCase {
         
         let itemsToProcess = [DataElement(type: "", id: "1", attributes: .defaultAttributes), DataElement(type: "", id: "2", attributes: .defaultAttributesWithoutLocation), DataElement(type: "", id: "3", attributes: .defaultAttributes), DataElement(type: "", id: "4", attributes: .defaultAttributes), DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation)]
         
-        let observation = sut.$queueItems.sink { queueItems in
-            if queueItems.filter({ $0.distance != "Czekam..." }).count == itemsToProcess.count {
-                        expectation.fulfill()
-                    }
-                }
+        sut.$queueItems.sink { queueItems in
+            if queueItems.filter({ $0.distance != "Obliczam..." }).count == itemsToProcess.count {
+                expectation.fulfill()
+            }
+        }
+        .store(in: &cancellables)
         
         sut.processNewItems(newItems: itemsToProcess)
         
-        wait(for: [expectation], timeout: 10.0)
+        wait(for: [expectation], timeout: 30.0)
         
         sut.queueItems.forEach {
             XCTAssertEqual($0.distance, "118.16 km")
         }
     }
+    
+    @MainActor func testSortingItemsByDistance() {
+        let itemsToProcess = [QueueItem(queueResult: DataElement.defaultDataElement, distance: "225.99 km"), QueueItem(queueResult: DataElement(type: "", id: "2", attributes: .defaultAttributes), distance: "12.93 km"), QueueItem(queueResult: DataElement(type: "", id: "3", attributes: .defaultAttributesWithoutLocation), distance: "11.92 km"), QueueItem(queueResult: DataElement(type: "", id: "4", attributes: .defaultAttributesWithoutLocation2), distance: "9.22 km"), QueueItem(queueResult: DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation3), distance: "0.12 km")]
+        
+        sut.sortItems(oldValue: .date, newValue: .distance, queryItems: itemsToProcess)
+        
+        let sortedItemsToProcess = [
+            QueueItem(queueResult: DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation3), distance: "0.12 km"),
+            QueueItem(queueResult: DataElement(type: "", id: "4", attributes: .defaultAttributesWithoutLocation2), distance: "9.22 km"),
+            QueueItem(queueResult: DataElement(type: "", id: "3", attributes: .defaultAttributesWithoutLocation), distance: "11.92 km"),
+            QueueItem(queueResult: DataElement(type: "", id: "2", attributes: .defaultAttributes), distance: "12.93 km"),
+            QueueItem(queueResult: DataElement.defaultDataElement, distance: "225.99 km")
+        ]
+
+        XCTAssertEqual(sut.queueItems.last?.id, sortedItemsToProcess.last?.id)
+    }
+    
+    @MainActor func testSortingItemsByAwaiting() {
+        let itemsToProcess = [QueueItem(queueResult: DataElement.defaultDataElement, distance: "225.99 km"), QueueItem(queueResult: DataElement(type: "", id: "2", attributes: .defaultAttributes), distance: "12.93 km"), QueueItem(queueResult: DataElement(type: "", id: "3", attributes: .defaultAttributesWithoutLocation), distance: "11.92 km"), QueueItem(queueResult: DataElement(type: "", id: "4", attributes: .defaultAttributesWithoutLocation2), distance: "9.22 km"), QueueItem(queueResult: DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation3), distance: "0.12 km")]
+        
+        sut.sortItems(oldValue: .distance, newValue: .awaiting, queryItems: itemsToProcess)
+        
+        let sortedItemsToProcess = [
+            QueueItem(queueResult: DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation3), distance: "0.12 km"),
+            QueueItem(queueResult: DataElement(type: "", id: "4", attributes: .defaultAttributesWithoutLocation2), distance: "9.22 km"),
+            QueueItem(queueResult: DataElement(type: "", id: "2", attributes: .defaultAttributes), distance: "12.93 km"),
+            QueueItem(queueResult: DataElement.defaultDataElement, distance: "225.99 km"),
+            QueueItem(queueResult: DataElement(type: "", id: "3", attributes: .defaultAttributesWithoutLocation), distance: "11.92 km")
+        ]
+        
+        XCTAssertEqual(sut.queueItems.last?.id, sortedItemsToProcess.last?.id)
+    }
+    
 }

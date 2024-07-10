@@ -9,10 +9,24 @@ import SwiftUI
 import Combine
 
 struct FetchedItemsView: View {
-    @StateObject private var viewModel = ViewModel()
+    @EnvironmentObject var locationManager: AppLocationManager
+    @EnvironmentObject var networkManager: NetworkManager
+    @StateObject private var viewModel: FetchedItemsView.ViewModel
     @State private var selectedItemID: String? = nil
+    @State var selectedBenefit: String
     @Namespace var itemsNamespace
     @Environment(\.dismiss) var dismiss
+    
+    @State var selectedSorting = QuerySortingOptions.date
+    @State var selectedFiltering = ""
+    @State var shouldShowNearVoivodeships = false
+    
+    init(locationManager: LocationManagerProtocol, networkManager: NetworkManager, selectedItemID: String? = nil, selectedSorting: QuerySortingOptions = QuerySortingOptions.date, selectedBenefit: String) {
+        self.selectedItemID = selectedItemID
+        self.selectedSorting = selectedSorting
+        self.selectedBenefit = selectedBenefit
+        _viewModel = StateObject(wrappedValue: ViewModel(networkManager: networkManager, locationManager: locationManager))
+    }
     
     var body: some View {
         ScrollViewReader { value in
@@ -55,7 +69,9 @@ struct FetchedItemsView: View {
                         }
                         .padding()
                         .shadow()
-                    } else if viewModel.queueItems.isEmpty {
+                    }
+                    
+                    if viewModel.queueItems.isEmpty {
                         VStack {
                             ZStack {
                                 Heart()
@@ -80,37 +96,41 @@ struct FetchedItemsView: View {
                                 .font(.title).bold()
                                 .accessibilityLabel("Trwa ładowanie")
                         }
-                    }
-                    
-                    ForEach(viewModel.queueItems, id: \.id) { item in
-                        GroupBox {
-                            ZStack {
-                                if selectedItemID != item.id {
-                                    ItemView(itemsNamespace: itemsNamespace, dataElement: item)
-                                } else {
-                                    DetailItemView(itemsNamespace: itemsNamespace, dataElement: item, selectedItemID: $selectedItemID)
-                                        .id(item.id)
+                    } else {
+                        SortingAndFilteringView(selectedSorting: $selectedSorting, selectedFiltering: $selectedFiltering, shouldShowNearVoivodeships: $shouldShowNearVoivodeships)
+                            .padding([.leading, .trailing])
+                            .padding(.top, 10)
+                        
+                        ForEach(viewModel.queueItems, id: \.id) { item in
+                            GroupBox {
+                                ZStack {
+                                    if selectedItemID != item.id {
+                                        ItemView(itemsNamespace: itemsNamespace, dataElement: item)
+                                    } else {
+                                        DetailItemView(itemsNamespace: itemsNamespace, dataElement: item, selectedItemID: $selectedItemID)
+                                            .id(item.id)
+                                    }
                                 }
                             }
-                        }
-                        .onTapGesture {
-                            withAnimation(.spring(duration: 0.5)) {
-                                selectedItemID = item.id
-                                value.scrollTo(item.id, anchor: .top)
+                            .onTapGesture {
+                                withAnimation(.spring(duration: 0.5)) {
+                                    selectedItemID = item.id
+                                    value.scrollTo(item.id, anchor: .top)
+                                }
                             }
+                            .padding([.leading, .trailing])
+                            .padding([.top, .bottom], 5)
+                            .frame(maxWidth: .infinity)
                         }
-                        .padding([.leading, .trailing])
-                        .padding([.top, .bottom], 5)
+                        .shadow()
                         .frame(maxWidth: .infinity)
-                    }
-                    .shadow()
-                    .frame(maxWidth: .infinity)
-                    
-                    if viewModel.canLoadMore() {
-                        ProgressView()
-                            .task {
-                                await viewModel.fetchNextPage()
-                            }
+                        
+                        if !viewModel.isNetworkWorkDone {
+                            ProgressView()
+                                .task {
+                                    await viewModel.fetchNextPage()
+                                }
+                        }
                     }
                 }
             }
@@ -118,10 +138,15 @@ struct FetchedItemsView: View {
         .background(.blue.opacity(0.1))
         .onDisappear {
             viewModel.resetNetworkManager()
+            viewModel.cancelCalculateDistances()
         }
+        .onChange(of: selectedSorting) { oldValue, newValue in
+            viewModel.sortItems(oldValue: oldValue, newValue: newValue)
+        }
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    FetchedItemsView()
+    FetchedItemsView(locationManager: AppLocationManager(), networkManager: NetworkManager(), selectedBenefit: "Test")
 }

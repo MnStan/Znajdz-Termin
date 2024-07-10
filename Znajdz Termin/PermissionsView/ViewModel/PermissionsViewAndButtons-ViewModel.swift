@@ -13,11 +13,11 @@ extension PermissionViewAndButtons {
     
     @Observable
     class ViewModel {
-        private let locationManager: LocationManagerProtocol
+        private let locationManager: AppLocationManager
         private let calendarManager: EventStoreProtocol
         
-        init(locationManager: LocationManagerProtocol = AppLocationManager.shared, calendarManager: EventStoreProtocol = AppCalendarEventManager.shared) {
-            self.locationManager = locationManager
+        init(locationManager: any LocationManagerProtocol = AppLocationManager(), calendarManager: EventStoreProtocol = AppCalendarEventManager.shared) {
+            self.locationManager = locationManager as? AppLocationManager ?? AppLocationManager()
             self.calendarManager = calendarManager
         }
         
