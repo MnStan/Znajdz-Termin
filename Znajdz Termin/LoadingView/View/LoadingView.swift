@@ -16,7 +16,6 @@ struct LoadingView: View {
     @StateObject private var viewModel: ViewModel
     @State private var scale: CGFloat = 1.0
     @State private var isSpinning = true
-    @State private var shouldShowNextScreenAfterError = false
     @Binding var isLoading: Bool
     
     private var logoSize: CGFloat {
@@ -99,9 +98,6 @@ struct LoadingView: View {
             .onChange(of: combinedBinding.wrappedValue, { oldValue, newValue in
                 if newValue == true { isLoading = false }
             })
-            .navigationDestination(isPresented: combinedBinding) {
-                HomeView().navigationBarBackButtonHidden()
-            }
     }
 }
 

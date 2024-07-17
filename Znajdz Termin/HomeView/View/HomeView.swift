@@ -50,12 +50,6 @@ struct HomeView: View {
                 isSearchFocused = false
             }
         }
-        
-        Button("Get all") {
-            Task {
-//                await NetworkManager.shared.fetchDates(benefitName: "poradnia",province: "06", onlyOnePage: false)
-            }
-        }
     }
 }
 

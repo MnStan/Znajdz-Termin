@@ -21,6 +21,7 @@ struct SearchElementViewExpanded: View {
     @Binding var selectedMedicalCase: Bool
     @State var shouldShowFetchedItemsView = false
     @State var shouldShowAlert = false
+    @State var searchInput: SearchInput?
     
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -138,9 +139,8 @@ struct SearchElementViewExpanded: View {
                             Button {
                                 if viewModel.checkTextCount(text: searchText) {
                                     if let voivodeshipNumber = viewModel.getVoivodeshipNumber(selectedVoivodeship: pickedVoivodeship) {
-                                        viewModel.fetchDates(benefit: searchText, caseNumber: selectedMedicalCase ? 2 : 1, isForKids: selectedIsForKids, province: voivodeshipNumber)
-                                        #warning("Reseting fetching dates?")
-//                                        NetworkManager.shared.resetNetworkFetchingDates()
+                                        searchInput = SearchInput(benefit: searchText, voivodeshipNumber: voivodeshipNumber, caseNumber: selectedMedicalCase, isForKids: selectedIsForKids)
+
                                         shouldShowFetchedItemsView = true
                                     }
                                 } else {
@@ -172,7 +172,9 @@ struct SearchElementViewExpanded: View {
             textViewFocus = false
         }
         .navigationDestination(isPresented: $shouldShowFetchedItemsView) {
-            FetchedItemsView(locationManager: locationManager, networkManager: networkManager, selectedBenefit: searchText)
+            if let searchInput {
+                FetchedItemsView(locationManager: locationManager, networkManager: networkManager, searchInput: searchInput)
+            }
         }
         .alert("Tekst wyszukiwania powinien mieć długość co najmniej 3 liter", isPresented: $shouldShowAlert) {
             Button("Ok", role: .cancel) { }

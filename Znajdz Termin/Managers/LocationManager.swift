@@ -15,6 +15,7 @@ protocol LocationManagerProtocol: AnyObject {
     var voivodeship: String { get }
     var locationErrorPublished: PassthroughSubject<LocationError?, Never> { get }
     var locationWorkDone: PassthroughSubject<Bool, Never> { get }
+    var nearVoivodeships: [String] { get set }
     
     func requestWhenInUseAuthorization()
     func calculateDistanceFromPoint(to location: CLLocation) -> CLLocationDistance?
@@ -26,7 +27,7 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
     private let geocoder = CLGeocoder()
     private let radius: CLLocationDistance = 100000 // 100 km
 #warning("Changed numberOfPoints for testing purposes")
-    private let numberOfPoints = 2
+    private let numberOfPoints = 15
     var nearVoivodeships: [String] = []
     @Published var nearLocations: [LocationData] = []
     let locationErrorPublished = PassthroughSubject<LocationError?, Never>()
@@ -67,7 +68,7 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
         }
     }
     
-    func pointsOnCircle(center: CLLocationCoordinate2D, radius: CLLocationDistance, numberOfPoints: Int) {
+    func calculatePointsOnCircle(center: CLLocationCoordinate2D, radius: CLLocationDistance, numberOfPoints: Int) async -> [LocationData] {
         var points: [LocationData] = []
         let earthRadius: CLLocationDistance = 6371000
         
@@ -87,10 +88,16 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
             
             points.append(LocationData(coordinate: CLLocationCoordinate2D(latitude: lat2Degrees, longitude: lon2Degrees)))
         }
+        return points
         
-        DispatchQueue.main.async {
-             self.nearLocations = points
-         }
+    }
+    
+    func pointsOnCircle(center: CLLocationCoordinate2D, radius: CLLocationDistance, numberOfPoints: Int) async {
+        let points = await calculatePointsOnCircle(center: center, radius: radius, numberOfPoints: numberOfPoints)
+        
+        await MainActor.run {
+            nearLocations = points
+        }
     }
     
     func getPointVoivodeship(for point: CLLocation) async -> String? {
@@ -118,14 +125,15 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
         await withTaskGroup(of: String?.self) { group in
             for point in points {
                 group.addTask {
-                    await self.rateLimiter.limitRequests()
                     let location = CLLocation(latitude: point.coordinate.latitude, longitude: point.coordinate.longitude)
                     return await self.getPointVoivodeship(for: location)
                 }
                 
                 for await result in group {
                     if let voivodeship = result {
-                        pointsVoivodeships.insert(voivodeship)
+                        if voivodeship != self.voivodeship {
+                            pointsVoivodeships.insert(voivodeship)
+                        }
                     }
                 }
             }
@@ -160,7 +168,7 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
         Task {
             await getUserVoivodeship()
             if let userLocation = location {
-                pointsOnCircle(center: userLocation.coordinate, radius: radius, numberOfPoints: numberOfPoints)
+                await pointsOnCircle(center: userLocation.coordinate, radius: radius, numberOfPoints: numberOfPoints)
                 await getNearPointsVoivodeships(for: nearLocations)
             }
         }
@@ -244,7 +252,6 @@ actor LocationRateLimiter {
     
     func limitRequests() async {
         await withCheckedContinuation { continuation in
-            requestTimestamps = requestTimestamps.filter { Date().timeIntervalSince($0) < 60 }
             requestQueue.append(continuation)
             
             if !isProcessing {
@@ -271,12 +278,13 @@ actor LocationRateLimiter {
                             try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
                             requestTimestamps.removeFirst(50)
                         } else {
-                            requestTimestamps.removeFirst()
+                            requestTimestamps.removeLast()
                         }
                     }
                 }
             }
             isProcessing = false
+                        requestTimestamps = requestTimestamps.filter { Date().timeIntervalSince($0) < 60 }
         }
     }
     

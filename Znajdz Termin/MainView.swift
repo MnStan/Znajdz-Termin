@@ -6,10 +6,10 @@
 //
 
 import SwiftUI
-
 struct MainView: View {
     @StateObject var locationManager = AppLocationManager()
     @StateObject var networkManager = NetworkManager()
+    
     @State private var isLoading = true
     var body: some View {
         NavigationStack {
