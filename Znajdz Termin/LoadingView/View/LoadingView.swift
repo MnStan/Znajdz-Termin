@@ -59,7 +59,6 @@ struct LoadingView: View {
                         .fadeAnimation()
                 }
                 .frame(width: logoSize, height: logoSize)
-                .accessibilityLabel("Dwukolorowe logo w kształcie serca")
                 
                 if let error = viewModel.locationError {
                     if shouldShowTextInScrollView {
@@ -90,6 +89,7 @@ struct LoadingView: View {
                     
                 }
             }
+            .accessibilityLabel("Dwukolorowe logo w kształcie serca trwa ładowanie")
             .onChange(of: viewModel.locationError, { oldValue, newValue in
                 if newValue == .geocodeError {
                     viewModel.getNearVoivodeshipsAgain()

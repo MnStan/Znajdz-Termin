@@ -100,6 +100,7 @@ struct FetchedItemsView: View {
                                     .font(.title).bold()
                                     .accessibilityLabel("Trwa ładowanie")
                             }
+                            .accessibilityLabel("Trwa ładowanie")
                         } else {
                             ForEach(viewModel.queueItems, id: \.id) { item in
                                 GroupBox {
@@ -143,13 +144,6 @@ struct FetchedItemsView: View {
                 }
             }
             .background(.blue.opacity(0.1))
-            .onDisappear {
-//                viewModel.cancelCalculateDistances()
-//                viewModel.cleanup()
-//                viewModel.resetNetworkManager()
-//                viewModel.cancelTest()
-//                viewModel.cleanup()
-            }
             .onAppear {
                 viewModel.fetchDates(searchInput: searchInput)
             }
