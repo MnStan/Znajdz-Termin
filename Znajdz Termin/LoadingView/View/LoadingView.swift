@@ -16,7 +16,6 @@ struct LoadingView: View {
     @StateObject private var viewModel: ViewModel
     @State private var scale: CGFloat = 1.0
     @State private var isSpinning = true
-    @State private var shouldShowNextScreenAfterError = false
     @Binding var isLoading: Bool
     
     private var logoSize: CGFloat {
@@ -60,7 +59,6 @@ struct LoadingView: View {
                         .fadeAnimation()
                 }
                 .frame(width: logoSize, height: logoSize)
-                .accessibilityLabel("Dwukolorowe logo w kształcie serca")
                 
                 if let error = viewModel.locationError {
                     if shouldShowTextInScrollView {
@@ -91,6 +89,7 @@ struct LoadingView: View {
                     
                 }
             }
+            .accessibilityLabel("Dwukolorowe logo w kształcie serca trwa ładowanie")
             .onChange(of: viewModel.locationError, { oldValue, newValue in
                 if newValue == .geocodeError {
                     viewModel.getNearVoivodeshipsAgain()
@@ -99,9 +98,6 @@ struct LoadingView: View {
             .onChange(of: combinedBinding.wrappedValue, { oldValue, newValue in
                 if newValue == true { isLoading = false }
             })
-            .navigationDestination(isPresented: combinedBinding) {
-                HomeView().navigationBarBackButtonHidden()
-            }
     }
 }
 

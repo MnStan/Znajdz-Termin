@@ -30,13 +30,17 @@ struct SortingAndFilteringView: View {
                         HStack {
                             Text(selectedSorting.description)
                             Image(systemName: "chevron.down")
+                                .accessibilityHidden(true)
                         }
+                        .accessibilityLabel("Wybrane sortowanie \(selectedSorting.description)")
                     }
                     .foregroundStyle(.primary)
                     .padding()
                 }
                 
                 FilterOptionView(filterOption: $shouldShowNearVoivodeships, filterOptionText: "Pobliskie województwa")
+                    .accessibilityLabel("Pokaż pobliskie województwa")
+                    .accessibilityAddTraits(.isButton)
             }
         }
         .scrollIndicators(.hidden)

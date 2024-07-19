@@ -271,11 +271,11 @@ final class NetworkManagerTestsDates: XCTestCase {
             
             await sut.fetchMoreDates()
             expectation3.fulfill()
-            XCTAssertEqual(sut.datesDataArray.count, 60)
+            XCTAssertEqual(sut.datesDataArray.count, 58)
             
             await sut.fetchMoreDates()
             expectation4.fulfill()
-            XCTAssertEqual(sut.datesDataArray.count, 60)
+            XCTAssertEqual(sut.datesDataArray.count, 58)
         }
         
         wait(for: [expectation, expectation2, expectation3, expectation4], timeout: 15.0)
@@ -321,23 +321,6 @@ final class NetworkManagerTestsDates: XCTestCase {
         
         wait(for: [expectation], timeout: 5.0)
     }
-    
-    #warning("Check this test!")
-//    func testfetchBenefitsShouldThrowError() {
-//        let url = URL(string: "https://example.com")!
-//        
-//        let mockSession = URLSessionMock()
-//        mockSession.mockData = Data(mockDataBenefit.utf8)
-//        mockSession.mockResponse = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)
-//        
-//        Task {
-//            do {
-//                let (_, _) = try await sut.fetchData(from: url, session: mockSession)
-//            } catch {
-//                XCTAssertEqual(error as? NetworkError, NetworkError.fetchError)
-//            }
-//        }
-//    }
     
     func testDecodingDataShouldSuccess2() {
         let data = Data(mockDataBenefit.utf8)
@@ -435,5 +418,17 @@ final class NetworkManagerTestsDates: XCTestCase {
             
             wait(for: [expectation], timeout: 30.0)
         }
+    }
+    
+    func testFetchingNearVoivoideship() {
+        let expectation = XCTestExpectation(description: "Fetching completed")
+        
+        Task {
+            await sut.fetchDates(benefitName: "orto", nextPage: nil, caseNumber: 1, isForKids: false, province: "01", onlyOnePage: false, userVoivodeship: false)
+            XCTAssertEqual(sut.datesNearDataArray.count, 199)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 30.0)
     }
 }

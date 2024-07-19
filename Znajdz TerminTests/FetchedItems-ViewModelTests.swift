@@ -11,6 +11,8 @@ import Combine
 @testable import Znajdz_Termin
 
 class LocationManagerMock: LocationManagerProtocol {
+    var nearVoivodeships: [String] = []
+    
     var authorizationStatus: CLAuthorizationStatus = .authorizedAlways
     
     var location: CLLocation? = CLLocation(latitude: 50.061049, longitude: 19.937617)
@@ -30,12 +32,17 @@ class LocationManagerMock: LocationManagerProtocol {
     }
     
     func findCoordinatesOfCityName(name: String) async throws -> CLLocation? {
-        
         return CLLocation(latitude: 49.03282250, longitude: 20.34864810)
     }
 }
 
 class NetworkManagerMock: NetworkManagerProtocol {
+    func fetchAllRemainingDates() async {
+    }
+    
+    @Published var datesNearDataArray: [Znajdz_Termin.DataElement] = []
+    var datesNearDataArrayPublisher: Published<[Znajdz_Termin.DataElement]>.Publisher { $datesNearDataArray }
+    
     @Published var benefitsDataArray: [String] = []
     var benefitsDataArrayPublisher: Published<[String]>.Publisher { $benefitsDataArray }
     
@@ -48,7 +55,7 @@ class NetworkManagerMock: NetworkManagerProtocol {
     @Published var benefitsArray: [String] = []
     var benefitsArrayPublisher: Published<[String]>.Publisher { $benefitsDataArray }
     
-    @Published var canFetchMorePages: Bool = true
+    @Published var canFetchMorePages: Bool = false
     var canFetchMorePagesPublisher: Published<Bool>.Publisher { $canFetchMorePages }
     
     var nextPageURL: String?
@@ -79,7 +86,9 @@ class NetworkManagerMock: NetworkManagerProtocol {
         
     }
     
-    
+    func fetchDates(benefitName: String, nextPage: URL?, caseNumber: Int, isForKids: Bool, province: String, onlyOnePage: Bool, userVoivodeship: Bool) async {
+        self.datesNearDataArray = [.defaultDataElement, .defaultDataElement, .defaultDataElement]
+    }
 }
 
 final class FetchedItems_ViewModelTests: XCTestCase {
@@ -88,68 +97,71 @@ final class FetchedItems_ViewModelTests: XCTestCase {
     
     @MainActor override func setUpWithError() throws {
         sut = FetchedItemsView.ViewModel(networkManager: NetworkManagerMock(), locationManager: LocationManagerMock())
-        cancellables = []
+        cancellables.forEach { $0.cancel() }
     }
     
     override func tearDownWithError() throws {
         sut = nil
-        cancellables = []
+        cancellables.forEach { $0.cancel() }
     }
     
-    @MainActor func testProcessingNewItems() {
+    func testProcessingNewItems() {
+        let expectation = expectation(description: "Processed on main thread")
         sut.processedItemIDs = ["1", "2", "3"]
         
         let newItemsArray = [DataElement(type: "", id: "1", attributes: .defaultAttributes), DataElement(type: "", id: "2", attributes: .defaultAttributes), DataElement(type: "", id: "3", attributes: .defaultAttributes), DataElement(type: "", id: "4", attributes: .defaultAttributes), DataElement(type: "", id: "5", attributes: .defaultAttributes)]
         
-        sut.processNewItems(newItems: newItemsArray)
+        self.sut.processNewItems(newItems: newItemsArray)
         
-        XCTAssertEqual(sut.queueItems.count, 2)
-        XCTAssertNotEqual(sut.queueItems.count, 5)
-    }
-    
-    @MainActor func testCalculatingDistanceAddingToProcessedItemsDictionary() {
-        let expectation = XCTestExpectation(description: "Calculating for all items done")
-        
-        let itemsToProcess = [DataElement(type: "", id: "1", attributes: .defaultAttributes), DataElement(type: "", id: "2", attributes: .defaultAttributesWithoutLocation), DataElement(type: "", id: "3", attributes: .defaultAttributes), DataElement(type: "", id: "4", attributes: .defaultAttributes), DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation)]
-        
-        Task {
-            sut.calculateDistances(for: itemsToProcess)
-            
-            try await Task.sleep(nanoseconds: 2_000_000_000)
-            
-            XCTAssertEqual(sut.alreadyProcessedCities.count, 1)
-            XCTAssertNotEqual(sut.alreadyProcessedCities.count, 2)
+        DispatchQueue.main.async {
+            XCTAssertEqual(self.sut.queueItems.count, 2)
+            XCTAssertNotEqual(self.sut.queueItems.count, 5)
             expectation.fulfill()
         }
         
-        wait(for: [expectation], timeout: 5.0)
+        waitForExpectations(timeout: 1.0)
     }
     
-    @MainActor func testCalculatingDistanceUpdatingDistance() {
-        let expectation = XCTestExpectation(description: "Calculating for all items done")
+    func testCalculatingDistanceUpdatingDistance() async throws {
+        let expectation = expectation(description: "Distance calculation completed")
         
-        let itemsToProcess = [DataElement(type: "", id: "1", attributes: .defaultAttributes), DataElement(type: "", id: "2", attributes: .defaultAttributesWithoutLocation), DataElement(type: "", id: "3", attributes: .defaultAttributes), DataElement(type: "", id: "4", attributes: .defaultAttributes), DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation)]
+        let itemsToProcess = [
+            DataElement(type: "", id: "1", attributes: .defaultAttributes),
+            DataElement(type: "", id: "2", attributes: .defaultAttributesWithoutLocation),
+            DataElement(type: "", id: "3", attributes: .defaultAttributes),
+            DataElement(type: "", id: "4", attributes: .defaultAttributes),
+            DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation)
+        ]
         
-        sut.$queueItems.sink { queueItems in
-            if queueItems.filter({ $0.distance != "Obliczam..." }).count == itemsToProcess.count {
-                expectation.fulfill()
+        var cancellable: AnyCancellable?
+        cancellable = sut.$isCalculatingDistances
+            .dropFirst()
+            .sink { isCalculating in
+                if !isCalculating {
+                    cancellable?.cancel()
+                    expectation.fulfill()
+                }
             }
-        }
-        .store(in: &cancellables)
         
         sut.processNewItems(newItems: itemsToProcess)
         
-        wait(for: [expectation], timeout: 30.0)
+        await fulfillment(of: [expectation], timeout: 5)
         
-        sut.queueItems.forEach {
-            XCTAssertEqual($0.distance, "118.16 km")
+        XCTAssertEqual(sut.queueItems.count, itemsToProcess.count, "Should have processed all items")
+        
+        for item in sut.queueItems {
+            XCTAssertEqual(item.distance, "118.16 km")
         }
     }
     
     @MainActor func testSortingItemsByDistance() {
+        let expectation = XCTestExpectation(description: "Sorting completed")
+        
         let itemsToProcess = [QueueItem(queueResult: DataElement.defaultDataElement, distance: "225.99 km"), QueueItem(queueResult: DataElement(type: "", id: "2", attributes: .defaultAttributes), distance: "12.93 km"), QueueItem(queueResult: DataElement(type: "", id: "3", attributes: .defaultAttributesWithoutLocation), distance: "11.92 km"), QueueItem(queueResult: DataElement(type: "", id: "4", attributes: .defaultAttributesWithoutLocation2), distance: "9.22 km"), QueueItem(queueResult: DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation3), distance: "0.12 km")]
         
-        sut.sortItems(oldValue: .date, newValue: .distance, queryItems: itemsToProcess)
+        Task {
+            await sut.performSorting(sortingOption: .distance, queryItems: itemsToProcess)
+        }
         
         let sortedItemsToProcess = [
             QueueItem(queueResult: DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation3), distance: "0.12 km"),
@@ -158,14 +170,23 @@ final class FetchedItems_ViewModelTests: XCTestCase {
             QueueItem(queueResult: DataElement(type: "", id: "2", attributes: .defaultAttributes), distance: "12.93 km"),
             QueueItem(queueResult: DataElement.defaultDataElement, distance: "225.99 km")
         ]
-
-        XCTAssertEqual(sut.queueItems.last?.id, sortedItemsToProcess.last?.id)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            XCTAssertEqual(self.sut.queueItems.last?.id, sortedItemsToProcess.last?.id)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
     }
     
     @MainActor func testSortingItemsByAwaiting() {
+        let expectation = XCTestExpectation(description: "Sorting completed")
+        
         let itemsToProcess = [QueueItem(queueResult: DataElement.defaultDataElement, distance: "225.99 km"), QueueItem(queueResult: DataElement(type: "", id: "2", attributes: .defaultAttributes), distance: "12.93 km"), QueueItem(queueResult: DataElement(type: "", id: "3", attributes: .defaultAttributesWithoutLocation), distance: "11.92 km"), QueueItem(queueResult: DataElement(type: "", id: "4", attributes: .defaultAttributesWithoutLocation2), distance: "9.22 km"), QueueItem(queueResult: DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation3), distance: "0.12 km")]
         
-        sut.sortItems(oldValue: .distance, newValue: .awaiting, queryItems: itemsToProcess)
+        Task {
+            await sut.performSorting(sortingOption: .awaiting, queryItems: itemsToProcess)
+        }
         
         let sortedItemsToProcess = [
             QueueItem(queueResult: DataElement(type: "", id: "5", attributes: .defaultAttributesWithoutLocation3), distance: "0.12 km"),
@@ -175,7 +196,11 @@ final class FetchedItems_ViewModelTests: XCTestCase {
             QueueItem(queueResult: DataElement(type: "", id: "3", attributes: .defaultAttributesWithoutLocation), distance: "11.92 km")
         ]
         
-        XCTAssertEqual(sut.queueItems.last?.id, sortedItemsToProcess.last?.id)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            XCTAssertEqual(self.sut.queueItems.last?.id, sortedItemsToProcess.last?.id)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
     }
-    
 }

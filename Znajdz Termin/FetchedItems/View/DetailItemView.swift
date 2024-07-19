@@ -14,14 +14,19 @@ struct DetailItemView: View {
     @ObservedObject var viewModel = ViewModel()
     @Environment(\.sizeCategory) var sizeCategory
     @ScaledMetric var symbolWidth: CGFloat = 50
+    @Environment(\.accessibilityReduceMotion) var isReduceMotionEnabled
     
     var body: some View {
         VStack {
             HStack {
                 Spacer()
                 Button {
-                    withAnimation(.spring(duration: 0.5, bounce: 0.15)) {
+                    if isReduceMotionEnabled {
                         selectedItemID = nil
+                    } else {
+                        withAnimation(.spring(duration: 0.5, bounce: 0.15)) {
+                            selectedItemID = nil
+                        }
                     }
                 } label: {
                     Image(systemName: "xmark.circle.fill")

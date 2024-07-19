@@ -18,6 +18,8 @@ protocol NetworkManagerProtocol: AnyObject {
     var benefitsDataArrayPublisher: Published<[String]>.Publisher { get }
     var datesDataArray: [DataElement] { get set }
     var datesDataArrayPublisher: Published<[DataElement]>.Publisher { get }
+    var datesNearDataArray: [DataElement] { get set }
+    var datesNearDataArrayPublisher: Published<[DataElement]>.Publisher { get }
     var networkError: NetworkError? { get set }
     var networkErrorPublisher: Published<NetworkError?>.Publisher { get }
     var benefitsArray: [String] { get set }
@@ -29,8 +31,9 @@ protocol NetworkManagerProtocol: AnyObject {
     func createURL(path: URLPathType, currentPage: Int, caseNumber: Int, province: String?, benefit: String, isForKids: Bool) throws -> URL
     func fetchData(from url: URL, session: URLSessionProtocol) async throws -> (Data, URLResponse)
     func createNextPageURL(nextPageString: String?) -> URL?
-    func fetchDates(benefitName: String, nextPage: URL?, caseNumber: Int, isForKids: Bool, province: String, onlyOnePage: Bool) async
+    func fetchDates(benefitName: String, nextPage: URL?, caseNumber: Int, isForKids: Bool, province: String, onlyOnePage: Bool, userVoivodeship: Bool) async
     func fetchMoreDates() async
+    func fetchAllRemainingDates() async
     func resetNetworkFetchingDates()
 }
 
@@ -40,10 +43,12 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
     
     @Published var benefitsDataArray: [String] = []
     @Published var datesDataArray: [DataElement] = []
+    @Published var datesNearDataArray: [DataElement] = []
     @Published var networkError: NetworkError? = nil
     
     var benefitsDataArrayPublisher: Published<[String]>.Publisher { $benefitsDataArray }
     var datesDataArrayPublisher: Published<[DataElement]>.Publisher { $datesDataArray }
+    var datesNearDataArrayPublisher: Published<[DataElement]>.Publisher { $datesNearDataArray }
     var networkErrorPublisher: Published<NetworkError?>.Publisher { $networkError }
     
     let dateFormatter = {
@@ -64,7 +69,10 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
         dateFormatter.dateFormat = "yyyy-MM-dd"
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
         decoder.keyDecodingStrategy = .convertFromKebabCase
+        
     }
+    
+    var counter = 0
     
     func createURL(path: URLPathType, currentPage: Int = 1, caseNumber: Int = 1, province: String? = nil, benefit: String, isForKids: Bool = false) throws -> URL {
         guard var components = URLComponents(string: baseURL) else {
@@ -97,7 +105,6 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
         guard let url = components.url else {
             throw NetworkError.invalidURL
         }
-        
         return url
     }
     
@@ -112,7 +119,7 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
     
     func createNextPageURL(nextPageString: String?) -> URL? {
         guard let nextPageString else { return nil}
-
+        
         return URL(string: baseURL + nextPageString)
     }
     
@@ -136,7 +143,7 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
         do {
             let url: URL
             
-            try await rateLimiter.limitRequests()
+            await rateLimiter.limitRequests()
             
             if let nextPage = nextPage {
                 url = nextPage
@@ -171,48 +178,69 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
         }
     }
     
-    func fetchDates(benefitName: String = "", nextPage: URL? = nil, caseNumber: Int = 1, isForKids: Bool = false, province: String = "", onlyOnePage: Bool = false) async {
-        do {
-            let url: URL
-            
-            try await rateLimiter.limitRequests()
-            if let nextPage = nextPage {
-                url = nextPage
-            } else {
-                url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName, isForKids: isForKids)
-            }
-            
-            let (data, _) = try await fetchData(from: url)
-            let decodedData = try decodeData(from: data, isDateData: true)
-            
-            if let response = decodedData.apiResponse {
+    func fetchDates(benefitName: String = "", nextPage: URL? = nil, caseNumber: Int = 1, isForKids: Bool = false, province: String = "", onlyOnePage: Bool = false, userVoivodeship: Bool = true) async {
+        var shouldFetchMore = true
+        
+        var nextPageA: URL? = nextPage
+        
+        while shouldFetchMore {
+            do {
+                if Task.isCancelled { return }
                 
-                await MainActor.run {
-                    self.datesDataArray.append(contentsOf: response.data)
-                }
+                counter += 1
+                let url: URL
                 
-                if let nextPage = response.links.next {
-                    self.nextPageURL = nextPage
-                    
-                    if !onlyOnePage {
-                        let nextPageURL = createNextPageURL(nextPageString: nextPage)
-                        await fetchDates(benefitName: benefitName, nextPage: nextPageURL, caseNumber: caseNumber, isForKids: isForKids, province: province)
-                    }
+                await rateLimiter.limitRequests()
+                if Task.isCancelled { return }
+                
+                
+                if let nextPage = nextPageA {
+                    url = nextPage
                 } else {
+                    url = try createURL(path: .queues, caseNumber: caseNumber, province: province, benefit: benefitName, isForKids: isForKids)
+                }
+    
+                let (data, _) = try await fetchData(from: url)
+                if Task.isCancelled { return }
+                let decodedData = try decodeData(from: data, isDateData: true)
+                if Task.isCancelled { return }
+                
+                if let response = decodedData.apiResponse {
                     await MainActor.run {
-                        canFetchMorePages = false
-                        nextPageURL = nil
+                        if userVoivodeship {
+                            self.datesDataArray.append(contentsOf: response.data)
+                        } else {
+                            self.datesNearDataArray.append(contentsOf: response.data)
+                        }
+                    }
+                    
+                    if let nextPage = response.links.next {
+                        self.nextPageURL = nextPage
+                        
+                        if !onlyOnePage {
+                            nextPageA = createNextPageURL(nextPageString: nextPage)
+                            try await Task.sleep(nanoseconds: 250_000_000)
+                            if Task.isCancelled { return }
+                        } else {
+                            shouldFetchMore = false
+                        }
+                    } else {
+                        shouldFetchMore = false
+                        await MainActor.run {
+                            canFetchMorePages = false
+                            nextPageURL = nil
+                        }
                     }
                 }
-            }
-            
-        } catch let error as NetworkError {
-            await MainActor.run {
-                networkError = error
-            }
-        } catch {
-            await MainActor.run {
-                networkError = .unknown
+                
+            } catch let error as NetworkError {
+                await MainActor.run {
+                    networkError = error
+                }
+            } catch {
+                await MainActor.run {
+                    networkError = .unknown
+                }
             }
         }
     }
@@ -223,32 +251,89 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
         }
     }
     
+    func fetchAllRemainingDates() async {
+        if canFetchMorePages, let nextPage = nextPageURL, let nextPageURL = createNextPageURL(nextPageString: nextPage) {
+            await fetchDates(nextPage: nextPageURL, onlyOnePage: false)
+        }
+    }
+    
+    @MainActor
     func resetNetworkFetchingDates() {
-        nextPageURL = nil
-        datesDataArray.removeAll()
-        canFetchMorePages = true
-        networkError = nil
+        DispatchQueue.main.async {
+            self.nextPageURL = nil
+            self.datesDataArray.removeAll()
+            self.datesNearDataArray.removeAll()
+            self.canFetchMorePages = true
+            self.networkError = nil
+        }
     }
 }
 
 actor RateLimiter {
     private var requestTimestamps: [Date] = []
-    private var lastRequestTimestamp: Date = .now
-    private let maxRequestsPerSecond = 5
+    private let maxRequestsPerMinute = 5
+    private var requestQueue: [CheckedContinuation<Void, Never>] = []
+    private var isProcessing = false
     
-    func limitRequests() async throws {
-        let now = Date()
-        requestTimestamps = requestTimestamps.filter { now.timeIntervalSince($0) < 5 }
-        if requestTimestamps.count >= maxRequestsPerSecond {
-            
-            if let mostRecentTimestamp = requestTimestamps.first {
-                let waitTime = 5 - now.timeIntervalSince(mostRecentTimestamp)
-                try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
+    init(requestTimestamps: [Date] = [], requestQueue: [CheckedContinuation<Void, Never>] = [], isProcessing: Bool = false) {
+        self.requestTimestamps = requestTimestamps
+        self.requestQueue = requestQueue
+        self.isProcessing = isProcessing
+    }
+    
+    
+    func limitRequests() async {
+        await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                requestQueue.append(continuation)
                 
-                requestTimestamps.removeAll()
+                if !isProcessing {
+                    processQueue()
+                }
+            }
+        } onCancel: {
+            Task {
+                await cancelContinuations()
             }
         }
+    }
+    
+    private func processQueue() {
+        guard !isProcessing, !requestQueue.isEmpty else { return }
         
-        requestTimestamps.append(Date())
+        isProcessing = true
+        Task {
+            while !requestQueue.isEmpty {
+                let now = Date()
+                if requestTimestamps.count < maxRequestsPerMinute {
+                    let continuation = requestQueue.removeFirst()
+                    requestTimestamps.append(now)
+                    continuation.resume()
+                } else {
+                    if let oldestTimestamp = requestTimestamps.last {
+                        let waitTime = 5 - now.timeIntervalSince(oldestTimestamp)
+                        if waitTime > 0 {
+                            try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
+                            requestTimestamps.removeFirst(5)
+                        } else {
+                            requestTimestamps.removeLast()
+                        }
+                    }
+                }
+            }
+            isProcessing = false
+            requestTimestamps = requestTimestamps.filter { Date().timeIntervalSince($0) < 5 }
+        }
+    }
+    
+    private func cancelContinuations() {
+        for continuation in requestQueue {
+            continuation.resume()
+        }
+        requestQueue.removeAll()
+    }
+    
+    func reset() {
+        requestQueue.removeAll()
     }
 }
