@@ -144,8 +144,11 @@ struct FetchedItemsView: View {
             }
             .background(.blue.opacity(0.1))
             .onDisappear {
-                viewModel.resetNetworkManager()
-                viewModel.cancelCalculateDistances()
+//                viewModel.cancelCalculateDistances()
+//                viewModel.cleanup()
+//                viewModel.resetNetworkManager()
+//                viewModel.cancelTest()
+//                viewModel.cleanup()
             }
             .onAppear {
                 viewModel.fetchDates(searchInput: searchInput)

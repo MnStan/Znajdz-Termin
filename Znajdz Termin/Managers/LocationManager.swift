@@ -251,11 +251,17 @@ actor LocationRateLimiter {
     
     
     func limitRequests() async {
-        await withCheckedContinuation { continuation in
-            requestQueue.append(continuation)
-            
-            if !isProcessing {
-                processQueue()
+        await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                requestQueue.append(continuation)
+                
+                if !isProcessing {
+                    processQueue()
+                }
+            }
+        } onCancel: {
+            Task {
+                await cancelContinuations()
             }
         }
     }
@@ -284,8 +290,15 @@ actor LocationRateLimiter {
                 }
             }
             isProcessing = false
-                        requestTimestamps = requestTimestamps.filter { Date().timeIntervalSince($0) < 60 }
+            requestTimestamps = requestTimestamps.filter { Date().timeIntervalSince($0) < 60 }
         }
+    }
+    
+    private func cancelContinuations() {
+        for continuation in requestQueue {
+            continuation.resume()
+        }
+        requestQueue.removeAll()
     }
     
     func reset() {

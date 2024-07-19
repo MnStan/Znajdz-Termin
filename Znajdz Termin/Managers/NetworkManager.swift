@@ -185,10 +185,15 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
         
         while shouldFetchMore {
             do {
+                if Task.isCancelled { return }
+                
                 counter += 1
                 let url: URL
                 
                 await rateLimiter.limitRequests()
+                if Task.isCancelled { return }
+                
+                
                 if let nextPage = nextPageA {
                     url = nextPage
                 } else {
@@ -196,7 +201,9 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
                 }
     
                 let (data, _) = try await fetchData(from: url)
+                if Task.isCancelled { return }
                 let decodedData = try decodeData(from: data, isDateData: true)
+                if Task.isCancelled { return }
                 
                 if let response = decodedData.apiResponse {
                     await MainActor.run {
@@ -213,6 +220,7 @@ class NetworkManager: NetworkManagerProtocol, ObservableObject {
                         if !onlyOnePage {
                             nextPageA = createNextPageURL(nextPageString: nextPage)
                             try await Task.sleep(nanoseconds: 250_000_000)
+                            if Task.isCancelled { return }
                         } else {
                             shouldFetchMore = false
                         }
@@ -275,11 +283,17 @@ actor RateLimiter {
     
     
     func limitRequests() async {
-        await withCheckedContinuation { continuation in
-            requestQueue.append(continuation)
-            
-            if !isProcessing {
-                processQueue()
+        await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                requestQueue.append(continuation)
+                
+                if !isProcessing {
+                    processQueue()
+                }
+            }
+        } onCancel: {
+            Task {
+                await cancelContinuations()
             }
         }
     }
@@ -310,6 +324,13 @@ actor RateLimiter {
             isProcessing = false
             requestTimestamps = requestTimestamps.filter { Date().timeIntervalSince($0) < 5 }
         }
+    }
+    
+    private func cancelContinuations() {
+        for continuation in requestQueue {
+            continuation.resume()
+        }
+        requestQueue.removeAll()
     }
     
     func reset() {

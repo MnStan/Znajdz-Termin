@@ -21,7 +21,6 @@ extension FetchedItemsView {
         @Published var isNetworkWorkDone: Bool = false
         var processedItemIDs: Set<String> = []
         @Published var findingCoordinatesError: Bool = false
-        private var calculateDistancesTask: Task<Void, Never>?
         @Published var locationError: LocationError?
         private let processingSemaphore = DispatchSemaphore(value: 1)
         private var nearFetched = false
@@ -30,6 +29,8 @@ extension FetchedItemsView {
         private var sortingOption: QuerySortingOptions = .date
         @Published var fetchingNear: Bool = false
         private let dateFormatter = DateFormatter()
+        
+        private var currentTasks: [UUID: Task<Void, Never>] = [:]
         
         @MainActor
         init(networkManager: NetworkManagerProtocol, locationManager: LocationManagerProtocol) {
@@ -73,8 +74,15 @@ extension FetchedItemsView {
         }
         
         deinit {
-            networkManager.resetNetworkFetchingDates()
+            cleanup()
+        }
+        
+        func cleanup() {
             cancellables.forEach { $0.cancel() }
+            cancellables.removeAll()
+            currentTasks.values.forEach { $0.cancel() }
+            currentTasks.removeAll()
+            networkManager.resetNetworkFetchingDates()
         }
         
         func fetchNextPage() async {
@@ -83,10 +91,6 @@ extension FetchedItemsView {
         
         func resetNetworkManager() {
             networkManager.resetNetworkFetchingDates()
-        }
-        
-        func resetLocationManager() {
-            //            locationManager.resetTasks()
         }
         
         func processNewItems(newItems: [DataElement]) {
@@ -145,10 +149,11 @@ extension FetchedItemsView {
             
             isCalculatingDistances = true
             
-            calculateDistancesTask = Task { [weak self] in
+            let taskID = UUID()
+            let task = Task { [weak self] in
                 guard let self = self, let userLocation = self.locationManager.location else { return }
                 processingSemaphore.wait()
-
+                
                 defer {
                     processingSemaphore.signal()
                 }
@@ -159,15 +164,17 @@ extension FetchedItemsView {
                     let distance = await self.calculateDistance(for: item, userLocation: userLocation)
                     
                     if Task.isCancelled { return }
-                    await MainActor.run {
-                        if let index = self.queueItems.firstIndex(where: { $0.id == item.id }) {
-                            self.queueItems[index].distance = distance
+                    await MainActor.run { [weak self] in
+                        if let index = self?.queueItems.firstIndex(where: { $0.id == item.id }) {
+                            self?.queueItems[index].distance = distance
                         }
                     }
                 }
                 
-                await MainActor.run {
-                    self.isCalculatingDistances = false
+                self.currentTasks[taskID] = nil
+                
+                await MainActor.run { [weak self] in
+                    self?.isCalculatingDistances = false
                 }
                 
                 if sortingOption != .date {
@@ -181,6 +188,8 @@ extension FetchedItemsView {
                     initialQueueItemsNear = queueItems
                 }
             }
+            
+            currentTasks[taskID] = task
         }
         
         private func calculateDistance(for item: DataElement, userLocation: CLLocation) async -> String {
@@ -202,7 +211,9 @@ extension FetchedItemsView {
                     }
                 } catch {
                     distance = "Brak odległości"
-                    await MainActor.run { self.findingCoordinatesError = true }
+                    await MainActor.run { [weak self] in
+                        self?.findingCoordinatesError = true
+                    }
                 }
                 
             } else {
@@ -212,50 +223,51 @@ extension FetchedItemsView {
             return distance
         }
         
-        func cancelCalculateDistances() {
-            calculateDistancesTask?.cancel()
-        }
-        
         func sortItems(oldValue: QuerySortingOptions, newValue: QuerySortingOptions, queryItems: [QueueItem]? = nil ) {
             guard oldValue != newValue else { return }
             
-            Task {
-                if networkManager.canFetchMorePages == true {
-                    await networkManager.fetchAllRemainingDates()
+            let taskID = UUID()
+            let task = Task { [weak self] in
+                guard let self else { return }
+                if self.networkManager.canFetchMorePages == true {
+                    await self.networkManager.fetchAllRemainingDates()
                 }
                 
-                sortingOption = newValue
-                await performSorting(sortingOption: newValue)
+                self.currentTasks[taskID] = nil
+                self.sortingOption = newValue
+                await self.performSorting(sortingOption: newValue)
             }
+            
+            currentTasks[taskID] = task
         }
         
         func performSorting(sortingOption: QuerySortingOptions, queryItems: [QueueItem]? = nil) async {
-                await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
                 let itemsToSort = queryItems ?? self.queueItems
                 switch sortingOption {
                 case .date:
-                    print("Near fetched: ", self.nearFetched)
-                        dateFormatter.dateFormat = "yyyy-MM-dd"
-                        self.queueItems = itemsToSort.sorted(by: { item1, item2 in
-                            let date1 = item1.queueResult.attributes.dates?.date
-                            let date2 = item2.queueResult.attributes.dates?.date
-                            
-                            if date1 == nil && date2 == nil {
-                                return false
-                            } else if date1 == nil {
-                                return false
-                            } else if date2 == nil {
-                                return true
-                            }
-                            
-                            if let date1String = date1, let date2String = date2,
-                               let date1 = dateFormatter.date(from: date1String),
-                               let date2 = dateFormatter.date(from: date2String) {
-                                return date1 < date2
-                            }
-                            
+                    dateFormatter.dateFormat = "yyyy-MM-dd"
+                    self.queueItems = itemsToSort.sorted(by: { item1, item2 in
+                        let date1 = item1.queueResult.attributes.dates?.date
+                        let date2 = item2.queueResult.attributes.dates?.date
+                        
+                        if date1 == nil && date2 == nil {
                             return false
-                        })
+                        } else if date1 == nil {
+                            return false
+                        } else if date2 == nil {
+                            return true
+                        }
+                        
+                        if let date1String = date1, let date2String = date2,
+                           let date1 = self.dateFormatter.date(from: date1String),
+                           let date2 = self.dateFormatter.date(from: date2String) {
+                            return date1 < date2
+                        }
+                        
+                        return false
+                    })
                 case .distance:
                     self.queueItems = itemsToSort.sorted  { item1, item2 in
                         let distance1 = Double(item1.distance.replacingOccurrences(of: " km", with: "")) ?? 0.0
@@ -283,10 +295,12 @@ extension FetchedItemsView {
         func fetchNearVoivodeshipsDates(searchInput: SearchInput) {
             showingNearItems.toggle()
             
-            Task {
+            let taskID = UUID()
+            let task = Task { [weak self] in
+                guard let self else { return }
                 if !nearFetched {
-                    await MainActor.run {
-                        fetchingNear = true
+                    await MainActor.run { [weak self] in
+                        self?.fetchingNear = true
                     }
                     
                     nearFetched = true
@@ -295,25 +309,31 @@ extension FetchedItemsView {
                         await networkManager.fetchDates(benefitName: searchInput.benefit, nextPage: nil, caseNumber: searchInput.caseNumber ? 1 : 2, isForKids: searchInput.isForKids, province: searchInput.voivodeshipNumber, onlyOnePage: false, userVoivodeship: true)
                     }
                     
+                    if Task.isCancelled { return }
+                    
                     let nearVoivodeships = locationManager.nearVoivodeships
                     for voivodeship in nearVoivodeships {
+                        if Task.isCancelled { return }
                         if let voivodeshipNumber = getVoivodeshipNumber(selectedVoivodeship: voivodeship.lowercased()) {
                             await networkManager.fetchDates(benefitName: searchInput.benefit, nextPage: nil, caseNumber: searchInput.caseNumber ? 2 : 1, isForKids: searchInput.isForKids, province: voivodeshipNumber, onlyOnePage: false, userVoivodeship: false)
                         }
                     }
-                                        
+                    
+                    self.currentTasks[taskID] = nil
+                    
                     let newItemsToProcess = queueItems.filter { !$0.distance.contains("km") }
                     let newDataElements = newItemsToProcess.map { $0.queueResult }
                     processedItemIDs.formUnion(newDataElements.map { $0.id })
                     
-                    await MainActor.run {
-                        calculateDistances(for: newDataElements, isForUserVoivodeship: false)
-                        fetchingNear = false
+                    await MainActor.run { [weak self] in
+                        self?.calculateDistances(for: newDataElements, isForUserVoivodeship: false)
+                        self?.fetchingNear = false
                     }
                     
                     await performSorting(sortingOption: sortingOption)
                 } else {
-                    await MainActor.run {
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
                         if self.showingNearItems {
                             self.queueItems = self.initialQueueItemsNear
                         } else {
@@ -324,12 +344,18 @@ extension FetchedItemsView {
                     await performSorting(sortingOption: sortingOption)
                 }
             }
+            
+            currentTasks[taskID] = task
         }
         
         func fetchDates(searchInput: SearchInput) {
-            Task {
-                await networkManager.fetchDates(benefitName: searchInput.benefit, nextPage: nil, caseNumber: searchInput.caseNumber ? 1 : 2, isForKids: searchInput.isForKids, province: searchInput.voivodeshipNumber, onlyOnePage: true, userVoivodeship: true)
+            let taskID = UUID()
+            let task = Task { [weak self] in
+                await self?.networkManager.fetchDates(benefitName: searchInput.benefit, nextPage: nil, caseNumber: searchInput.caseNumber ? 1 : 2, isForKids: searchInput.isForKids, province: searchInput.voivodeshipNumber, onlyOnePage: true, userVoivodeship: true)
+                self?.currentTasks[taskID] = nil
             }
+            
+            currentTasks[taskID] = task
         }
     }
 }
