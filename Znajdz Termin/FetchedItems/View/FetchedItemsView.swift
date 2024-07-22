@@ -194,6 +194,9 @@ struct FetchedItemsView: View {
                 Image(systemName: "gear")
             }
         }
+        .onDisappear {
+            viewModel.cleanup()
+        }
     }
 }
 

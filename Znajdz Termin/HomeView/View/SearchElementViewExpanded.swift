@@ -10,6 +10,7 @@ import SwiftUI
 struct SearchElementViewExpanded: View {
     @EnvironmentObject var locationManager: AppLocationManager
     @EnvironmentObject var networkManager: NetworkManager
+    @Environment(\.modelContext) var modelContext
     @Binding var searchText: String
     @Binding var isSearchFocused: Bool
     @Namespace var searchNamespace: Namespace.ID
@@ -34,129 +35,12 @@ struct SearchElementViewExpanded: View {
                 .foregroundStyle(.regularMaterial)
                 .accessibilityHidden(true)
                 .ignoresSafeArea()
+            
             VStack {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .accessibilityHidden(true)
-                        TextField("Szukaj", text: $searchText, axis: .vertical)
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
-                            .focused($textViewFocus)
-                            .onChange(of: searchText) { oldValue, newValue in
-                                viewModel.checkNewValueInput(oldValue: oldValue, newValue: newValue)
-                            }
-                        
-                        
-                        if searchText != "" {
-                            Button {
-                                searchText = ""
-                            } label: {
-                                Image(systemName: "x.circle.fill")
-                                    .foregroundStyle(.gray)
-                                    .accessibilityLabel("Przycisk usuwania wprowadzonego tekstu")
-                            }
-                        }
-                    }
-                    
-                    if let suggestion = viewModel.prepareSuggestionToView(searchText: searchText), viewModel.shouldShowHint {
-                        Group {
-                            Text("Podpowiedź:")
-                                .accessibilityHidden(true)
-                                .opacity(0.5)
-                            Button {
-                                searchText = suggestion
-                                textViewFocus = false
-                                viewModel.shouldShowHint = false
-                            } label: {
-                                Text(suggestion)
-                                    .multilineTextAlignment(.leading)
-                            }
-                            .accessibilityLabel("Podpowiedź \(suggestion) kliknij aby użyć podpowiedzi")
-                        }
-                        .accessibilityElement(children: .combine)
-                        .onAppear {
-                            UIAccessibility.post(notification: .announcement, argument: "Poniżej pojawiła się podpowiedź do twojego wyszukiwania")
-                        }
-                    }
-                }
-                
-                VStack {
-                    if horizontalSizeClass == .compact && sizeCategory > .extraExtraExtraLarge {
-                        VStack {
-                            Text("Województwo")
-                                .accessibilityHidden(true)
-                            
-                            Picker("Województwo", selection: $pickedVoivodeship) {
-                                ForEach(Voivodeship.allCases, id: \.displayName) {
-                                    Text($0.displayName)
-                                }
-                            }
-                            .dynamicTypeSize(...DynamicTypeSize.accessibility4)
-                            .tint(.primary)
-                        }
-                    } else {
-                        HStack {
-                            Text("Województwo")
-                                .accessibilityHidden(true)
-                            
-                            Spacer()
-                            
-                            Picker("Województwo", selection: $pickedVoivodeship) {
-                                ForEach(Voivodeship.allCases, id: \.displayName) {
-                                    Text($0.displayName)
-                                }
-                            }
-                            .tint(.primary)
-                            .accessibilityLabel("Wybrane województwo \(pickedVoivodeship)")
-                        }
-                        .accessibilityElement(children: .combine)
-                    }
-                    
-                    Toggle(isOn: $selectedMedicalCase) {
-                        Text("Pilne")
-                    }
-                    
-                    Toggle(isOn: $selectedIsForKids) {
-                        Text("Dla dzieci")
-                    }
-                    
-                    Spacer()
-                    
-                    Grid {
-                        GridRow {
-                            Button {
-                                withAnimation(.spring(.bouncy, blendDuration: 1)) {
-                                    isSearchFocused = false
-                                    textViewFocus = false
-                                }
-                            } label: {
-                                Text("Zamknij")
-                                    .modifier(CustomButton(isCancel: true))
-                            }
-                            .foregroundStyle(.primary)
-                            
-                            Button {
-                                if viewModel.checkTextCount(text: searchText) {
-                                    if let voivodeshipNumber = viewModel.getVoivodeshipNumber(selectedVoivodeship: pickedVoivodeship) {
-                                        searchInput = SearchInput(benefit: searchText, voivodeshipNumber: voivodeshipNumber, caseNumber: selectedMedicalCase, isForKids: selectedIsForKids)
-
-                                        shouldShowFetchedItemsView = true
-                                    }
-                                } else {
-                                    shouldShowAlert = true
-                                }
-                            } label: {
-                                Text("Szukaj")
-                                    .modifier(CustomButton(isCancel: false))
-                            }
-                            .foregroundStyle(.primary)
-                            
-                        }
-                        .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                Spacer()
+                searchField
+                voivodeshipPicker
+                toggles
+                buttons
             }
             .padding()
             .onAppear {
@@ -178,6 +62,152 @@ struct SearchElementViewExpanded: View {
         }
         .alert("Tekst wyszukiwania powinien mieć długość co najmniej 3 liter", isPresented: $shouldShowAlert) {
             Button("Ok", role: .cancel) { }
+        }
+    }
+    
+    @ViewBuilder
+    private var searchField: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .accessibilityHidden(true)
+                TextField("Szukaj", text: $searchText)
+                    .multilineTextAlignment(.leading)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .focused($textViewFocus)
+                    .onChange(of: searchText) { oldValue, newValue in
+                        viewModel.checkNewValueInput(oldValue: oldValue, newValue: newValue)
+                    }
+                
+                if searchText != "" {
+                    Button {
+                        searchText = ""
+                    } label: {
+                        Image(systemName: "x.circle.fill")
+                            .foregroundStyle(.gray)
+                            .accessibilityLabel("Przycisk usuwania wprowadzonego tekstu")
+                    }
+                }
+            }
+            
+            if let suggestion = viewModel.prepareSuggestionToView(searchText: searchText), viewModel.shouldShowHint {
+                suggestionView(suggestion)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func suggestionView(_ suggestion: String) -> some View {
+        Group {
+            Text("Podpowiedź:")
+                .accessibilityHidden(true)
+                .opacity(0.5)
+            Button {
+                searchText = suggestion
+                textViewFocus = false
+                viewModel.shouldShowHint = false
+            } label: {
+                Text(suggestion)
+                    .multilineTextAlignment(.leading)
+            }
+            .accessibilityLabel("Podpowiedź \(suggestion) kliknij aby użyć podpowiedzi")
+        }
+        .accessibilityElement(children: .combine)
+        .onAppear {
+            UIAccessibility.post(notification: .announcement, argument: "Poniżej pojawiła się podpowiedź do twojego wyszukiwania")
+        }
+    }
+    
+    @ViewBuilder
+    private var voivodeshipPicker: some View {
+        if horizontalSizeClass == .compact && sizeCategory > .extraExtraExtraLarge {
+            VStack {
+                Text("Województwo")
+                    .accessibilityHidden(true)
+                
+                Picker("Województwo", selection: $pickedVoivodeship) {
+                    ForEach(Voivodeship.allCases, id: \.displayName) {
+                        Text($0.displayName)
+                    }
+                }
+                .dynamicTypeSize(...DynamicTypeSize.accessibility4)
+                .tint(.primary)
+            }
+        } else {
+            HStack {
+                Text("Województwo")
+                    .accessibilityHidden(true)
+                
+                Spacer()
+                
+                Picker("Województwo", selection: $pickedVoivodeship) {
+                    ForEach(Voivodeship.allCases, id: \.displayName) {
+                        Text($0.displayName)
+                    }
+                }
+                .tint(.primary)
+                .accessibilityLabel("Wybrane województwo \(pickedVoivodeship)")
+            }
+            .accessibilityElement(children: .combine)
+        }
+    }
+    
+    @ViewBuilder
+    private var toggles: some View {
+        Toggle(isOn: $selectedMedicalCase) {
+            Text("Pilne")
+        }
+        
+        Toggle(isOn: $selectedIsForKids) {
+            Text("Dla dzieci")
+        }
+    }
+    
+    @ViewBuilder
+    private var buttons: some View {
+        Grid {
+            GridRow {
+                Button {
+                    withAnimation(.spring(.bouncy, blendDuration: 1)) {
+                        isSearchFocused = false
+                        textViewFocus = false
+                    }
+                } label: {
+                    Text("Zamknij")
+                        .modifier(CustomButton(isCancel: true))
+                }
+                .foregroundStyle(.primary)
+                
+                Button {
+                    if viewModel.checkTextCount(text: searchText) {
+                        if let voivodeshipNumber = viewModel.getVoivodeshipNumber(selectedVoivodeship: pickedVoivodeship) {
+                            searchInput = SearchInput(benefit: searchText, voivodeshipNumber: voivodeshipNumber, caseNumber: selectedMedicalCase, isForKids: selectedIsForKids)
+                            if let toSave = searchInput {
+                                modelContext.insert(toSave)
+                            }
+                            shouldShowFetchedItemsView = true
+                        }
+                    } else {
+                        shouldShowAlert = true
+                    }
+                } label: {
+                    Text("Szukaj")
+                        .modifier(CustomButton(isCancel: false))
+                }
+                .foregroundStyle(.primary)
+            }
+            .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+    
+    func deleteDestinations() {
+        do {
+            try modelContext.delete(model: SearchInput.self, where: #Predicate { item in
+                item.creationDate.timeIntervalSinceNow > 2
+            })
+        } catch {
+            
         }
     }
 }

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import SwiftData
+
 struct MainView: View {
     @StateObject var locationManager = AppLocationManager()
     @StateObject var networkManager = NetworkManager()
@@ -21,9 +23,15 @@ struct MainView: View {
         }
         .environmentObject(locationManager)
         .environmentObject(networkManager)
+        .modelContainer(for: SearchInput.self)
     }
 }
 
 #Preview {
-    MainView()
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: SearchInput.self, configurations: config)
+    
+    let search = SearchInput(benefit: "Poradnia ortopedyczna", voivodeshipNumber: "06", caseNumber: true, isForKids: true)
+    return MainView()
+        .modelContainer(container)
 }

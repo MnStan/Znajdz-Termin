@@ -74,6 +74,7 @@ extension FetchedItemsView {
         }
         
         deinit {
+            print("Deinit")
             cleanup()
         }
         
@@ -83,6 +84,7 @@ extension FetchedItemsView {
             currentTasks.values.forEach { $0.cancel() }
             currentTasks.removeAll()
             networkManager.resetNetworkFetchingDates()
+            processingSemaphore.signal()
         }
         
         func fetchNextPage() async {
