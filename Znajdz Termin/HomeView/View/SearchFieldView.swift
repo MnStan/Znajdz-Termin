@@ -24,11 +24,6 @@ struct SearchFieldView: View {
                     TextField("Szukaj", text: $searchText)
                     
                 }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(.black, lineWidth: 0)
-                        .matchedGeometryEffect(id: "border", in: searchNamespace)
-                )
             }
             .padding()
         }
