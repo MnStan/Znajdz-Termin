@@ -15,6 +15,7 @@ struct DetailItemView: View {
     @Environment(\.sizeCategory) var sizeCategory
     @ScaledMetric var symbolWidth: CGFloat = 50
     @Environment(\.accessibilityReduceMotion) var isReduceMotionEnabled
+    @Binding var isSheetShowing: Bool
     
     var body: some View {
         VStack {
@@ -199,6 +200,17 @@ struct DetailItemView: View {
             }
             .accessibilityElement(children: .combine)
             
+            if dataElement.latitude != nil {
+                Button {
+                    isSheetShowing = true
+                } label: {
+                    HStack {
+                        Text("Pokaż na mapie")
+                        Image(systemName: "globe.europe.africa.fill")
+                    }
+                }
+                .padding()
+            }
             
             ForEach(viewModel.preparePhoneNumberToDisplay(phoneNumber: dataElement.queueResult.attributes.phone)) { number in
                 GroupBox {
@@ -214,5 +226,5 @@ struct DetailItemView: View {
 
 #Preview {
     @Namespace var previewNamespace
-    return DetailItemView(itemsNamespace: previewNamespace, dataElement: QueueItem(queueResult: .defaultDataElement, distance: "120 km"), selectedItemID: .constant(""))
+    return DetailItemView(itemsNamespace: previewNamespace, dataElement: QueueItem(queueResult: .defaultDataElement, distance: "120 km"), selectedItemID: .constant(""), isSheetShowing: .constant(true))
 }
