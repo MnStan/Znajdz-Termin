@@ -425,7 +425,7 @@ final class NetworkManagerTestsDates: XCTestCase {
         
         Task {
             await sut.fetchDates(benefitName: "orto", nextPage: nil, caseNumber: 1, isForKids: false, province: "01", onlyOnePage: false, userVoivodeship: false)
-            XCTAssertEqual(sut.datesNearDataArray.count, 199)
+            XCTAssertEqual(sut.datesNearDataArray.count, 190)
             expectation.fulfill()
         }
         

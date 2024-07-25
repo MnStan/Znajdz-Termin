@@ -166,8 +166,8 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
         guard let newLocation = locations.last else { return }
         if newLocation == location { return }
         Task {
-            await getUserVoivodeship()
             if let userLocation = location {
+                await getUserVoivodeship()
                 await pointsOnCircle(center: userLocation.coordinate, radius: radius, numberOfPoints: numberOfPoints)
                 await getNearPointsVoivodeships(for: nearLocations)
             }

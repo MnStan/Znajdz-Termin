@@ -11,6 +11,7 @@ struct SortingAndFilteringView: View {
     @Binding var selectedSorting: QuerySortingOptions
     @Binding var selectedFiltering: String
     @Binding var shouldShowNearVoivodeships: Bool
+    @State var shouldShowNearVoivodeshipsButton: Bool
     
     var body: some View {
         ScrollView(.horizontal) {
@@ -27,20 +28,28 @@ struct SortingAndFilteringView: View {
                         }
                         .tint(.primary)
                     } label: {
-                        HStack {
-                            Text(selectedSorting.description)
-                            Image(systemName: "chevron.down")
-                                .accessibilityHidden(true)
+                        VStack {
+                            Text("Sortuj według")
+                                .font(.subheadline)
+                            HStack {
+                                Text(selectedSorting.description)
+                                    .font(.caption)
+                                Image(systemName: "chevron.down")
+                                    .accessibilityHidden(true)
+                            }
+                            .accessibilityLabel("Wybrane sortowanie \(selectedSorting.description)")
                         }
-                        .accessibilityLabel("Wybrane sortowanie \(selectedSorting.description)")
                     }
                     .foregroundStyle(.primary)
                     .padding()
                 }
                 
-                FilterOptionView(filterOption: $shouldShowNearVoivodeships, filterOptionText: "Pobliskie województwa")
-                    .accessibilityLabel("Pokaż pobliskie województwa")
-                    .accessibilityAddTraits(.isButton)
+                
+                if shouldShowNearVoivodeshipsButton {
+                    FilterOptionView(filterOption: $shouldShowNearVoivodeships, filterOptionText: "Pokaż wyniki z przyległych województw")
+                        .accessibilityLabel("Pokaż pobliskie województwa")
+                        .accessibilityAddTraits(.isButton)
+                }
             }
         }
         .scrollIndicators(.hidden)
@@ -48,5 +57,5 @@ struct SortingAndFilteringView: View {
 }
 
 #Preview {
-    SortingAndFilteringView(selectedSorting: .constant(.date), selectedFiltering: .constant("Filter"), shouldShowNearVoivodeships: .constant(true))
+    SortingAndFilteringView(selectedSorting: .constant(.date), selectedFiltering: .constant("Filter"), shouldShowNearVoivodeships: .constant(true), shouldShowNearVoivodeshipsButton: true)
 }

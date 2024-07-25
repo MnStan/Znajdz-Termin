@@ -31,11 +31,22 @@ struct DetailItemView: View {
                     }
                 } label: {
                     Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .frame(width: 30, height: 30)
                 }
                 .foregroundStyle(.primary)
                 .accessibilityLabel("Zamknij widok szczegółowy")
             }
             VStack(alignment: .center, spacing: 10) {
+                Text(dataElement.queueResult.attributes.benefit ?? "")
+                    .font(.subheadline.bold())
+                    .padding(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.center)
+                    .accessibilityLabel("Udzielane świadczenie \(String(describing: dataElement.queueResult.attributes.benefit))")
+                
+                Divider()
+                
                 HStack(spacing: 10) {
                     Image(systemName: "person.fill")
                         .resizable()

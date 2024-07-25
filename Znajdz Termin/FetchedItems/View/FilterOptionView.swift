@@ -17,6 +17,7 @@ struct FilterOptionView: View {
                 .foregroundStyle(filterOption ? .green.opacity(0.25) : .gray.opacity(0.25))
             
             Text(filterOptionText)
+                .font(.subheadline)
                 .padding()
         }
         .onTapGesture {
