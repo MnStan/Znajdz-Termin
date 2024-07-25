@@ -104,7 +104,7 @@ extension FetchedItemsView {
                     return nil
                 }
                 let initialDistance = calculateInitialDistance(for: item)
-                return QueueItem(queueResult: item, distance: initialDistance)
+                return QueueItem(queueResult: item, distance: initialDistance, latitude: item.attributes.latitude, longitude: item.attributes.longitude)
             }
             
             DispatchQueue.main.async {
@@ -123,7 +123,7 @@ extension FetchedItemsView {
                     return nil
                 }
                 let initialDistance = calculateInitialDistance(for: item)
-                return QueueItem(queueResult: item, distance: initialDistance)
+                return QueueItem(queueResult: item, distance: initialDistance, latitude: item.attributes.latitude, longitude: item.attributes.longitude)
             }
             
             DispatchQueue.main.async {
@@ -132,7 +132,7 @@ extension FetchedItemsView {
         }
         
         private func calculateInitialDistance(for item: DataElement) -> String {
-            guard let userLocation = locationManager.location,
+            guard locationManager.location != nil,
                   let latitude = item.attributes.latitude,
                   let longitude = item.attributes.longitude else {
                 return "Obliczanie..."
@@ -163,12 +163,16 @@ extension FetchedItemsView {
                 for item in itemsToProcess {
                     if Task.isCancelled { return }
                     
-                    let distance = await self.calculateDistance(for: item, userLocation: userLocation)
+                    let locationInformations = await self.calculateDistance(for: item, userLocation: userLocation)
                     
                     if Task.isCancelled { return }
                     await MainActor.run { [weak self] in
                         if let index = self?.queueItems.firstIndex(where: { $0.id == item.id }) {
-                            self?.queueItems[index].distance = distance
+                            self?.queueItems[index].distance = locationInformations.0
+                            self?.queueItems[index].latitude = locationInformations.1
+                            self?.queueItems[index].longitude = locationInformations.2
+                            if isForUserVoivodeship == false {
+                            }
                         }
                     }
                 }
@@ -194,19 +198,25 @@ extension FetchedItemsView {
             currentTasks[taskID] = task
         }
         
-        private func calculateDistance(for item: DataElement, userLocation: CLLocation) async -> String {
+        private func calculateDistance(for item: DataElement, userLocation: CLLocation) async -> (String, Double?, Double?) {
             var distance: String = "Obliczanie..."
+            var latitude: Double? = nil
+            var longitude: Double? = nil
             
-            if let latitude = item.attributes.latitude, let longitude = item.attributes.longitude {
-                let itemLocation = CLLocation(latitude: latitude, longitude: longitude)
+            if let itemLatitude = item.attributes.latitude, let itemLongitude = item.attributes.longitude {
+                let itemLocation = CLLocation(latitude: itemLatitude, longitude: itemLongitude)
                 if let distanceValue = self.locationManager.calculateDistanceFromPoint(to: itemLocation) {
                     distance = String(format: "%.2f km", distanceValue / 1000)
                 }
+                latitude = itemLatitude
+                longitude = itemLongitude
             } else if let city = item.attributes.locality, let address = item.attributes.address {
                 let fullAddress = "\(city) \(address)"
                 
                 do {
                     if let location = try await self.locationManager.findCoordinatesOfCityName(name: fullAddress) {
+                        latitude = location.coordinate.latitude
+                        longitude = location.coordinate.longitude
                         if let distanceValue = self.locationManager.calculateDistanceFromPoint(to: location) {
                             distance = String(format: "%.2f km", distanceValue / 1000)
                         }
@@ -222,7 +232,7 @@ extension FetchedItemsView {
                 distance = "Brak odległości"
             }
             
-            return distance
+            return (distance, latitude, longitude)
         }
         
         func sortItems(oldValue: QuerySortingOptions, newValue: QuerySortingOptions, queryItems: [QueueItem]? = nil ) {
@@ -358,6 +368,12 @@ extension FetchedItemsView {
             }
             
             currentTasks[taskID] = task
+        }
+        
+        func findItemByID(itemID: String) -> QueueItem? {
+            queueItems.first { item in
+                item.id == itemID
+            }
         }
     }
 }

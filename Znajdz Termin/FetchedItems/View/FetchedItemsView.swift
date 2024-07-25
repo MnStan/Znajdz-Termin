@@ -21,6 +21,7 @@ struct FetchedItemsView: View {
     @State var selectedFiltering = ""
     @State var shouldShowNearVoivodeships = false
     @State var shouldShowSortingAndFiltering = false
+    @State var isSheetShowing = false
     
     var searchInput: SearchInput
     
@@ -35,7 +36,7 @@ struct FetchedItemsView: View {
         ZStack(alignment: .top) {
             ScrollViewReader { value in
                 ScrollView {
-                    LazyVStack {
+                    VStack {
                         if let error = viewModel.networkError {
                             GroupBox {
                                 ContentUnavailableView {
@@ -100,6 +101,7 @@ struct FetchedItemsView: View {
                                     .font(.title).bold()
                                     .accessibilityLabel("Trwa ładowanie")
                             }
+                            .frame(maxWidth: .infinity)
                             .accessibilityLabel("Trwa ładowanie")
                         } else {
                             ForEach(viewModel.queueItems, id: \.id) { item in
@@ -108,7 +110,7 @@ struct FetchedItemsView: View {
                                         if selectedItemID != item.id {
                                             ItemView(itemsNamespace: itemsNamespace, dataElement: item)
                                         } else {
-                                            DetailItemView(itemsNamespace: itemsNamespace, dataElement: item, selectedItemID: $selectedItemID)
+                                            DetailItemView(itemsNamespace: itemsNamespace, dataElement: item, selectedItemID: $selectedItemID, isSheetShowing: $isSheetShowing)
                                                 .id(item.id)
                                         }
                                     }
@@ -116,12 +118,10 @@ struct FetchedItemsView: View {
                                 .onTapGesture {
                                     if isReduceMotionEnabled {
                                         selectedItemID = item.id
-                                        value.scrollTo(item.id, anchor: .top)
                                         shouldShowSortingAndFiltering = false
                                     } else {
                                         withAnimation(.spring(duration: 0.5)) {
                                             selectedItemID = item.id
-                                            value.scrollTo(item.id, anchor: .top)
                                             shouldShowSortingAndFiltering = false
                                         }
                                     }
@@ -138,6 +138,17 @@ struct FetchedItemsView: View {
                                     .task {
                                         await viewModel.fetchNextPage()
                                     }
+                            }
+                        }
+                    }
+                }
+                .onChange(of: selectedItemID) { _, newValue in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                        if isReduceMotionEnabled {
+                            value.scrollTo(newValue, anchor: .top)
+                        } else {
+                            withAnimation(.spring(duration: 0.5)) {
+                                value.scrollTo(newValue, anchor: .top)
                             }
                         }
                     }
@@ -172,14 +183,13 @@ struct FetchedItemsView: View {
                 
                 Spacer()
                 
-                if shouldShowNearVoivodeships && (viewModel.isCalculatingDistances || viewModel.fetchingNear) {
+                if (shouldShowNearVoivodeships && (viewModel.isCalculatingDistances || viewModel.fetchingNear)) || (selectedSorting != .date && viewModel.isCalculatingDistances) {
                     FetchingCalculatingLoadingView()
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                         .fixedSize(horizontal: true, vertical: true)
                         .offset(y: -100)
                 }
             }
-
         }
         .toolbar {
             Button {
@@ -196,6 +206,14 @@ struct FetchedItemsView: View {
         }
         .onDisappear {
             viewModel.cleanup()
+        }
+        .sheet(isPresented: $isSheetShowing) {
+            MapView(viewModel: viewModel, selectedItemID: $selectedItemID, isSheetShowing: $isSheetShowing)
+                .presentationDetents([.medium, .fraction(0.25)], selection: .constant(.medium))
+                .presentationBackgroundInteraction(
+                    .enabled(upThrough: .medium)
+                )
+                .interactiveDismissDisabled()
         }
     }
 }
