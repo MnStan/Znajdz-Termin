@@ -22,14 +22,16 @@ struct FetchedItemsView: View {
     @State var shouldShowNearVoivodeships = false
     @State var shouldShowSortingAndFiltering = false
     @State var isSheetShowing = false
+    @State var shouldShowNearVoivodeshipsButton: Bool
     
     var searchInput: SearchInput
     
-    init(locationManager: LocationManagerProtocol, networkManager: NetworkManager, selectedItemID: String? = nil, selectedSorting: QuerySortingOptions = QuerySortingOptions.date, searchInput: SearchInput) {
+    init(locationManager: LocationManagerProtocol, networkManager: NetworkManager, selectedItemID: String? = nil, selectedSorting: QuerySortingOptions = QuerySortingOptions.date, searchInput: SearchInput, shouldShowNearVoivodeshipsButton: Bool) {
         self.selectedItemID = selectedItemID
         self.selectedSorting = selectedSorting
         self.searchInput = searchInput
         _viewModel = StateObject(wrappedValue: ViewModel(networkManager: networkManager, locationManager: locationManager))
+        self.shouldShowNearVoivodeshipsButton = shouldShowNearVoivodeshipsButton
     }
     
     var body: some View {
@@ -37,173 +39,151 @@ struct FetchedItemsView: View {
             ScrollViewReader { value in
                 ScrollView {
                     VStack {
-                        if let error = viewModel.networkError {
-                            GroupBox {
-                                ContentUnavailableView {
-                                    Image(systemName: "exclamationmark.triangle")
-                                    Text("Wystąpił błąd")
-                                } description: {
-                                    Text(error.description)
-                                } actions: {
-                                    Button("Spróbuj ponownie") {
-                                        dismiss()
-                                    }
-                                    .modifier(CustomButton(isCancel: false))
-                                }
-                            }
-                            .padding()
-                            .shadow()
-                        }
-                        
-                        if viewModel.queueItems.isEmpty && viewModel.isNetworkWorkDone {
-                            GroupBox {
-                                ContentUnavailableView {
-                                    Image(systemName: "magnifyingglass")
-                                        .padding(.bottom)
-                                    Text("Brak danych dla tego wyszukiwania")
-                                        .padding(.bottom)
-                                } actions: {
-                                    Button {
-                                        dismiss()
-                                    } label: {
-                                        Text("Spróbuj ponownie")
-                                            .modifier(CustomButton(isCancel: false))
-                                    }
-                                    .foregroundStyle(.primary)
-                                }
-                            }
-                            .padding()
-                            .shadow()
-                        }
-                        
-                        if viewModel.queueItems.isEmpty {
-                            VStack {
-                                ZStack {
-                                    Heart()
-                                        .foregroundStyle(Color.gray)
-                                        .foregroundStyle(.thinMaterial)
-                                        .fadeAnimation()
-                                    
-                                    Heart()
-                                        .rotation3DEffect(
-                                            Angle(degrees: 180),
-                                            axis: (x: 0.0, y: 1.0, z: 0.0)
-                                        )
-                                        .foregroundStyle(.blue)
-                                        .foregroundStyle(.thinMaterial)
-                                        .fadeAnimation()
-                                }
-                                .frame(width: 100, height: 100)
-                                .accessibilityLabel("Dwukolorowe logo w kształcie serca")
-                                
-                                Text("Ładowanie...")
-                                    .padding(.top, 50)
-                                    .font(.title).bold()
-                                    .accessibilityLabel("Trwa ładowanie")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .accessibilityLabel("Trwa ładowanie")
-                        } else {
-                            ForEach(viewModel.queueItems, id: \.id) { item in
-                                GroupBox {
-                                    ZStack {
-                                        if selectedItemID != item.id {
-                                            ItemView(itemsNamespace: itemsNamespace, dataElement: item)
-                                        } else {
-                                            DetailItemView(itemsNamespace: itemsNamespace, dataElement: item, selectedItemID: $selectedItemID, isSheetShowing: $isSheetShowing)
-                                                .id(item.id)
-                                        }
-                                    }
-                                }
-                                .onTapGesture {
-                                    if isReduceMotionEnabled {
-                                        selectedItemID = item.id
-                                        shouldShowSortingAndFiltering = false
-                                    } else {
-                                        withAnimation(.spring(duration: 0.5)) {
-                                            selectedItemID = item.id
-                                            shouldShowSortingAndFiltering = false
-                                        }
-                                    }
-                                }
-                                .padding([.leading, .trailing])
-                                .padding([.top, .bottom], 5)
-                                .frame(maxWidth: .infinity)
-                            }
-                            .shadow()
-                            .frame(maxWidth: .infinity)
-                            
-                            if !viewModel.isNetworkWorkDone {
-                                ProgressView()
-                                    .task {
-                                        await viewModel.fetchNextPage()
-                                    }
-                            }
-                        }
-                    }
-                }
-                .onChange(of: selectedItemID) { _, newValue in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                        if isReduceMotionEnabled {
-                            value.scrollTo(newValue, anchor: .top)
-                        } else {
-                            withAnimation(.spring(duration: 0.5)) {
-                                value.scrollTo(newValue, anchor: .top)
-                            }
-                        }
-                    }
-                }
-            }
-            .background(.blue.opacity(0.1))
-            .onAppear {
-                viewModel.fetchDates(searchInput: searchInput)
-            }
-            .onChange(of: selectedSorting) { oldValue, newValue in
-                viewModel.sortItems(oldValue: oldValue, newValue: newValue)
-            }
-            .onChange(of: shouldShowNearVoivodeships, { oldValue, newValue in
-                viewModel.fetchNearVoivodeshipsDates(searchInput: searchInput)
-            })
-            .navigationBarTitleDisplayMode(.inline)
-            
-            VStack {
-                if shouldShowSortingAndFiltering {
-                    VStack {
-                        SortingAndFilteringView(selectedSorting: $selectedSorting, selectedFiltering: $selectedFiltering, shouldShowNearVoivodeships: $shouldShowNearVoivodeships)
+                        SortingAndFilteringView(selectedSorting: $selectedSorting, selectedFiltering: $selectedFiltering, shouldShowNearVoivodeships: $shouldShowNearVoivodeships, shouldShowNearVoivodeshipsButton: shouldShowNearVoivodeshipsButton)
                             .padding([.leading, .trailing])
                             .padding(.top, 10)
                             .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding()
                     
-                    .background(.ultraThinMaterial,
-                                in: RoundedRectangle(cornerRadius: 15)
-                    )
-                }
-                
-                Spacer()
-                
-                if (shouldShowNearVoivodeships && (viewModel.isCalculatingDistances || viewModel.fetchingNear)) || (selectedSorting != .date && viewModel.isCalculatingDistances) {
-                    FetchingCalculatingLoadingView()
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
-                        .fixedSize(horizontal: true, vertical: true)
-                        .offset(y: -100)
-                }
-            }
-        }
-        .toolbar {
-            Button {
-                if isReduceMotionEnabled {
-                    shouldShowSortingAndFiltering.toggle()
-                } else {
-                    withAnimation(.spring(duration: 0.5)) {
-                        shouldShowSortingAndFiltering.toggle()
+                    if let error = viewModel.networkError {
+                        GroupBox {
+                            ContentUnavailableView {
+                                Image(systemName: "exclamationmark.triangle")
+                                Text("Wystąpił błąd")
+                            } description: {
+                                Text(error.description)
+                            } actions: {
+                                Button("Spróbuj ponownie") {
+                                    dismiss()
+                                }
+                                .modifier(CustomButton(isCancel: false))
+                            }
+                        }
+                        .padding()
+                        .shadow()
+                    }
+                    
+                    if viewModel.queueItems.isEmpty && viewModel.isNetworkWorkDone {
+                        GroupBox {
+                            ContentUnavailableView {
+                                Image(systemName: "magnifyingglass")
+                                    .padding(.bottom)
+                                Text("Brak danych dla tego wyszukiwania")
+                                    .padding(.bottom)
+                            } actions: {
+                                Button {
+                                    dismiss()
+                                } label: {
+                                    Text("Spróbuj ponownie")
+                                        .modifier(CustomButton(isCancel: false))
+                                }
+                                .foregroundStyle(.primary)
+                            }
+                        }
+                        .padding()
+                        .shadow()
+                    }
+                    
+                    if viewModel.queueItems.isEmpty {
+                        VStack {
+                            ZStack {
+                                Heart()
+                                    .foregroundStyle(Color.gray)
+                                    .foregroundStyle(.thinMaterial)
+                                    .fadeAnimation()
+                                
+                                Heart()
+                                    .rotation3DEffect(
+                                        Angle(degrees: 180),
+                                        axis: (x: 0.0, y: 1.0, z: 0.0)
+                                    )
+                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(.thinMaterial)
+                                    .fadeAnimation()
+                            }
+                            .frame(width: 100, height: 100)
+                            .accessibilityLabel("Dwukolorowe logo w kształcie serca")
+                            
+                            Text("Ładowanie...")
+                                .padding(.top, 50)
+                                .font(.title).bold()
+                                .accessibilityLabel("Trwa ładowanie")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .accessibilityLabel("Trwa ładowanie")
+                    } else {
+                        ForEach(viewModel.queueItems, id: \.id) { item in
+                            GroupBox {
+                                ZStack {
+                                    if selectedItemID != item.id {
+                                        ItemView(itemsNamespace: itemsNamespace, dataElement: item)
+                                    } else {
+                                        DetailItemView(itemsNamespace: itemsNamespace, dataElement: item, selectedItemID: $selectedItemID, isSheetShowing: $isSheetShowing)
+                                            .id(item.id)
+                                    }
+                                }
+                            }
+                            .onTapGesture {
+                                if isReduceMotionEnabled {
+                                    selectedItemID = item.id
+                                    shouldShowSortingAndFiltering = false
+                                } else {
+                                    withAnimation(.spring(duration: 0.5)) {
+                                        selectedItemID = item.id
+                                        shouldShowSortingAndFiltering = false
+                                    }
+                                }
+                            }
+                            .padding([.leading, .trailing])
+                            .padding([.top, .bottom], 5)
+                            .frame(maxWidth: .infinity)
+                        }
+                        .shadow()
+                        .frame(maxWidth: .infinity)
+                        
+                        if !viewModel.isNetworkWorkDone {
+                            ProgressView()
+                                .task {
+                                    await viewModel.fetchNextPage()
+                                }
+                        }
                     }
                 }
-            } label: {
-                Image(systemName: "gear")
+            }
+            .onChange(of: selectedItemID) { _, newValue in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    if isReduceMotionEnabled {
+                        value.scrollTo(newValue, anchor: .top)
+                    } else {
+                        withAnimation(.spring(duration: 0.5)) {
+                            value.scrollTo(newValue, anchor: .top)
+                        }
+                    }
+                }
             }
         }
+        .background(.blue.opacity(0.1))
+        .onAppear {
+            viewModel.fetchDates(searchInput: searchInput)
+        }
+        .onChange(of: selectedSorting) { oldValue, newValue in
+            viewModel.sortItems(oldValue: oldValue, newValue: newValue)
+        }
+        .onChange(of: shouldShowNearVoivodeships, { oldValue, newValue in
+            viewModel.fetchNearVoivodeshipsDates(searchInput: searchInput)
+        })
+        .navigationBarTitleDisplayMode(.inline)
+        
+        VStack {
+            Spacer()
+            
+            if (shouldShowNearVoivodeships && (viewModel.isCalculatingDistances || viewModel.fetchingNear)) || (selectedSorting != .date && viewModel.isCalculatingDistances) {
+                FetchingCalculatingLoadingView()
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .fixedSize(horizontal: true, vertical: true)
+                    .offset(y: -100)
+            }
+        }
+    }
         .onDisappear {
             viewModel.cleanup()
         }
@@ -215,9 +195,9 @@ struct FetchedItemsView: View {
                 )
                 .interactiveDismissDisabled()
         }
-    }
+}
 }
 
 #Preview {
-    FetchedItemsView(locationManager: AppLocationManager(), networkManager: NetworkManager(), searchInput: SearchInput(benefit: "orto", voivodeshipNumber: "06", caseNumber: false, isForKids: false))
+    FetchedItemsView(locationManager: AppLocationManager(), networkManager: NetworkManager(), searchInput: SearchInput(benefit: "orto", voivodeshipNumber: "06", caseNumber: false, isForKids: false), shouldShowNearVoivodeshipsButton: true)
 }

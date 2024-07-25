@@ -74,7 +74,6 @@ extension FetchedItemsView {
         }
         
         deinit {
-            print("Deinit")
             cleanup()
         }
         

@@ -57,7 +57,7 @@ struct SearchElementViewExpanded: View {
         }
         .navigationDestination(isPresented: $shouldShowFetchedItemsView) {
             if let searchInput {
-                FetchedItemsView(locationManager: locationManager, networkManager: networkManager, searchInput: searchInput)
+                FetchedItemsView(locationManager: locationManager, networkManager: networkManager, searchInput: searchInput, shouldShowNearVoivodeshipsButton: viewModel.checkIfUserSelectedOtherVoivodeship(selectedVoivodeship: pickedVoivodeship))
             }
         }
         .alert("Tekst wyszukiwania powinien mieć długość co najmniej 3 liter", isPresented: $shouldShowAlert) {

@@ -74,5 +74,9 @@ extension SearchElementView {
         func getVoivodeshipNumber(selectedVoivodeship: String) -> String? {
             Voivodeship.allCases.first { $0.displayName == selectedVoivodeship }?.rawValue
         }
+        
+        func checkIfUserSelectedOtherVoivodeship(selectedVoivodeship: String) -> Bool {
+            return getVoivodeshipNumber(selectedVoivodeship: selectedVoivodeship) == getVoivodeshipNumber(selectedVoivodeship: getUserVoivodeship())
+        }
     }
 }

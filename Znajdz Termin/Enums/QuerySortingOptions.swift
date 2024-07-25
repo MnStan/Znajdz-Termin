@@ -17,9 +17,9 @@ enum QuerySortingOptions: CaseIterable ,CustomStringConvertible {
         case .date:
             return "Data"
         case .distance:
-            return "Dystans"
+            return "Odległość"
         case .awaiting:
-            return "Oczekujący"
+            return "Liczba oczekujących"
         }
     }
 }
