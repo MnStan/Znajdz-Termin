@@ -209,7 +209,7 @@ struct FetchedItemsView: View {
         }
         .sheet(isPresented: $isSheetShowing) {
             MapView(viewModel: viewModel, selectedItemID: $selectedItemID, isSheetShowing: $isSheetShowing)
-                .presentationDetents([.fraction(0.25), .medium])
+                .presentationDetents([.medium, .fraction(0.25)], selection: .constant(.medium))
                 .presentationBackgroundInteraction(
                     .enabled(upThrough: .medium)
                 )
