@@ -71,6 +71,10 @@ extension SearchElementView {
             locationManager.voivodeship.lowercased()
         }
         
+        func checkPermissions() -> Bool {
+            locationManager.authorizationStatus == .authorizedAlways || locationManager.authorizationStatus == .authorizedWhenInUse
+        }
+        
         func getVoivodeshipNumber(selectedVoivodeship: String) -> String? {
             Voivodeship.allCases.first { $0.displayName == selectedVoivodeship }?.rawValue
         }

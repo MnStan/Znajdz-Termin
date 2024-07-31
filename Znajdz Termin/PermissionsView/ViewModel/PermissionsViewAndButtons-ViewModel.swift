@@ -35,10 +35,14 @@ extension PermissionViewAndButtons {
             }
         }
         
-        func requestPermissions(_ completion: @escaping (Bool) -> Void) {
+        func requestPermissions(_ completion: @escaping (Bool, Bool) -> Void) {
             requestLocationPermission()
-            requestCalendarPermission { granted in
-                completion(granted)
+            requestCalendarPermission { [weak self] granted in
+                if self?.locationManager.authorizationStatus == .denied {
+                    completion(false, granted)
+                } else {
+                    completion(true, granted)
+                }
             }
         }
     }

@@ -131,10 +131,9 @@ extension FetchedItemsView {
         }
         
         private func calculateInitialDistance(for item: DataElement) -> String {
-            guard locationManager.location != nil,
-                  let latitude = item.attributes.latitude,
+            guard let latitude = item.attributes.latitude,
                   let longitude = item.attributes.longitude else {
-                return "Obliczanie..."
+                return ""
             }
             
             let itemLocation = CLLocation(latitude: latitude, longitude: longitude)
@@ -152,7 +151,7 @@ extension FetchedItemsView {
             
             let taskID = UUID()
             let task = Task { [weak self] in
-                guard let self = self, let userLocation = self.locationManager.location else { return }
+                guard let self = self else { return }
                 processingSemaphore.wait()
                 
                 defer {
@@ -162,7 +161,7 @@ extension FetchedItemsView {
                 for item in itemsToProcess {
                     if Task.isCancelled { return }
                     
-                    let locationInformations = await self.calculateDistance(for: item, userLocation: userLocation)
+                    let locationInformations = await self.calculateDistance(for: item)
                     
                     if Task.isCancelled { return }
                     await MainActor.run { [weak self] in
@@ -197,10 +196,16 @@ extension FetchedItemsView {
             currentTasks[taskID] = task
         }
         
-        private func calculateDistance(for item: DataElement, userLocation: CLLocation) async -> (String, Double?, Double?) {
-            var distance: String = "Obliczanie..."
+        private func calculateDistance(for item: DataElement) async -> (String, Double?, Double?) {
+            var distance: String
             var latitude: Double? = nil
             var longitude: Double? = nil
+            
+            if (locationManager.location != nil) {
+                distance = "Obliczanie..."
+            } else {
+                distance = ""
+            }
             
             if let itemLatitude = item.attributes.latitude, let itemLongitude = item.attributes.longitude {
                 let itemLocation = CLLocation(latitude: itemLatitude, longitude: itemLongitude)

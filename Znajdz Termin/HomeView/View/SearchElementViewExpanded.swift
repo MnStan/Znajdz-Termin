@@ -45,7 +45,9 @@ struct SearchElementViewExpanded: View {
             .padding()
             .onAppear {
                 isSearchViewEditing = true
-                pickedVoivodeship = viewModel.getUserVoivodeship()
+                if viewModel.checkPermissions() {
+                    pickedVoivodeship = viewModel.getUserVoivodeship()
+                }
             }
             .onDisappear {
                 isSearchViewEditing = false

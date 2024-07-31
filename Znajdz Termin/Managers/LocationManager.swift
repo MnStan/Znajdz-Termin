@@ -198,8 +198,6 @@ class AppLocationManager: NSObject, LocationManagerProtocol, CLLocationManagerDe
             locationErrorPublished.send(nil)
         case .denied, .restricted:
             locationErrorPublished.send(LocationError.authorizationDenied)
-        case .notDetermined:
-            locationManager.requestWhenInUseAuthorization()
         default:
             locationErrorPublished.send(LocationError.localizationUnknown)
         }
