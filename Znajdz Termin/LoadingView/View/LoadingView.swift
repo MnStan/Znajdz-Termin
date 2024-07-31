@@ -36,6 +36,8 @@ struct LoadingView: View {
             get: {
                 if viewModel.locationError == nil && viewModel.locationWorkDone {
                     return true
+                } else if viewModel.locationError == .authorizationDenied {
+                    return true
                 }
                 return false
             },

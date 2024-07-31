@@ -140,6 +140,15 @@ struct FetchedItemsView: View {
                         .shadow()
                         .frame(maxWidth: .infinity)
                         
+//                        if !viewModel.isNetworkWorkDone {
+//                            ProgressView()
+//                                .task {
+//                                    await viewModel.fetchNextPage()
+//                                }
+//                        }
+                    }
+                }
+                    LazyVStack {
                         if !viewModel.isNetworkWorkDone {
                             ProgressView()
                                 .task {
@@ -147,7 +156,6 @@ struct FetchedItemsView: View {
                                 }
                         }
                     }
-                }
             }
             .onChange(of: selectedItemID) { _, newValue in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {

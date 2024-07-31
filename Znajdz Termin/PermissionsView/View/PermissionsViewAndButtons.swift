@@ -13,6 +13,7 @@ struct PermissionViewAndButtons: View {
     @AppStorage("isFirstLaunch") var isFirstLaunch = true
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.sizeCategory) var sizeCategory
+    @Environment(\.scenePhase) private var scenePhase
     
     @State private var pageIndex = 0
     @State var permissionAsked = false
@@ -44,10 +45,17 @@ struct PermissionViewAndButtons: View {
                 
             } else {
                 Button("Udziel zgód", systemImage: "checkmark.circle.fill") {
-                    viewModel.requestPermissions { granted in
-                        if granted {
+                    viewModel.requestPermissions { location, calendar  in
+                        if calendar, location {
+                            permissions = .full
                             permissionAsked = true
                             isFirstLaunch = false
+                        } else if calendar, !location {
+                            permissions = .onlyCalendar
+                            showingAlert = true
+                        } else if !calendar, location {
+                            permissions = .onlyLocalization
+                            showingAlert = true
                         } else {
                             showingAlert = true
                         }
@@ -57,12 +65,40 @@ struct PermissionViewAndButtons: View {
                 .background(.regularMaterial)
                 .clipShape(Capsule())
                 
-                .alert(Text("Coś poszło nie tak"), isPresented: $showingAlert) {
-                    Button("OK", role: .cancel) { }
+                .alert(Text("Zgody zostały odrzucone"), isPresented: $showingAlert) {
+                    Button("Udziel zgód") {
+                        openSettings()
+                    }
+                    
+                    Button("OK", role: .cancel) {
+                        permissionAsked = true
+                        isFirstLaunch = false
+                    }
                 } message: {
-                    Text("Prosimy spróbuj ponownie")
+                    switch permissions {
+                    case .onlyLocalization:
+                        Text("Aplikacja nie będzie mogła dodać ani pobrać wydarzeń z kalendarza.\n\nMożesz zmienić dostęp do kalendarza w ustawieniach.")
+                    case .onlyCalendar:
+                        Text("Aplikacja nie będzie mogła pobrać lokalizacji.\n\nPodpowiedzi dotyczące województwa będą niedostępne.\n\nMożesz zmienić dostęp do lokalizacji w ustawieniach.")
+                    default:
+                        Text("Aplikacja nie będzie mogła pobrać lokalizacji. Podpowiedzi dotyczące województwa będą niedostępne.\n\nAplikacja nie będzie mogła dodać ani pobrać wydarzeń z kalendarza.\n\nMożesz zmienić dostęp do lokalizacji i kalendarza w ustawieniach.")
+                    }
                 }
 
+            }
+        }
+        .onChange(of: scenePhase) { oldValue, newValue in
+            if newValue == .inactive && oldValue == .background {
+                permissionAsked = true
+                isFirstLaunch = false
+            }
+        }
+    }
+    
+    func openSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         }
     }
