@@ -81,6 +81,9 @@ struct SearchElementView: View {
                 selectedMedicalCase: $selectedMedicalCase
             )
         }
+        .onAppear {
+            isSearchFocused = false
+        }
     }
 }
 

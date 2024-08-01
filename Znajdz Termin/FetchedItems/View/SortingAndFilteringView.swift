@@ -22,7 +22,7 @@ struct SortingAndFilteringView: View {
                     
                     Menu {
                         Picker("Sortowanie", selection: $selectedSorting) {
-                            ForEach(QuerySortingOptions.allCases.filter { if !shouldShowNearVoivodeships { $0 != .distance } else { true } }, id: \.self) { sortingCase in
+                            ForEach(QuerySortingOptions.allCases.filter { if !shouldShowNearVoivodeshipsButton { $0 != .distance } else { true } }, id: \.self) { sortingCase in
                                 Text(sortingCase.description)
                             }
                         }

@@ -13,16 +13,14 @@ extension LoadingView {
     
     class ViewModel: ObservableObject {
         private let locationManager: AppLocationManager
-        private let calendarManager: EventStoreProtocol
         @Published var locationError: LocationError?
         @Published var locationWorkDone = false
         @Published var timeRemaining = 60
         private var cancellables = Set<AnyCancellable>()
         private var timerCancellable: AnyCancellable?
         
-        init(locationManager: any LocationManagerProtocol = AppLocationManager(), calendarManager: EventStoreProtocol = AppCalendarEventManager.shared) {
+        init(locationManager: any LocationManagerProtocol = AppLocationManager()) {
             self.locationManager = locationManager as? AppLocationManager ?? AppLocationManager()
-            self.calendarManager = calendarManager
             
             locationManager.locationErrorPublished
                 .receive(on: DispatchQueue.main)

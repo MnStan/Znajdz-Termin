@@ -11,6 +11,7 @@ import SwiftData
 struct MainView: View {
     @StateObject var locationManager = AppLocationManager()
     @StateObject var networkManager = NetworkManager()
+    @StateObject var calendarManager = AppCalendarEventManager()
     
     @State private var isLoading = true
     var body: some View {
@@ -23,6 +24,7 @@ struct MainView: View {
         }
         .environmentObject(locationManager)
         .environmentObject(networkManager)
+        .environmentObject(calendarManager)
         .modelContainer(for: SearchInput.self)
     }
 }

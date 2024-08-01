@@ -16,6 +16,8 @@ struct DetailItemView: View {
     @ScaledMetric var symbolWidth: CGFloat = 50
     @Environment(\.accessibilityReduceMotion) var isReduceMotionEnabled
     @Binding var isSheetShowing: Bool
+    @State private var shouldShowCalendarSheet = false
+    @EnvironmentObject var calendarManager: AppCalendarEventManager
     
     var body: some View {
         VStack {
@@ -180,7 +182,7 @@ struct DetailItemView: View {
                                 .accessibilityElement(children: .combine)
                                 
                             }
-                            
+                        }
                             
                             if let firstDate = dataElement.queueResult.attributes.dates?.date {
                                 VStack {
@@ -194,10 +196,9 @@ struct DetailItemView: View {
                                 .padding(.top, 3)
                                 .accessibilityElement(children: .combine)
                             }
-                        }
                     } label: {
-                        if providerData != nil && statistics != nil {
-                            Text("Ostatnia aktualizacja: \(providerData!.update)")
+                        if let update = dataElement.queueResult.attributes.dates?.dateSituationAsAt {
+                            Text("Ostatnia aktualizacja: \(update)")
                         } else {
                             Text("")
                         }
@@ -225,12 +226,19 @@ struct DetailItemView: View {
             
             ForEach(viewModel.preparePhoneNumberToDisplay(phoneNumber: dataElement.queueResult.attributes.phone)) { number in
                 GroupBox {
-                    Link("\(number.phoneNumber)", destination: number.urlPhoneNumber)
-                        .foregroundColor(.blue)
-                        .padding()
-                        .accessibilityLabel("Kliknij aby zadzwonić")
+                    Button {
+                        UIApplication.shared.open(number.urlPhoneNumber)
+                        shouldShowCalendarSheet.toggle()
+                    } label: {
+                        Text("\(number.phoneNumber)")
+                            .padding()
+                    }
+                    .accessibilityLabel("Kliknij aby zadzwonić")
                 }
             }
+        }
+        .sheet(isPresented: $shouldShowCalendarSheet) {
+            AddingCalendarEventView(dataElement: dataElement, calendarManager: calendarManager)
         }
     }
 }

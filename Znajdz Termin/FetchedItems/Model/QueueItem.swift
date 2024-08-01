@@ -25,4 +25,6 @@ struct QueueItem: Identifiable {
         self.latitude = latitude
         self.longitude = longitude
     }
+    
+    static let defaultElement = QueueItem(queueResult: .defaultDataElement, distance: "2.25km", latitude: 51.061049, longitude: 19.123617)
 }

@@ -49,7 +49,13 @@
 		F697329E2C182FBF00F87A2C /* LoadingView-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */; };
 		F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69732A02C1830B000F87A2C /* PermissionsEnum.swift */; };
 		F69732A32C183A2100F87A2C /* Voivodeship.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69732A22C183A2100F87A2C /* Voivodeship.swift */; };
+		F6BAA8F32C5A3FDA001AD7D0 /* AddingCalendarEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BAA8F22C5A3FDA001AD7D0 /* AddingCalendarEventView.swift */; };
+		F6BAA8F62C5A45EB001AD7D0 /* AddingCalendarEvent-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BAA8F52C5A45EB001AD7D0 /* AddingCalendarEvent-ViewModel.swift */; };
+		F6BAA8F82C5A53CC001AD7D0 /* CalendarError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BAA8F72C5A53CC001AD7D0 /* CalendarError.swift */; };
+		F6BAA8FC2C5BA379001AD7D0 /* CustomHourPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BAA8FB2C5BA379001AD7D0 /* CustomHourPicker.swift */; };
+		F6BAA8FE2C5BCFF2001AD7D0 /* String+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BAA8FD2C5BCFF2001AD7D0 /* String+ext.swift */; };
 		F6BEAB9B2C297D1400535937 /* SearchElement-ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BEAB9A2C297D1400535937 /* SearchElement-ViewModel.swift */; };
+		F6C31F5E2C5BD81000A86CCC /* Date+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C31F5D2C5BD81000A86CCC /* Date+ext.swift */; };
 		F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */; };
 		F6DCD54F2BEBCDE000AEFA6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */; };
 		F6DCD5522BEBCDE000AEFA6C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F6DCD5512BEBCDE000AEFA6C /* Preview Assets.xcassets */; };
@@ -126,7 +132,13 @@
 		F697329D2C182FBF00F87A2C /* LoadingView-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoadingView-ViewModel.swift"; sourceTree = "<group>"; };
 		F69732A02C1830B000F87A2C /* PermissionsEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsEnum.swift; sourceTree = "<group>"; };
 		F69732A22C183A2100F87A2C /* Voivodeship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Voivodeship.swift; sourceTree = "<group>"; };
+		F6BAA8F22C5A3FDA001AD7D0 /* AddingCalendarEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddingCalendarEventView.swift; sourceTree = "<group>"; };
+		F6BAA8F52C5A45EB001AD7D0 /* AddingCalendarEvent-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AddingCalendarEvent-ViewModel.swift"; sourceTree = "<group>"; };
+		F6BAA8F72C5A53CC001AD7D0 /* CalendarError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarError.swift; sourceTree = "<group>"; };
+		F6BAA8FB2C5BA379001AD7D0 /* CustomHourPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomHourPicker.swift; sourceTree = "<group>"; };
+		F6BAA8FD2C5BCFF2001AD7D0 /* String+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+ext.swift"; sourceTree = "<group>"; };
 		F6BEAB9A2C297D1400535937 /* SearchElement-ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchElement-ViewModel.swift"; sourceTree = "<group>"; };
+		F6C31F5D2C5BD81000A86CCC /* Date+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+ext.swift"; sourceTree = "<group>"; };
 		F6DCD5452BEBCDDE00AEFA6C /* Znajdz Termin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Znajdz Termin.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6DCD5482BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Znajdz_TerminApp.swift; sourceTree = "<group>"; };
 		F6DCD54E2BEBCDE000AEFA6C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -311,6 +323,7 @@
 				F6962C7E2C3304A900CC68D7 /* ShadowModifier.swift */,
 				F6962C802C33069900CC68D7 /* FadeAnimationModifier.swift */,
 				F683E0D12C46D53500CAB1C0 /* FetchingCalculatingLoadingView.swift */,
+				F6BAA8FB2C5BA379001AD7D0 /* CustomHourPicker.swift */,
 			);
 			path = CustomViews;
 			sourceTree = "<group>";
@@ -332,8 +345,34 @@
 				F67FD8242C232E150023F0E3 /* NetworkError.swift */,
 				F6461DD02C242C63003283DD /* URLPathType.swift */,
 				F62674F42C3BE76100439951 /* QuerySortingOptions.swift */,
+				F6BAA8F72C5A53CC001AD7D0 /* CalendarError.swift */,
 			);
 			path = Enums;
+			sourceTree = "<group>";
+		};
+		F6BAA8F02C5A3FBB001AD7D0 /* CalendarEvent */ = {
+			isa = PBXGroup;
+			children = (
+				F6BAA8F42C5A45C9001AD7D0 /* ViewModel */,
+				F6BAA8F12C5A3FCD001AD7D0 /* View */,
+			);
+			path = CalendarEvent;
+			sourceTree = "<group>";
+		};
+		F6BAA8F12C5A3FCD001AD7D0 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F6BAA8F22C5A3FDA001AD7D0 /* AddingCalendarEventView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		F6BAA8F42C5A45C9001AD7D0 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				F6BAA8F52C5A45EB001AD7D0 /* AddingCalendarEvent-ViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		F6DCD53C2BEBCDDE00AEFA6C = {
@@ -360,6 +399,7 @@
 		F6DCD5472BEBCDDE00AEFA6C /* Znajdz Termin */ = {
 			isa = PBXGroup;
 			children = (
+				F6BAA8F02C5A3FBB001AD7D0 /* CalendarEvent */,
 				F677737A2C2DED36002C91EE /* FetchedItems */,
 				F67FD8152C1F70590023F0E3 /* HomeView */,
 				F6F863EF2C1F000E0088EE1A /* Extensions */,
@@ -423,6 +463,8 @@
 				F6F863F02C1F001E0088EE1A /* CLLocation+ext.swift */,
 				F6F863F42C1F09A50088EE1A /* CLLocation2D+ext.swift */,
 				F67FD8292C233FFC0023F0E3 /* CodingStrategy+ext.swift */,
+				F6BAA8FD2C5BCFF2001AD7D0 /* String+ext.swift */,
+				F6C31F5D2C5BD81000A86CCC /* Date+ext.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -558,12 +600,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				F67FD81F2C232D2B0023F0E3 /* NetworkManager.swift in Sources */,
+				F6BAA8F32C5A3FDA001AD7D0 /* AddingCalendarEventView.swift in Sources */,
 				F6962C8D2C36CD6100CC68D7 /* PhoneNumber.swift in Sources */,
 				F677736B2C2CA6A6002C91EE /* MainView.swift in Sources */,
 				F69732A12C1830B000F87A2C /* PermissionsEnum.swift in Sources */,
 				F6DCD5762BEBCF8200AEFA6C /* PermissionsView.swift in Sources */,
 				F6DCD5492BEBCDDE00AEFA6C /* Znajdz_TerminApp.swift in Sources */,
 				F6962C812C33069900CC68D7 /* FadeAnimationModifier.swift in Sources */,
+				F6BAA8FC2C5BA379001AD7D0 /* CustomHourPicker.swift in Sources */,
 				F6F863F72C1F3D1B0088EE1A /* LocationError.swift in Sources */,
 				F6962C7F2C3304A900CC68D7 /* ShadowModifier.swift in Sources */,
 				F67773652C2C9900002C91EE /* SearchElementViewExpanded.swift in Sources */,
@@ -573,8 +617,10 @@
 				F665216D2BEE2265001464A1 /* LocationManager.swift in Sources */,
 				F67FD82A2C233FFC0023F0E3 /* CodingStrategy+ext.swift in Sources */,
 				F665216F2BEE2299001464A1 /* CalendarEventManager.swift in Sources */,
+				F6BAA8F82C5A53CC001AD7D0 /* CalendarError.swift in Sources */,
 				F6461DD12C242C63003283DD /* URLPathType.swift in Sources */,
 				F66977B72C3EA48300A00F83 /* SearchInput.swift in Sources */,
+				F6BAA8FE2C5BCFF2001AD7D0 /* String+ext.swift in Sources */,
 				F6962C792C2DEE5200CC68D7 /* ItemView.swift in Sources */,
 				F6962C7B2C2DFB3F00CC68D7 /* DetailItemView.swift in Sources */,
 				F67FD8252C232E150023F0E3 /* NetworkError.swift in Sources */,
@@ -592,8 +638,10 @@
 				F614F9002BED3689000CA8A7 /* PermissionsViewAndButtons.swift in Sources */,
 				F6962C892C369C4E00CC68D7 /* DetailItemView-ViewModel.swift in Sources */,
 				F6962C852C3438F800CC68D7 /* QueueItem.swift in Sources */,
+				F6C31F5E2C5BD81000A86CCC /* Date+ext.swift in Sources */,
 				F635A0362C05C650000C6715 /* LoadingView.swift in Sources */,
 				F6962C7D2C33032D00CC68D7 /* ButtonModifier.swift in Sources */,
+				F6BAA8F62C5A45EB001AD7D0 /* AddingCalendarEvent-ViewModel.swift in Sources */,
 				F62674F52C3BE76100439951 /* QuerySortingOptions.swift in Sources */,
 				F6BEAB9B2C297D1400535937 /* SearchElement-ViewModel.swift in Sources */,
 				F66977B52C3E978100A00F83 /* FilterOptionView.swift in Sources */,

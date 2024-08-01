@@ -20,7 +20,6 @@ struct FetchedItemsView: View {
     @State var selectedSorting = QuerySortingOptions.date
     @State var selectedFiltering = ""
     @State var shouldShowNearVoivodeships = false
-    @State var shouldShowSortingAndFiltering = false
     @State var isSheetShowing = false
     @State var shouldShowNearVoivodeshipsButton: Bool
     
@@ -125,11 +124,9 @@ struct FetchedItemsView: View {
                             .onTapGesture {
                                 if isReduceMotionEnabled {
                                     selectedItemID = item.id
-                                    shouldShowSortingAndFiltering = false
                                 } else {
                                     withAnimation(.spring(duration: 0.5)) {
                                         selectedItemID = item.id
-                                        shouldShowSortingAndFiltering = false
                                     }
                                 }
                             }
@@ -139,13 +136,6 @@ struct FetchedItemsView: View {
                         }
                         .shadow()
                         .frame(maxWidth: .infinity)
-                        
-//                        if !viewModel.isNetworkWorkDone {
-//                            ProgressView()
-//                                .task {
-//                                    await viewModel.fetchNextPage()
-//                                }
-//                        }
                     }
                 }
                     LazyVStack {
